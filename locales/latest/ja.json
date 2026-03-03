@@ -2384,7 +2384,7 @@
   "time-table-button.tooltip-check-in": "チェックイン",
   "time-table-button.tooltip-check-out": "チェックアウト翌日 で",
   "time-table-modal.bulk": "一括変更",
-  "time-table-modal.callout": "入退室時間の設定をサポートしているチャネルのみ、入力された時間が適用されます。  \n対象チャネル：ここに泊まろう（モーテル）、ヤノラ（モーテル、ホテル、ゲストハウス）、クールステイ（モーテル、ホテル、ペンション）",
+  "time-table-modal.callout": "入退室時間の設定をサポートしているチャネルのみ、入力された時間が適用されます。  \n対象チャネル：Yeogiottae（モーテル）、Yanolja（モーテル、ホテル、ゲストハウス）、Coolstay（モーテル、ホテル、ペンション）",
   "time-table-modal.callout-30-minutes": "30分単位で設定できないチャネルは、次の時間に調整されます。（例：16:30 👉 17:00）",
   "time-table-modal.callout-restriction": "Yanoljaでは、01:00が09:00のチェックイン/チェックアウト時間の設定はサポートしておりません。その時間を選択した場合は、10:00が適用されます。",
   "time-table-modal.check-in": "チェックイン",
