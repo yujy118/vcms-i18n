@@ -1,28 +1,203 @@
-name: Tolgee Connection Test
+name: Tolgee Sync (Daily)
 
 on:
-  workflow_dispatch:
+  schedule:
+    - cron: '0 0 * * *'  # 매일 09:00 KST (UTC 00:00)
+  workflow_dispatch:       # 수동 실행도 가능
+
+permissions:
+  contents: write
 
 jobs:
-  test:
+  sync:
     runs-on: ubuntu-latest
+    env:
+      TOLGEE_API_KEY: ${{ secrets.TOLGEE_API_KEY }}
+      TOLGEE_URL: https://tolgee.internal.vendit.tech
+      TOLGEE_PROJECT_ID: 4
+      TOLGEE_NAMESPACE: vcms
+      SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
+      SLACK_CHANNEL: ${{ secrets.SLACK_CHANNEL }}
+
     steps:
-      - name: Test Tolgee API
-        env:
-          TOLGEE_API_KEY: ${{ secrets.TOLGEE_API_KEY }}
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: pip install requests
+
+      - name: Sync from Tolgee
         run: |
-          echo "Testing Tolgee API connection..."
-          STATUS=$(curl -s -o /dev/null -w "%{http_code}" \
-            -H "X-API-Key: $TOLGEE_API_KEY" \
-            "https://tolgee.internal.vendit.tech/v2/projects/4" \
-            --connect-timeout 10 --max-time 15 2>&1) || STATUS="FAILED"
-          echo "HTTP Status: $STATUS"
-          if [ "$STATUS" = "200" ]; then
-            echo "✅ Tolgee API accessible!"
-            curl -s -H "X-API-Key: $TOLGEE_API_KEY" \
-              "https://tolgee.internal.vendit.tech/v2/projects/4/stats" \
-              --connect-timeout 10 --max-time 15
+          python3 << 'PYEOF'
+          import json, os, requests, datetime
+
+          TOLGEE_URL = os.environ["TOLGEE_URL"]
+          PROJECT_ID = os.environ["TOLGEE_PROJECT_ID"]
+          API_KEY = os.environ["TOLGEE_API_KEY"]
+          NAMESPACE = os.environ["TOLGEE_NAMESPACE"]
+          SLACK_TOKEN = os.environ.get("SLACK_BOT_TOKEN", "")
+          SLACK_CHANNEL = os.environ.get("SLACK_CHANNEL", "")
+
+          LOCALES = "locales/latest"
+          LANGS = ["ko", "en", "ja", "zh", "es"]
+          LANG_FILES = {"ko": "ko.json", "en": "en.json", "ja": "ja.json", "zh": "zh.json", "es": "es.json"}
+
+          headers = {"X-API-Key": API_KEY}
+          today = datetime.date.today().isoformat()
+
+          # === Tolgee에서 번역 키 전체 가져오기 (namespace: vcms) ===
+          print(f"Fetching keys from Tolgee (namespace: {NAMESPACE})...")
+
+          all_keys = {}
+          page = 0
+          while True:
+              resp = requests.get(
+                  f"{TOLGEE_URL}/v2/projects/{PROJECT_ID}/translations",
+                  headers=headers,
+                  params={
+                      "filterNamespace": NAMESPACE,
+                      "languages": ",".join(LANGS),
+                      "size": 100,
+                      "page": page,
+                  },
+                  timeout=30
+              )
+              data = resp.json()
+
+              embedded = data.get("_embedded", {}).get("keys", [])
+              if not embedded:
+                  break
+
+              for item in embedded:
+                  key_name = item.get("keyName", "")
+                  translations = item.get("translations", {})
+                  all_keys[key_name] = {}
+                  for lang in LANGS:
+                      t = translations.get(lang, {})
+                      text = t.get("text", "")
+                      all_keys[key_name][lang] = text if text else ""
+
+              # pagination
+              page_info = data.get("page", {})
+              total_pages = page_info.get("totalPages", 1)
+              page += 1
+              if page >= total_pages:
+                  break
+
+          print(f"Fetched {len(all_keys)} keys from Tolgee")
+
+          if len(all_keys) == 0:
+              print("No keys found, exiting")
+              exit(0)
+
+          # === 기존 locales/latest 로드 ===
+          existing = {}
+          for lang, fname in LANG_FILES.items():
+              path = f"{LOCALES}/{fname}"
+              if os.path.exists(path):
+                  existing[lang] = json.load(open(path, encoding="utf-8"))
+              else:
+                  existing[lang] = {}
+
+          # === 새 키 감지 ===
+          existing_ko_keys = set(existing.get("ko", {}).keys())
+          tolgee_keys = set(all_keys.keys())
+          new_keys = tolgee_keys - existing_ko_keys
+          removed_keys = existing_ko_keys - tolgee_keys
+
+          print(f"Existing keys: {len(existing_ko_keys)}")
+          print(f"Tolgee keys: {len(tolgee_keys)}")
+          print(f"New keys: {len(new_keys)}")
+          print(f"Removed keys: {len(removed_keys)}")
+
+          if len(new_keys) == 0:
+              print("No new keys, skipping update")
+
+              # Slack 알림 (변경 없음)
+              if SLACK_TOKEN and SLACK_CHANNEL:
+                  requests.post(
+                      "https://slack.com/api/chat.postMessage",
+                      headers={"Authorization": f"Bearer {SLACK_TOKEN}", "Content-Type": "application/json"},
+                      json={
+                          "channel": SLACK_CHANNEL,
+                          "text": f"\u2705 Tolgee 동기화 완료 ({today})\n새 키 없음. 현재 {len(tolgee_keys)}키 동기화 상태."
+                      }
+                  )
+              exit(0)
+
+          # === locales/latest 업데이트 ===
+          os.makedirs(LOCALES, exist_ok=True)
+
+          for lang, fname in LANG_FILES.items():
+              lang_data = {}
+              # Tolgee 데이터로 전체 교체 (Tolgee가 원본)
+              for key in sorted(all_keys.keys()):
+                  val = all_keys[key].get(lang, "")
+                  if val:
+                      lang_data[key] = val
+                  elif lang == "ko":
+                      # ko는 빈 값이라도 키 유지
+                      lang_data[key] = existing.get("ko", {}).get(key, "")
+
+              path = f"{LOCALES}/{fname}"
+              with open(path, "w", encoding="utf-8") as f:
+                  json.dump(lang_data, f, ensure_ascii=False, indent=2)
+              print(f"Updated {path}: {len(lang_data)} keys")
+
+          # === 일자별 스냅샷 ===
+          snapshot_dir = f"locales/{today}"
+          os.makedirs(snapshot_dir, exist_ok=True)
+          for lang, fname in LANG_FILES.items():
+              src = f"{LOCALES}/{fname}"
+              dst = f"{snapshot_dir}/{fname}"
+              if os.path.exists(src):
+                  import shutil
+                  shutil.copy2(src, dst)
+          print(f"Snapshot saved: {snapshot_dir}")
+
+          # === Slack 알림 ===
+          if SLACK_TOKEN and SLACK_CHANNEL:
+              new_keys_sample = sorted(list(new_keys))[:10]
+              sample_text = "\n".join([f"• `{k}` → {all_keys[k].get('ko', '?')}" for k in new_keys_sample])
+              if len(new_keys) > 10:
+                  sample_text += f"\n... 외 {len(new_keys) - 10}건"
+
+              blocks = [
+                  {"type": "header", "text": {"type": "plain_text", "text": "\U0001f504 Tolgee 동기화 완료", "emoji": True}},
+                  {"type": "section", "text": {"type": "mrkdwn", "text": (
+                      f"*날짜:* {today}\n"
+                      f"*총 키:* {len(tolgee_keys)}개\n"
+                      f"*새 키:* {len(new_keys)}건\n"
+                      f"*삭제된 키:* {len(removed_keys)}건\n\n"
+                      f"*새 키 샘플:*\n{sample_text}"
+                  )}},
+              ]
+
+              requests.post(
+                  "https://slack.com/api/chat.postMessage",
+                  headers={"Authorization": f"Bearer {SLACK_TOKEN}", "Content-Type": "application/json"},
+                  json={
+                      "channel": SLACK_CHANNEL,
+                      "blocks": blocks,
+                      "text": f"\U0001f504 Tolgee 동기화: 새 키 {len(new_keys)}건"
+                  }
+              )
+
+          print("Sync complete")
+          PYEOF
+
+      - name: Commit changes
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add locales/
+          if git diff --staged --quiet; then
+            echo "No changes to commit"
           else
-            echo "❌ Cannot reach Tolgee ($STATUS)"
-            echo "Internal network not accessible from GitHub Actions"
+            DATE=$(date +%Y-%m-%d)
+            git commit -m "sync: Tolgee → locales ($DATE)"
+            git push
           fi
