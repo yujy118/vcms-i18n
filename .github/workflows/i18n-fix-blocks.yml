@@ -85,6 +85,7 @@ jobs:
           "
 
       - name: Create PR
+        id: pr
         if: ${{ steps.count.outputs.total != '0' && inputs.dry_run == false }}
         run: |
           BRANCH="fix/qa-blocks-$(date +%Y%m%d-%H%M)"
@@ -93,14 +94,11 @@ jobs:
           git checkout -b "$BRANCH"
           git add locales/latest/
           git diff --cached --quiet && echo "No changes" && exit 0
-          git commit -m "fix(i18n): retranslate QA BLOCK keys
-
-          - Auto-retranslated keys flagged as BLOCK by qa_check
-          - Please review diff carefully before merge"
+          git commit -m "fix(i18n): retranslate QA BLOCK keys"
           git push origin "$BRANCH"
 
-          # Create PR via GitHub API
-          PR_BODY=$(python3 -c "
+          # Build PR body
+          python3 << 'BODYEOF' > /tmp/pr-body.md
           import json, os
           report = {}
           rp = 'locales/latest/.fix-report.json'
@@ -110,49 +108,93 @@ jobs:
           after_p = 'locales/latest/.qa-report-after.json'
           ab = 0
           if os.path.exists(after_p):
-            after = json.load(open(after_p))
-            ab = len([i for i in after if i['severity']=='BLOCK'])
+              after = json.load(open(after_p))
+              ab = len([i for i in after if i['severity']=='BLOCK'])
           body = f'## QA BLOCK 재번역\n\n'
           body += f'- BLOCK: {bb} → {ab} ({bb-ab} fixed)\n'
-          body += f'- Total changed: {report.get(\"fixed\", 0)} keys\n\n'
+          body += f'- Total changed: {report.get("fixed", 0)} keys\n\n'
           body += '### 언어별\n'
           for lang, info in report.get('languages', {}).items():
-            body += f'- **{lang}**: {info[\"changed\"]}/{info[\"keys\"]} keys changed\n'
-          body += '\n---\n⚠️ **반드시 diff 확인 후 merge 해주세요.**\n'
-          body += '특히 HTML 태그(\`<bold>\`, \`<1>\` 등)와 플레이스홀더(\`{변수}\`)가 보존되었는지 확인.'
+              body += f'- **{lang}**: {info["changed"]}/{info["keys"]} keys changed\n'
+          body += '\n---\n'
+          body += '⚠️ **반드시 diff 확인 후 merge 해주세요.**\n'
+          body += '특히 HTML 태그(`<bold>`, `<1>` 등)와 플레이스홀더(`{변수}`)가 보존되었는지 확인.'
           print(body)
-          ")
+          BODYEOF
 
-          curl -s -X POST \
+          # Create PR and capture URL
+          PR_RESPONSE=$(curl -s -X POST \
             -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
             -H "Accept: application/vnd.github.v3+json" \
             "https://api.github.com/repos/${{ github.repository }}/pulls" \
             -d "$(python3 -c "
           import json
+          body = open('/tmp/pr-body.md').read().strip()
           print(json.dumps({
             'title': 'fix(i18n): QA BLOCK 재번역',
             'head': '$BRANCH',
             'base': 'main',
-            'body': '''$PR_BODY''',
+            'body': body,
           }))
-          ")"
+          ")")
+
+          PR_URL=$(echo "$PR_RESPONSE" | python3 -c "import sys,json; print(json.load(sys.stdin).get('html_url',''))")
+          PR_NUM=$(echo "$PR_RESPONSE" | python3 -c "import sys,json; print(json.load(sys.stdin).get('number',''))")
+          echo "pr_url=$PR_URL" >> "$GITHUB_OUTPUT"
+          echo "pr_num=$PR_NUM" >> "$GITHUB_OUTPUT"
+          echo "PR created: $PR_URL"
 
       - name: Slack notify
         if: ${{ steps.count.outputs.total != '0' && inputs.dry_run == false }}
         run: |
-          python3 -c "
+          python3 << 'SLACKEOF'
           import json, os, urllib.request
+
           TOKEN = os.environ.get('SLACK_BOT_TOKEN','')
           CHANNEL = os.environ.get('SLACK_CHANNEL','')
           if not TOKEN or not CHANNEL: exit(0)
+
+          PR_URL = "${{ steps.pr.outputs.pr_url }}"
+          PR_NUM = "${{ steps.pr.outputs.pr_num }}"
+          RUN_URL = "https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+
           report = {}
           rp = 'locales/latest/.fix-report.json'
           if os.path.exists(rp): report = json.load(open(rp))
+
+          before = json.load(open('locales/latest/.qa-report.json'))
+          bb = len([i for i in before if i['severity']=='BLOCK'])
+          after_p = 'locales/latest/.qa-report-after.json'
+          ab = 0
+          if os.path.exists(after_p):
+              after = json.load(open(after_p))
+              ab = len([i for i in after if i['severity']=='BLOCK'])
+
           fixed = report.get('fixed', 0)
-          text = f'🔧 QA BLOCK 재번역 PR 생성: {fixed}건 수정\nPR에서 diff 확인 후 merge 해주세요.'
-          body = json.dumps({'channel': CHANNEL, 'text': text}).encode()
-          req = urllib.request.Request('https://slack.com/api/chat.postMessage', data=body,
-            headers={'Content-Type':'application/json;charset=utf-8','Authorization':f'Bearer {TOKEN}'})
-          urllib.request.urlopen(req, timeout=30)
-          print('Slack OK')
-          "
+          langs_detail = ""
+          for lang, info in report.get('languages', {}).items():
+              langs_detail += f"  • *{lang}*: {info['changed']}/{info['keys']}건 변경\n"
+
+          blocks = [
+              {"type": "header", "text": {"type": "plain_text", "text": "🔧 QA BLOCK 재번역 PR"}},
+              {"type": "section", "fields": [
+                  {"type": "mrkdwn", "text": f"*BLOCK:* {bb} → {ab} ({bb-ab} fixed)"},
+                  {"type": "mrkdwn", "text": f"*변경:* {fixed}건"},
+              ]},
+              {"type": "section", "text": {"type": "mrkdwn", "text": f"*언어별:*\n{langs_detail}"}},
+              {"type": "divider"},
+              {"type": "section", "text": {"type": "mrkdwn", "text": "⚠️ *diff 확인 후 merge 해주세요*\nHTML 태그, 플레이스홀더 보존 여부 꼭 확인!"}},
+              {"type": "actions", "elements": [
+                  {"type": "button", "text": {"type": "plain_text", "text": "📋 PR 리뷰하기"}, "url": PR_URL, "style": "primary"},
+                  {"type": "button", "text": {"type": "plain_text", "text": "📜 실행 로그"}, "url": RUN_URL},
+              ]},
+          ]
+
+          payload = json.dumps({"channel": CHANNEL, "blocks": blocks,
+              "text": f"🔧 QA BLOCK 재번역 PR #{PR_NUM}: {fixed}건 수정"}).encode()
+          req = urllib.request.Request('https://slack.com/api/chat.postMessage', data=payload,
+              headers={'Content-Type':'application/json;charset=utf-8','Authorization':f'Bearer {TOKEN}'})
+          resp = urllib.request.urlopen(req, timeout=30)
+          d = json.loads(resp.read())
+          print("Slack OK" if d.get("ok") else f"Slack err: {d.get('error')}")
+          SLACKEOF
