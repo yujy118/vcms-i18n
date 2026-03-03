@@ -5,6 +5,7 @@ on:
     paths:
       - 'locales/latest/*.json'
     branches: [main]
+  workflow_dispatch:
 
 permissions:
   contents: read
