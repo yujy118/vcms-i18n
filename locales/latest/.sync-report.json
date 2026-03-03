@@ -1,0 +1,27 @@
+{
+  "source_keys": 2656,
+  "engine": "gemini-2.5-flash",
+  "cost": "$0.00",
+  "languages": {
+    "en": {
+      "keys": 2656,
+      "coverage": "100.0%",
+      "translated": 0
+    },
+    "ja": {
+      "keys": 2656,
+      "coverage": "100.0%",
+      "translated": 0
+    },
+    "zh": {
+      "keys": 2656,
+      "coverage": "100.0%",
+      "translated": 0
+    },
+    "es": {
+      "keys": 2656,
+      "coverage": "100.0%",
+      "translated": 0
+    }
+  }
+}
