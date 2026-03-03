@@ -143,7 +143,7 @@ def fix_blocks(qa_path):
     for lang, keys in block_keys.items():
         print(f"  {lang}: {len(keys)} keys")
 
-    report = {"fixed": 0, "languages": {}}
+    report = {"fixed": 0, "languages": {}, "details": {}}
 
     for lang, keys in block_keys.items():
         print(f"\n--- {lang}: {len(keys)} BLOCK keys ---")
@@ -166,6 +166,9 @@ def fix_blocks(qa_path):
             print("  No keys to translate")
             continue
 
+        # Save before values
+        before_vals = {k: data.get(k, "") for k in source}
+
         # Show before values
         print(f"  Retranslating {len(source)} keys...")
         for k in list(source.keys())[:5]:
@@ -175,19 +178,26 @@ def fix_blocks(qa_path):
         # Translate
         translated = translate_batch(source, lang, glossary, prompt_tpl)
 
-        # Apply
+        # Apply and track changes
         changed = 0
+        lang_details = []
         for k, new_val in translated.items():
-            old_val = data.get(k, "")
+            old_val = before_vals.get(k, "")
             if old_val != new_val:
                 data[k] = new_val
                 changed += 1
+                lang_details.append({
+                    "key": k,
+                    "before": old_val[:200],
+                    "after": new_val[:200],
+                })
 
         # Save (preserve key order from ko.json)
         ordered = {k: data[k] for k in ko if k in data}
         save_json(path, ordered)
         print(f"  Changed: {changed}/{len(source)} keys")
         report["languages"][lang] = {"keys": len(source), "changed": changed}
+        report["details"][lang] = lang_details
         report["fixed"] += changed
 
     # Save fix report
