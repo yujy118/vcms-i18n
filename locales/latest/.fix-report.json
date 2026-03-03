@@ -1,0 +1,21 @@
+{
+  "fixed": 93,
+  "languages": {
+    "en": {
+      "keys": 47,
+      "changed": 47
+    },
+    "ja": {
+      "keys": 11,
+      "changed": 11
+    },
+    "zh": {
+      "keys": 8,
+      "changed": 8
+    },
+    "es": {
+      "keys": 27,
+      "changed": 27
+    }
+  }
+}
