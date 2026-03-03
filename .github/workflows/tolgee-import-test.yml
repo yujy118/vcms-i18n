@@ -1,0 +1,80 @@
+name: Tolgee Import Test
+
+on:
+  workflow_dispatch:
+    inputs:
+      key:
+        description: "Key name"
+        required: true
+      en:
+        description: "English"
+        required: false
+      ja:
+        description: "Japanese"
+        required: false
+      zh:
+        description: "Chinese"
+        required: false
+      es:
+        description: "Spanish"
+        required: false
+
+jobs:
+  import:
+    runs-on: ubuntu-latest
+    env:
+      TOLGEE_API_KEY: ${{ secrets.TOLGEE_API_KEY }}
+      TOLGEE_URL: https://tolgee.internal.vendit.tech
+      TOLGEE_PROJECT_ID: 4
+      TOLGEE_NAMESPACE: vcms
+
+    steps:
+      - name: Install requests
+        run: pip install requests
+
+      - name: Import to Tolgee
+        env:
+          INPUT_KEY: ${{ github.event.inputs.key }}
+          INPUT_EN: ${{ github.event.inputs.en }}
+          INPUT_JA: ${{ github.event.inputs.ja }}
+          INPUT_ZH: ${{ github.event.inputs.zh }}
+          INPUT_ES: ${{ github.event.inputs.es }}
+        run: |
+          python3 -c "
+          import requests, json, os
+
+          URL = os.environ['TOLGEE_URL']
+          PID = os.environ['TOLGEE_PROJECT_ID']
+          API = os.environ['TOLGEE_API_KEY']
+          NS  = os.environ['TOLGEE_NAMESPACE']
+          hdrs = {'X-API-Key': API, 'Content-Type': 'application/json'}
+
+          key_name = os.environ['INPUT_KEY']
+          translations = {}
+          for lang, var in [('en','INPUT_EN'),('ja','INPUT_JA'),('zh','INPUT_ZH'),('es','INPUT_ES')]:
+              v = os.environ.get(var, '').strip()
+              if v: translations[lang] = v
+
+          print(f'Key: {key_name}')
+          print(f'Translations: {json.dumps(translations, ensure_ascii=False)}')
+
+          # search key
+          resp = requests.get(f'{URL}/v2/projects/{PID}/translations',
+              headers=hdrs,
+              params={'filterKeyName': key_name, 'filterNamespace': NS, 'size': 1})
+          data = resp.json()
+          keys = data.get('_embedded', {}).get('keys', [])
+
+          if keys:
+              kid = keys[0]['keyId']
+              print(f'Key found: id={kid}')
+              for lang, text in translations.items():
+                  r = requests.put(f'{URL}/v2/projects/{PID}/translations',
+                      headers=hdrs,
+                      json={'key': key_name, 'namespace': NS, 'translations': {lang: text}})
+                  print(f'  {lang}: {r.status_code} {r.text[:200]}')
+          else:
+              print('Key NOT found in Tolgee')
+
+          print('Done!')
+          "
