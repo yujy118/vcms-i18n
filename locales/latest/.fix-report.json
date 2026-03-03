@@ -1,0 +1,496 @@
+{
+  "fixed": 93,
+  "languages": {
+    "en": {
+      "keys": 47,
+      "changed": 47
+    },
+    "ja": {
+      "keys": 11,
+      "changed": 11
+    },
+    "zh": {
+      "keys": 8,
+      "changed": 8
+    },
+    "es": {
+      "keys": 27,
+      "changed": 27
+    }
+  },
+  "details": {
+    "en": [
+      {
+        "key": "ONBOARDING.CHANNELS.success",
+        "before": "Accommodation setup is complete.",
+        "after": "Property setup has been completed."
+      },
+      {
+        "key": "change-payment-date-modal.summary.subscription-fee",
+        "before": "Recurring {type, select, YEARLY {Annual} other {Monthly}} Subscription Fee",
+        "after": "Recurring {type, select, YEARLY {annual} other {monthly}} Subscription fee"
+      },
+      {
+        "key": "charge-copy-popover.equalize-charge",
+        "before": "Copy Same Rate ( {currencySymbol}).",
+        "after": "Copy with the same Rate (<price></price> {currencySymbol})"
+      },
+      {
+        "key": "create-accommodation.select-accommodation.title",
+        "before": "Select My Accommodation",
+        "after": "There are <highlight>{count}</highlight> search results for <highlight>{keyword}</highlight>.\nPlease select the Property you operate."
+      },
+      {
+        "key": "delete-inclusion-modal-modal.description",
+        "before": "Are you sure you want to delete the {name} inclusion? \nDeleting it will remove this service from all packages.",
+        "after": "Are you sure you want to delete the <bold>{name}</bold> Inclusion?\nUpon deletion, the Inclusion will be removed from all Packages."
+      },
+      {
+        "key": "delete-package-modal.description",
+        "before": "Are you sure you want to delete the {name} package? \nDeleting it will disable inventory and rate adjustments for connected channel packages.",
+        "after": "Are you sure you want to delete the <bold>{name}</bold> Package?\nUpon deletion, Inventory and Rate adjustments for Channel Packages connected to this Package will not function."
+      },
+      {
+        "key": "delete-periods-modal-modal.description",
+        "before": "Are you sure you want to delete the {name} period? \nDeleting it will remove this period from all rate plans.",
+        "after": "Are you sure you want to delete the <bold>{name}</bold> period?\nUpon deletion, the period will be removed from all Packages."
+      },
+      {
+        "key": "delete-room-type-modal.description",
+        "before": "Are you sure you want to delete the {name} room type? \nDeleting it will also remove the connected packages.",
+        "after": "Are you sure you want to delete the <bold>{name}</bold> Room Type?\nUpon deletion, Packages connected to this Room Type will also be deleted."
+      },
+      {
+        "key": "delete-time-table-modal.description",
+        "before": "Are you sure you want to delete the {name} timetable?\nIf deleted, all packages using this timetable will revert \nto the default check-in/out times.\n",
+        "after": "Are you sure you want to delete the <bold>{name}</bold> selling schedule?\nUpon deletion, Check-in/Check-out times for all Packages using this schedule will be changed to the default schedule."
+      },
+      {
+        "key": "dropdown-avatar.label.contact-customer-support",
+        "before": "Feedback",
+        "after": "Contact customer support"
+      },
+      {
+        "key": "integration-modal.guide.label",
+        "before": "Accommodation ID Example\n",
+        "after": "Property ID Example"
+      },
+      {
+        "key": "inventory.floating-message.sold-out",
+        "before": "Sold Out",
+        "after": "Sold"
+      },
+      {
+        "key": "management-payment-info",
+        "before": "{isYearsType, plural,\nother {'{isYearsType, plural, =1 {Annual Payment (every year on {month}/{day}) other {Monthly Payment (every month on {month}/{day}}}'}\n}",
+        "after": "{isYearsType, plural,\n=1 {Annual Payment (every {month} {day})}\nother {Monthly Payment (every {day} of the month)}\n}"
+      },
+      {
+        "key": "modification-channel-package.title",
+        "before": "Map {count} channel packages to your packages.",
+        "after": "There are <1>{count}</1> {channelName} Channel Packages registered to <1>{property}</1>.\nPlease connect the {channelName} Channel Package to a CMS Package."
+      },
+      {
+        "key": "modification-channel-properties.title",
+        "before": "<primary>{name}</primary> account connection completed. \nSelect all stores to link.",
+        "after": "There are <primary>{count}</primary> Properties available for Connect from <primary>{name}</primary>.\nPlease select all Properties to Connect."
+      },
+      {
+        "key": "onboarding.channels.select-property.preview.connect-channel",
+        "before": "Connected Accommodation",
+        "after": "Connected Property"
+      },
+      {
+        "key": "onboarding.channels.select-property.preview.disconnect-channel",
+        "before": "Available Accommodations",
+        "after": "Properties available for Connect"
+      },
+      {
+        "key": "onboarding.packages.preview.description",
+        "before": "Accommodations that sell at least one additional packages per room type generate \napproximately <semibold>34.8%</semibold> higher revenue compared to those selling only default room types.",
+        "after": "Compared to Properties that only sell basic Room Types, Properties that create and sell one or more Packages under a Room Type have approximately <semibold>34.8%</semibold> higher sales."
+      },
+      {
+        "key": "package-form.rate-type.obp-base.extra-adult-charge",
+        "before": "Fee per extra guest",
+        "after": "Rate per extra adult"
+      },
+      {
+        "key": "package-modification-summary.only-package",
+        "before": "Create the package { name } for the room type { roomTypeName }.",
+        "after": "<1>A <bold>{name}</bold> Package will be created for the <bold>{roomTypeName}</bold> Room Type.</1>"
+      },
+      {
+        "key": "package-modification-summary.with-rate-plan",
+        "before": "{totalCharge, plural,\nother {<1>Create the { name } package for the { roomTypeName } room type .\nThe total charge is {totalCharge}.</1>\n<2>Inclusion Rate {inclusionsCharge}, {rateCharge, plural, =0 {}",
+        "after": "{totalCharge, plural,\nother {<1>A <bold>{name}</bold> Package will be created for the <bold>{roomTypeName}</bold> Room Type.\nThe total Rate is <bold>{totalCharge}</bold>.</1>\n<2>{inclusionsCharge, plu"
+      },
+      {
+        "key": "package-multiplier-alert.body",
+        "before": "The package { name } added.\nWould you like to set additional rates for this package?",
+        "after": "<1>{name}</1> Package has been added.\nWould you like to set up additional Rate adjustments per Channel for this Package?"
+      },
+      {
+        "key": "package-table.room-type",
+        "before": "{count, plural, =1 {{roomType} (1 Package included)} other {{roomType} ({count} Packages included)}}",
+        "after": "{roomType} ({count} Packages included)"
+      },
+      {
+        "key": "package.badge.extra-adult-charge-zero",
+        "before": "No Extra Guest Fee",
+        "after": "No extra adult Rate"
+      },
+      {
+        "key": "package.badge.obp-tooltip.extra-adult-charge-zero",
+        "before": "Base occupancy {baseOccupancy}, Max occupancy {maxOccupancy}\nNo Extra Guest Fee",
+        "after": "Base occupancy {baseOccupancy} persons, Max occupancy {maxOccupancy} persons\nNo extra adult Rate"
+      },
+      {
+        "key": "payment-option.MONTHLY.name",
+        "before": "Subscription Fee",
+        "after": "Monthly Subscription fee"
+      },
+      {
+        "key": "payment-option.YEARLY.name",
+        "before": "Subscription Fee",
+        "after": "Annual Subscription fee"
+      },
+      {
+        "key": "rate-plan-form.rate-type.obp-base.extra-adult-charge",
+        "before": "Extra Guest Fee",
+        "after": "Extra adult Rate"
+      },
+      {
+        "key": "rate-plan-table.room-type",
+        "before": "{count, plural, =1 {{roomType} (1 Package included)} other {{roomType} ({count} Packages included)}}",
+        "after": "{roomType} ({count} Packages included)"
+      },
+      {
+        "key": "refill.chip",
+        "before": "Auto Top-up to {value}\n",
+        "after": "Inventory auto-refill {refill}"
+      },
+      {
+        "key": "setting-rate-header.charge.asc",
+        "before": "Lowest Price",
+        "after": "[ERROR:en] 낮은 요금순"
+      },
+      {
+        "key": "setting-rate-header.charge.desc",
+        "before": "Highest Price",
+        "after": "[ERROR:en] 높은 요금순"
+      },
+      {
+        "key": "subscription-modal.content.free-trial.callout",
+        "before": "Free trial ends in <1>{remainingDays}</1> days. \nNo charge until <1>{date}</1>.",
+        "after": "[ERROR:en] 무료 체험이 <1>{remainingDays}</1>일 후 종료됩니다.\n<1>{expiredAt}</1>까지 요금이 청구되지 않습니다."
+      },
+      {
+        "key": "subscription-modal.summary.subscription-fee",
+        "before": "Total Recurring {type, select, YEARLY {Annual} other {Monthly}} Subscription Fee",
+        "after": "[ERROR:en] 정기 {type, select, YEARLY {연간} other {월간}} 구독료 합계"
+      },
+      {
+        "key": "subscription-prompt.modal.footer.tooltip.first-payment-both",
+        "before": "Annual Payment (Includes {yearDuration} Days Starting Today) {yearPrice}\nMonthly Payment (Includes {monthDuration} Days Starting Today) {monthPrice}",
+        "after": "[ERROR:en] 연간 결제 (오늘 포함 {yearDuration}일치) {yearPrice}\n월간 결제 (오늘 포함 {monthDuration}일치) {monthPrice}"
+      },
+      {
+        "key": "subscription-prompt.modal.footer.tooltip.first-payment-month",
+        "before": "Monthly Payment (Includes {monthDuration} Days Starting Today) {monthPrice}",
+        "after": "[ERROR:en] 월간 결제 (오늘 포함 {monthDuration}일치) {monthPrice}"
+      },
+      {
+        "key": "subscription-prompt.modal.footer.tooltip.first-payment-year",
+        "before": "Annual Payment (Includes {yearDuration} days from today) {yearPrice}",
+        "after": "[ERROR:en] 연간 결제 (오늘 포함 {yearDuration}일치) {yearPrice}"
+      },
+      {
+        "key": "subscription-service-detail-modal.inventory-and-rate-per-room.subscription-fee",
+        "before": "Up to {baseQuantity} rooms {baseFee} / {additionalFee} per additional room",
+        "after": "[ERROR:en] 기본 {baseQuantity}객실까지 {baseFee} / 추가 객실 1개당 {additionalFee}"
+      },
+      {
+        "key": "subscription-service-detail-modal.inventory-per-room.subscription-fee",
+        "before": "Up to {baseQuantity} rooms {baseFee} / {additionalFee} per additional room",
+        "after": "[ERROR:en] 기본 {baseQuantity}객실까지 {baseFee} / 추가 객실 1개당 {additionalFee}"
+      },
+      {
+        "key": "subscription-service-detail-modal.notification-per-alarm.subscription-fee",
+        "before": "1 included / {additionalFee} per additional contact",
+        "after": "[ERROR:en] 기본 1개 제공 / 추가 1개당 {additionalFee}"
+      },
+      {
+        "key": "subscription-service-detail-modal.subscription-fee",
+        "before": "{type, select, YEARLY {Annual} other {Monthly}} Subscription Fee Total",
+        "after": "[ERROR:en] {type, select, YEARLY {연간} other {월간}} 구독료 합계"
+      },
+      {
+        "key": "subscription-service.next-payment",
+        "before": "{month, plural,\n=0 {Recurring monthly charge on the <strong>{day}</strong>}\nother {Recurring an annual on the <strong>{month} {day}</strong>.}\n}",
+        "after": "[ERROR:en] {month, plural,\n=0 {매월 <strong>{day}</strong> 일 결제}\nother {매년 <strong>{month}</strong> 월 <strong>{day}</strong> 일 결제}\n}"
+      },
+      {
+        "key": "terms.service",
+        "before": "Article 1 (Purpose)\nThese Terms and Conditions define the rights, obligations, and responsibilities of Vendit Co., Ltd. (“the Company”) and users (“Users”) regarding the use of the Vendit Channel Mana",
+        "after": "[ERROR:en] 제1조(목적)\n이 약관은 주식회사 벤디트(이하 “회사”)가 제공하는 CMS(Vendit Chanel Management System, 온라인, 모바일 또는 어플리케이션을 포함하며, 이하 “솔루션”)를 이용함에 있어 회사와 이용자의 권리ᆞ의무 및 책임 기타 제반사항을 규정함을 목적으로 합니다.\n\n\n제2조(정의)\n이 약관에서 사용하는 용어의"
+      },
+      {
+        "key": "update-batch-modal.preview.change-to",
+        "before": "Change to { value }",
+        "after": "[ERROR:en] {updateItem} {value}으로 변경"
+      },
+      {
+        "key": "update-batch-modal.preview.label.more",
+        "before": "{label} and {countExcludeOne} items",
+        "after": "[ERROR:en] {label} 외 {count}개"
+      },
+      {
+        "key": "update-inclusion-modal.description",
+        "before": "Do you want to edit the {name} service? \nEditing it will also update all connected packages.",
+        "after": "[ERROR:en] <bold>{name}</bold> 서비스를 수정하시겠습니까?\n수정 시, 해당 서비스를 포함한 상품도 일괄 변경됩니다."
+      },
+      {
+        "key": "update-package-modal.propagate.unsynced.callout-1",
+        "before": "Reservations will still sync, but sales status, availability, and rates may differ from the connected channels.",
+        "after": "[ERROR:en] 동기화를 중지해도 예약은 연동되지만, 판매 상태, 잔여 객실,\n요금 정보가 채널과 다를 수 있습니다."
+      }
+    ],
+    "ja": [
+      {
+        "key": "COUNTRY",
+        "before": "{国コード, 国名}",
+        "after": "{countryCode, countryName}"
+      },
+      {
+        "key": "create-accommodation.select-accommodation.title",
+        "before": "運営している宿泊施設を選択してください。",
+        "after": "<highlight>{keyword}</highlight>関連の<highlight>{count}</highlight>件の検索結果です。\n運営されている宿泊施設を選択してください。"
+      },
+      {
+        "key": "delete-inclusion-modal-modal.description",
+        "before": "<b>{name}</b> サービスを削除してもよろしいですか？  \n削除すると、全てのプランからこのサービスが一括で削除されます。",
+        "after": "<bold>{name}</bold>インクルージョンを削除しますか？\n削除すると、パッケージからそのインクルージョンが一括削除されます。"
+      },
+      {
+        "key": "delete-package-modal.description",
+        "before": "<b>{name}</b>プランを削除しますか？  \n削除すると、関連するチャネルプランの在庫および料金調整が無効になります。",
+        "after": "<bold>{name}</bold>パッケージを削除しますか？\n削除すると、パッケージと連携されたチャネルパッケージの在庫および料金調整が機能しなくなります。"
+      },
+      {
+        "key": "delete-periods-modal-modal.description",
+        "before": "<strong>{name}</strong>の期間を削除しますか？  \n削除すると、全ての料金プランからこの期間が一括で削除されます。",
+        "after": "<bold>{name}</bold>期間を削除しますか？\n削除すると、パッケージからその期間が一括削除されます。"
+      },
+      {
+        "key": "delete-room-type-modal.description",
+        "before": "<b>{name}</b>の客室タイプを削除しますか？削除すると、その客室タイプに関連付けられたプランも同時に削除されます。",
+        "after": "<bold>{name}</bold>客室タイプを削除しますか？\n削除すると、客室タイプに連携されたパッケージも一緒に削除されます。"
+      },
+      {
+        "key": "delete-time-table-modal.description",
+        "before": "<b>{name}</b>の販売時間帯を削除しますか？  \n削除すると、この時間帯を利用しているすべてのプランの  \nチェックイン/チェックアウト時間がデフォルトの時間に戻ります。",
+        "after": "<bold>{name}</bold>販売時間表を削除しますか？\n削除すると、この時間表を使用するすべてのパッケージの\nチェックイン/チェックアウト時間が基本時間表に変更されます。"
+      },
+      {
+        "key": "package-modification-summary.with-rate-plan",
+        "before": "{totalCharge, plural,\nother {<1><bold>{ roomTypeName }</bold>客室タイプに対して<bold>{ name }</bold>パッケージを作成します。\n合計料金は<bold>{totalCharge}</bold>です。</1>\n<2>サービス料金 {inclusionsCharge}, {rateCharge, plural, =0 {} ",
+        "after": "{totalCharge, plural,\nother {<1><bold>{roomTypeName}</bold>客室タイプに<bold>{name}</bold>パッケージを作成します。\n総料金は<bold>{totalCharge}</bold>です。</1>\n<2>{inclusionsCharge, plural, =0 {} other {インクルージョン料金 {inclusions"
+      },
+      {
+        "key": "subscription-service.modal.paymentedAt",
+        "before": "{支払いタイプ, 選択, 年間 {毎年 {月} {日}} その他 {毎月 {日}}}",
+        "after": "{paymentType, select, YEARLY {毎年 {month}月 {day}日} other {毎月 {day}日}}"
+      },
+      {
+        "key": "subscription-service.next-payment",
+        "before": "{month, plural,\nother {毎年<strong>{month}</strong>月<strong>{day}</strong>日にお支払い}\n=0 {毎月{day}日に決済}\n}",
+        "after": "{month, plural,\n=0 {毎月<strong>{day}</strong>日決済}\nother {毎年<strong>{month}</strong>月<strong>{day}</strong>日決済}\n}"
+      },
+      {
+        "key": "update-inclusion-modal.description",
+        "before": "<b>{name}</b> サービスを編集しますか？ 編集を行うと、関連する全てのプランも一括で変更されます。",
+        "after": "<bold>{name}</bold>インクルージョンを修正しますか？\n修正すると、そのインクルージョンを含むパッケージも一括変更されます。"
+      }
+    ],
+    "zh": [
+      {
+        "key": "COUNTRY",
+        "before": "{国家代码, 国家名称}",
+        "after": "{countryCode, countryName}"
+      },
+      {
+        "key": "charge-copy-popover.equalize-charge",
+        "before": "复制相同价格 ( {currencySymbol} )",
+        "after": "复制为相同费率 (<price></price> {currencySymbol})"
+      },
+      {
+        "key": "create-accommodation.select-accommodation.title",
+        "before": "请选择您经营的住宿场所。",
+        "after": "与 <highlight>{keyword}</highlight> 相关的 <highlight>{count}</highlight> 个搜索结果。\n请选择您经营的住宿设施。"
+      },
+      {
+        "key": "package-modification-summary.only-package",
+        "before": "为客房类型 <bold>{ roomTypeName }</bold> 创建商品 <bold>{ name }</bold>。",
+        "after": "<1>在 <bold>{ roomTypeName }</bold> 房型中创建 <bold>{ name }</bold> 套餐。</1>"
+      },
+      {
+        "key": "package-modification-summary.with-rate-plan",
+        "before": "{totalCharge, plural,\nother {<1>为<bold>{ roomTypeName }</bold>客房类型创建<bold>{ name }</bold>套餐。\n总费用为<bold>{totalCharge}</bold>。</1>\n<2>服务费 {inclusionsCharge}, {rateCharge, plural, =0 {} other {客房费 {rateC",
+        "after": "{totalCharge, plural,\nother {<1>在 <bold>{ roomTypeName }</bold> 房型中创建 <bold>{ name }</bold> 套餐。\n总费率为 <bold>{totalCharge}</bold>。</1>\n<2>{inclusionsCharge, plural, =0 {} other {包含项费率 {inclusionsCharge}"
+      },
+      {
+        "key": "rate-modal.confirm-static.body",
+        "before": "您要固定<b>{name}</b>的房价吗？\n固定后，将删除所有使用该房价的产品的价格调整和期间设置。",
+        "after": "是否固定 <bold>{name}</bold> 费率？\n固定后，使用此费率的所有套餐的费率调整和费率期间设置将被删除。"
+      },
+      {
+        "key": "update-batch-modal.preview.change-to",
+        "before": "更改为 {value}",
+        "after": "将 {updateItem} 更改为 {value}"
+      },
+      {
+        "key": "update-time-table-modal.description",
+        "before": "您想要修改<b>{name}</b>的销售时间表吗？修改后，所有关联套餐的入住/退房时间将统一更新。",
+        "after": "是否修改 <bold>{name}</bold> 销售时间表？\n修改后，套餐的入住/退房时间将批量更改。"
+      }
+    ],
+    "es": [
+      {
+        "key": "COUNTRY",
+        "before": "{códigoDePaís, nombreDelPaís}",
+        "after": "{countryCode, countryName}"
+      },
+      {
+        "key": "GLOBAL.CURRENCY",
+        "before": "{ moneda } pesos",
+        "after": "{ currency }"
+      },
+      {
+        "key": "GLOBAL.DAY",
+        "before": "{ día } días",
+        "after": "{ day } días"
+      },
+      {
+        "key": "booking-quantity",
+        "before": "{count, plural,\n  one {# reserva}\n  other {# reservas}\n}",
+        "after": "{ value } reservas"
+      },
+      {
+        "key": "charge-copy-popover.equalize-charge",
+        "before": "Copiar la misma tarifa ( {currencySymbol} ).",
+        "after": "Copiar con la misma tarifa (<price></price> {currencySymbol})"
+      },
+      {
+        "key": "create-accommodation.select-accommodation.title",
+        "before": "Seleccione su establecimiento de alojamiento.",
+        "after": "Hay <highlight>{count}</highlight> resultados de búsqueda relacionados con <highlight>{keyword}</highlight>.\nSeleccione la propiedad que gestiona."
+      },
+      {
+        "key": "create-integration-adapter.error",
+        "before": "No se pudo conectar con {integración}.",
+        "after": "No se pudo conectar {integration}."
+      },
+      {
+        "key": "create-integration-adapter.success",
+        "before": "Se ha conectado correctamente a {integración}.",
+        "after": "Se conectó {integration}."
+      },
+      {
+        "key": "delete-integration-adapter.error",
+        "before": "No se pudo desconectar de {integración}.",
+        "after": "No se pudo desconectar {integration}."
+      },
+      {
+        "key": "delete-integration-adapter.success",
+        "before": "Se ha desconectado con éxito de {integración}.",
+        "after": "Se desconectó {integration}."
+      },
+      {
+        "key": "integration-modal.link.header",
+        "before": "Conexión con {integración}",
+        "after": "Conexión de {integration}"
+      },
+      {
+        "key": "modification-channel-package.title",
+        "before": "Hay {count} productos de {channelName} registrados en <1>{property}</1>. \nConecte los productos de {channelName} a los productos del CMS.",
+        "after": "Hay <1>{count}</1> paquetes de {channelName} registrados en <1>{property}</1>.\nConecte los paquetes de {channelName} a los paquetes de CMS."
+      },
+      {
+        "key": "onboarding.inclusions.cardPreview.title",
+        "before": "Paquete de {inclusión}",
+        "after": "Paquete {inclusion}"
+      },
+      {
+        "key": "onboarding.packages.preview.diagram.package.1",
+        "before": "Paquete de Piscina Deluxe",
+        "after": "Piscina Deluxe<gray> Paquete</gray>"
+      },
+      {
+        "key": "package-modification-summary.only-package",
+        "before": "Cree el paquete { name } para el tipo de habitación { roomTypeName }.",
+        "after": "<1>Se creará el paquete <bold>{ name }</bold> para el tipo de habitación <bold>{ roomTypeName }</bold>.</1>"
+      },
+      {
+        "key": "package-multiplier-alert.body",
+        "before": "Se ha añadido el paquete { name }. ¿Le gustaría establecer tarifas adicionales para este paquete por canal de venta?",
+        "after": "Se ha añadido el paquete <1>{ name }</1>.\n¿Desea configurar el ajuste de tarifa adicional por canal para este paquete?"
+      },
+      {
+        "key": "package.night-use.preview.package.charge-range.min-max",
+        "before": "{mín} – {máx}",
+        "after": "{min} - {max}"
+      },
+      {
+        "key": "rate-period-row.order",
+        "before": "{orden} de prioridad",
+        "after": "Posición {order}"
+      },
+      {
+        "key": "rate-plan-table.room-type",
+        "before": "{tipoDeHabitación} ({count, plural, =1 {1 paqueto includios)} other {{count} paquetes included}} ",
+        "after": "{roomType} ({count} paquetes incluidos)"
+      },
+      {
+        "key": "refill.chip",
+        "before": "Auto reposición {valor}",
+        "after": "Reposición automática de inventario { refill }"
+      },
+      {
+        "key": "request-billing-auth-error",
+        "before": "No se pudo registrar la tarjeta.  \n(Razón de la falla: {código})",
+        "after": "No se pudo registrar la tarjeta.\n(Motivo del fallo: { code })"
+      },
+      {
+        "key": "setting-room-type-header.total-room-type",
+        "before": "{value, plural, =1 {1 habitación} other {{value} habitaciones}}",
+        "after": "Total de { total } tipos de habitación"
+      },
+      {
+        "key": "subscription-service.modal.paymentedAt",
+        "before": "{tipoDePago, seleccionar, ANUAL {Cada año el {día} de {mes}} otro {Cada mes el {día}}}",
+        "after": "{paymentType, select, YEARLY {el {day} de {month} de cada año} other {el {day} de cada mes}}"
+      },
+      {
+        "key": "unsubscribe.step-3.date-of-use",
+        "before": "monto de pago / {días} días * fecha de uso",
+        "after": "Monto del pago / {days} días * días de uso"
+      },
+      {
+        "key": "update-batch-modal.preview.change-to",
+        "before": "Cambiar a {value}",
+        "after": "Cambiar {updateItem} a {value}"
+      },
+      {
+        "key": "update-integration-adapter.error",
+        "before": "No se pudo conectar con {integración}.",
+        "after": "No se pudo conectar {integration}."
+      },
+      {
+        "key": "update-integration-adapter.success",
+        "before": "Se volvió a conectar con {integración}.",
+        "after": "Se volvió a conectar {integration}."
+      }
+    ]
+  }
+}

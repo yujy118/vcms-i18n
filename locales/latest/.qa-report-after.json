@@ -1,0 +1,1578 @@
+[
+  {
+    "severity": "BLOCK",
+    "check": "glossary_violation",
+    "key": "subscription-prompt.modal.footer.tooltip.first-payment-both",
+    "lang": "en",
+    "message": "\"Price\" -> \"Rate\"",
+    "value": "[ERROR:en] 연간 결제 (오늘 포함 {yearDuration}일치) {yearPrice}\n월간 결제 (오늘 포함 {monthDuration}일치) {monthPrice}"
+  },
+  {
+    "severity": "BLOCK",
+    "check": "glossary_violation",
+    "key": "subscription-prompt.modal.footer.tooltip.first-payment-month",
+    "lang": "en",
+    "message": "\"Price\" -> \"Rate\"",
+    "value": "[ERROR:en] 월간 결제 (오늘 포함 {monthDuration}일치) {monthPrice}"
+  },
+  {
+    "severity": "BLOCK",
+    "check": "glossary_violation",
+    "key": "subscription-prompt.modal.footer.tooltip.first-payment-year",
+    "lang": "en",
+    "message": "\"Price\" -> \"Rate\"",
+    "value": "[ERROR:en] 연간 결제 (오늘 포함 {yearDuration}일치) {yearPrice}"
+  },
+  {
+    "severity": "BLOCK",
+    "check": "glossary_violation",
+    "key": "subscription-service-detail-modal.inventory-and-rate-per-room.subscription-fee",
+    "lang": "en",
+    "message": "\"Fee\" -> \"Rate\"",
+    "value": "[ERROR:en] 기본 {baseQuantity}객실까지 {baseFee} / 추가 객실 1개당 {additionalFee}"
+  },
+  {
+    "severity": "BLOCK",
+    "check": "glossary_violation",
+    "key": "subscription-service-detail-modal.inventory-per-room.subscription-fee",
+    "lang": "en",
+    "message": "\"Fee\" -> \"Rate\"",
+    "value": "[ERROR:en] 기본 {baseQuantity}객실까지 {baseFee} / 추가 객실 1개당 {additionalFee}"
+  },
+  {
+    "severity": "BLOCK",
+    "check": "glossary_violation",
+    "key": "subscription-service-detail-modal.notification-per-alarm.subscription-fee",
+    "lang": "en",
+    "message": "\"Fee\" -> \"Rate\"",
+    "value": "[ERROR:en] 기본 1개 제공 / 추가 1개당 {additionalFee}"
+  },
+  {
+    "severity": "WARNING",
+    "check": "es_capitalization",
+    "key": "GLOBAL.PACKAGE.INCLUSIONS",
+    "lang": "es",
+    "message": "\"Paquete\" should be lowercase mid-sentence",
+    "value": "Inclusiones del Paquete"
+  },
+  {
+    "severity": "WARNING",
+    "check": "es_capitalization",
+    "key": "GLOBAL.TOTAL_CHARGE",
+    "lang": "es",
+    "message": "\"Tarifa\" should be lowercase mid-sentence",
+    "value": "Total de Tarifa"
+  },
+  {
+    "severity": "WARNING",
+    "check": "es_capitalization",
+    "key": "INVENTORY_FILTER_UPDATE_ITEMS.INVENTORY_AND_RATE",
+    "lang": "es",
+    "message": "\"Tarifa\" should be lowercase mid-sentence",
+    "value": "Inventario y Tarifa"
+  },
+  {
+    "severity": "WARNING",
+    "check": "es_capitalization",
+    "key": "LSB-menu-item.subject.setting",
+    "lang": "es",
+    "message": "\"Inventario\" should be lowercase mid-sentence",
+    "value": "Configuración de Inventario y Reservas"
+  },
+  {
+    "severity": "WARNING",
+    "check": "es_capitalization",
+    "key": "MAX_SALE_INVENTORY",
+    "lang": "es",
+    "message": "\"Inventario\" should be lowercase mid-sentence",
+    "value": "{value} Inventario máx."
+  },
+  {
+    "severity": "WARNING",
+    "check": "es_capitalization",
+    "key": "MAX_SALE_INVENTORY_VALUE",
+    "lang": "es",
+    "message": "\"Inventario\" should be lowercase mid-sentence",
+    "value": "{value} Inventario máx.\n"
+  },
+  {
+    "severity": "WARNING",
+    "check": "es_capitalization",
+    "key": "audit-event.value.copyInventoryAdjustmentToDates",
+    "lang": "es",
+    "message": "\"Disponibilidad\" should be lowercase mid-sentence",
+    "value": "Ajustes Masivos de Disponibilidad y Estado de Venta Copiados a las Fechas"
+  },
+  {
+    "severity": "WARNING",
+    "check": "es_capitalization",
+    "key": "audit-event.value.deleteBillingPaymentMethod",
+    "lang": "es",
+    "message": "\"Pago\" should be lowercase mid-sentence",
+    "value": "Método de Pago Facturado Elimado"
+  },
+  {
+    "severity": "WARNING",
+    "check": "es_capitalization",
+    "key": "audit-event.value.deleteInventoryAdjustments",
+    "lang": "es",
+    "message": "\"Inventario\" should be lowercase mid-sentence",
+    "value": "Eliminación de Inventario Masivo / Ajustes de Estado de Venta"
+  },
+  {
+    "severity": "WARNING",
+    "check": "es_capitalization",
+    "key": "audit-event.value.deleteInventoryPackageAdjustments",
+    "lang": "es",
+    "message": "\"Inventario\" should be lowercase mid-sentence",
+    "value": "Eliminación de Inventario de Paquete por Lote / Ajustes de Estado de Venta"
+  },
+  {
+    "severity": "WARNING",
+    "check": "es_capitalization",
+    "key": "audit-event.value.fixRateChannelPackageAdjustments",
+    "lang": "es",
+    "message": "\"Tarifa\" should be lowercase mid-sentence",
+    "value": "Ajustes de Tarifa Fija del Paquete de Canal"
+  },
+  {
+    "severity": "WARNING",
+    "check": "es_capitalization",
+    "key": "audit-event.value.fixRatePackageAdjustments",
+    "lang": "es",
+    "message": "\"Paquete\" should be lowercase mid-sentence",
+    "value": "Tarifas de Paquete Fijadas."
+  },
+  {
+    "severity": "WARNING",
+    "check": "es_capitalization",
+    "key": "audit-event.value.unfixRateChannelPackageAdjustments",
+    "lang": "es",
+    "message": "\"Canal\" should be lowercase mid-sentence",
+    "value": "Desbloqueo de Tarifas de Paquetes por Canal"
+  },
+  {
+    "severity": "WARNING",
+    "check": "es_capitalization",
+    "key": "audit-event.value.updateInventoryAdjustment",
+    "lang": "es",
+    "message": "\"Disponibilidad\" should be lowercase mid-sentence",
+    "value": "Ajuste de Disponibilidad / Estado de Venta Actualizado"
+  },
+  {
+    "severity": "WARNING",
+    "check": "es_capitalization",
+    "key": "audit-event.value.updateInventoryAdjustments",
+    "lang": "es",
+    "message": "\"Disponibilidad\" should be lowercase mid-sentence",
+    "value": "Ajustes de Disponibilidad de Inventario en Lote / Estado de Venta Actualizados"
+  },
+  {
+    "severity": "WARNING",
+    "check": "es_capitalization",
+    "key": "audit-event.value.updateInventoryPackageAdjustments",
+    "lang": "es",
+    "message": "\"Inventario\" should be lowercase mid-sentence",
+    "value": "Actualización del Inventario de Paquetes en Lote / Ajustes del Estado de Venta"
+  },
+  {
+    "severity": "WARNING",
+    "check": "es_capitalization",
+    "key": "audit-event.value.updateNotificationAlarm",
+    "lang": "es",
+    "message": "\"Notificación\" should be lowercase mid-sentence",
+    "value": "Contacto de Notificación Actualizado"
+  },
+  {
+    "severity": "WARNING",
+    "check": "es_capitalization",
+    "key": "audit-event.value.updateServiceItemFigure",
+    "lang": "es",
+    "message": "\"Pago\" should be lowercase mid-sentence",
+    "value": "Elemento de Pago Actualizado"
+  },
+  {
+    "severity": "WARNING",
+    "check": "es_capitalization",
+    "key": "banner-setting.channel-package.title",
+    "lang": "es",
+    "message": "\"Canal\" should be lowercase mid-sentence",
+    "value": "Gestión de Paquetes de Canal"
+  },
+  {
+    "severity": "WARNING",
+    "check": "es_capitalization",
+    "key": "basic-noti-service.value",
+    "lang": "es",
+    "message": "\"Notificación\" should be lowercase mid-sentence",
+    "value": "1 Contacto de Notificación"
+  },
+  {
+    "severity": "WARNING",
+    "check": "es_capitalization",
+    "key": "booking-column.channelPackage",
+    "lang": "es",
+    "message": "\"Canal\" should be lowercase mid-sentence",
+    "value": "Paquetes de Canal"
+  },
+  {
+    "severity": "WARNING",
+    "check": "es_capitalization",
+    "key": "booking-column.status",
+    "lang": "es",
+    "message": "\"Reserva\" should be lowercase mid-sentence",
+    "value": "Estado de Reserva"
+  },
+  {
+    "severity": "WARNING",
+    "check": "es_capitalization",
+    "key": "booking-detail-modal.header",
+    "lang": "es",
+    "message": "\"Reserva\" should be lowercase mid-sentence",
+    "value": "Detalles de la Reserva"
+  },
+  {
+    "severity": "WARNING",
+    "check": "es_capitalization",
+    "key": "booking-detail-modal.payment-info",
+    "lang": "es",
+    "message": "\"Pago\" should be lowercase mid-sentence",
+    "value": "Información de Pago"
+  },
+  {
+    "severity": "WARNING",
+    "check": "es_capitalization",
+    "key": "change-billing-method.modal.label",
+    "lang": "es",
+    "message": "\"Pago\" should be lowercase mid-sentence",
+    "value": "Información de Pago ({ count })"
+  },
+  {
+    "severity": "WARNING",
+    "check": "es_capitalization",
+    "key": "change-payment-date.modal.yearly-discount",
+    "lang": "es",
+    "message": "\"Suscripción\" should be lowercase mid-sentence",
+    "value": "Descuento del {value}% en la Suscripción Anual"
+  },
+  {
+    "severity": "WARNING",
+    "check": "es_capitalization",
+    "key": "channel-manage-modal.rate-multiplier",
+    "lang": "es",
+    "message": "\"Canal\" should be lowercase mid-sentence",
+    "value": "Tarifa Final del Canal"
+  },
+  {
+    "severity": "WARNING",
+    "check": "es_capitalization",
+    "key": "channel-package-selector.input.name",
+    "lang": "es",
+    "message": "\"Canal\" should be lowercase mid-sentence",
+    "value": "Paquete de Canal"
+  },
+  {
+    "severity": "WARNING",
+    "check": "es_capitalization",
+    "key": "channel-selector.label",
+    "lang": "es",
+    "message": "\"Canal\" should be lowercase mid-sentence",
+    "value": "Nombre del Canal"
+  },
+  {
+    "severity": "WARNING",
+    "check": "es_capitalization",
+    "key": "channel.dropdown.label",
+    "lang": "es",
+    "message": "\"Canal\" should be lowercase mid-sentence",
+    "value": "Estado de Conexión de Canal"
+  },
+  {
+    "severity": "WARNING",
+    "check": "es_capitalization",
+    "key": "channelAccountSetting.item.tabs.channelPackage",
+    "lang": "es",
+    "message": "\"Canal\" should be lowercase mid-sentence",
+    "value": "Paquetes de Canal"
+  },
+  {
+    "severity": "WARNING",
+    "check": "es_capitalization",
+    "key": "channelAccountSetting.map-packages.channel-package.title",
+    "lang": "es",
+    "message": "\"Paquete\" should be lowercase mid-sentence",
+    "value": "{channel, plural,\nother {# Paquetes de {channel}}\none {1 Paquete de {channel}}\n}"
+  },
+  {
+    "severity": "WARNING",
+    "check": "es_capitalization",
+    "key": "channelAccountSetting.map-packages.unmapped-channel-package.title",
+    "lang": "es",
+    "message": "\"Paquete\" should be lowercase mid-sentence",
+    "value": "{value, plural,\n=1 {Paquete no asociado {channel} ({value})  \n1 Paquete no asociado {channel}}\nother"
+  },
+  {
+    "severity": "WARNING",
+    "check": "es_capitalization",
+    "key": "charge-copy-popover.equalize-rate-multiplier",
+    "lang": "es",
+    "message": "\"Tarifa\" should be lowercase mid-sentence",
+    "value": "{showBoth, plural,\n=1 {Copia de Ajuste de Tarifa ({selectedMultipleToDisplay}, {selectedExtraChargeT"
+  },
+  {
+    "severity": "WARNING",
+    "check": "es_capitalization",
+    "key": "delete-packages-modal.dayuse.header",
+    "lang": "es",
+    "message": "\"Paquete\" should be lowercase mid-sentence",
+    "value": "Eliminar Paquete"
+  },
+  {
+    "severity": "WARNING",
+    "check": "es_capitalization",
+    "key": "delete-packages-modal.header",
+    "lang": "es",
+    "message": "\"Paquete\" should be lowercase mid-sentence",
+    "value": "Eliminar el Paquete"
+  },
+  {
+    "severity": "WARNING",
+    "check": "es_capitalization",
+    "key": "edit-packages-modal.name.label",
+    "lang": "es",
+    "message": "\"Canal\" should be lowercase mid-sentence",
+    "value": "Paquete de Canal"
+  },
+  {
+    "severity": "WARNING",
+    "check": "es_capitalization",
+    "key": "inventories.mobile-sections.heading",
+    "lang": "es",
+    "message": "\"Disponibilidad\" should be lowercase mid-sentence",
+    "value": "{everyClosed, plural,\nother {{title} Disponibilidad Activa}\n=1 {{title} Venta Detenida}\n}"
+  },
+  {
+    "severity": "WARNING",
+    "check": "es_capitalization",
+    "key": "inventory-charge-copy-popover.equalize-charge",
+    "lang": "es",
+    "message": "\"Tarifa\" should be lowercase mid-sentence",
+    "value": "Copia la Misma Tarifa"
+  },
+  {
+    "severity": "WARNING",
+    "check": "es_capitalization",
+    "key": "inventory-view-guide-popover.remaining-stock.title",
+    "lang": "es",
+    "message": "\"Disponibilidad\" should be lowercase mid-sentence",
+    "value": "Estado de Disponibilidad"
+  },
+  {
+    "severity": "WARNING",
+    "check": "es_capitalization",
+    "key": "keep-subscription",
+    "lang": "es",
+    "message": "\"Suscripción\" should be lowercase mid-sentence",
+    "value": "Mantener Suscripción"
+  },
+  {
+    "severity": "WARNING",
+    "check": "es_capitalization",
+    "key": "modal-confirm-abort.title",
+    "lang": "es",
+    "message": "\"Sincronización\" should be lowercase mid-sentence",
+    "value": "Detener Sincronización"
+  },
+  {
+    "severity": "WARNING",
+    "check": "es_capitalization",
+    "key": "modal-confirm-launch.title",
+    "lang": "es",
+    "message": "\"Sincronización\" should be lowercase mid-sentence",
+    "value": "Inicio de Sincronización"
+  },
+  {
+    "severity": "WARNING",
+    "check": "es_capitalization",
+    "key": "modification-channel-package.package.label",
+    "lang": "es",
+    "message": "\"Canal\" should be lowercase mid-sentence",
+    "value": "Paquete de Canal"
+  },
+  {
+    "severity": "WARNING",
+    "check": "es_capitalization",
+    "key": "multiplier-form.type.menu-item.multiple",
+    "lang": "es",
+    "message": "\"Porcentaje\" should be lowercase mid-sentence",
+    "value": "Ajustar Porcentaje"
+  },
+  {
+    "severity": "WARNING",
+    "check": "es_capitalization",
+    "key": "notification-alarm-form.title",
+    "lang": "es",
+    "message": "\"Notificación\" should be lowercase mid-sentence",
+    "value": "Contacto de Notificación"
+  },
+  {
+    "severity": "WARNING",
+    "check": "es_capitalization",
+    "key": "onboarding.channels.select.submit",
+    "lang": "es",
+    "message": "\"Canal\" should be lowercase mid-sentence",
+    "value": "Conectar Canal"
+  },
+  {
+    "severity": "WARNING",
+    "check": "es_capitalization",
+    "key": "onboarding.channels.sign-in.preview.disconnect-channel",
+    "lang": "es",
+    "message": "\"Canal\" should be lowercase mid-sentence",
+    "value": "Añadir Canal"
+  },
+  {
+    "severity": "WARNING",
+    "check": "es_capitalization",
+    "key": "onboarding.inclusions.preview.preview.title",
+    "lang": "es",
+    "message": "\"Canal\" should be lowercase mid-sentence",
+    "value": "Ejemplo de Canal"
+  },
+  {
+    "severity": "WARNING",
+    "check": "es_capitalization",
+    "key": "onboarding.inclusions.preview.preview.title.0",
+    "lang": "es",
+    "message": "\"Canal\" should be lowercase mid-sentence",
+    "value": "Ejemplo de Canal"
+  },
+  {
+    "severity": "WARNING",
+    "check": "es_capitalization",
+    "key": "onboarding.packages.form.admin.create-all-packages",
+    "lang": "es",
+    "message": "\"Estancia\" should be lowercase mid-sentence",
+    "value": "Generar Paquetes de Estancia / Uso Diurno por Defecto"
+  },
+  {
+    "severity": "WARNING",
+    "check": "es_capitalization",
+    "key": "onboarding.packages.preview.title",
+    "lang": "es",
+    "message": "\"Paquete\" should be lowercase mid-sentence",
+    "value": "Ejemplo de Uso de Paquete"
+  },
+  {
+    "severity": "WARNING",
+    "check": "es_capitalization",
+    "key": "package-button-selector.create-dayuse-package",
+    "lang": "es",
+    "message": "\"Paquete\" should be lowercase mid-sentence",
+    "value": "Crear Paquete de Uso Diurno"
+  },
+  {
+    "severity": "WARNING",
+    "check": "es_capitalization",
+    "key": "package-button-selector.create-nightuse-package",
+    "lang": "es",
+    "message": "\"Paquete\" should be lowercase mid-sentence",
+    "value": "Crear Paquete de Alojamiento"
+  },
+  {
+    "severity": "WARNING",
+    "check": "es_capitalization",
+    "key": "package-button-selector.create-rate",
+    "lang": "es",
+    "message": "\"Paquete\" should be lowercase mid-sentence",
+    "value": "Creación de Paquete de Alojamiento"
+  },
+  {
+    "severity": "WARNING",
+    "check": "es_capitalization",
+    "key": "package-modal.confirm-rate-plan.max-charge.header",
+    "lang": "es",
+    "message": "\"Tarifa\" should be lowercase mid-sentence",
+    "value": "Confirmar Tarifa Máxima"
+  },
+  {
+    "severity": "WARNING",
+    "check": "es_capitalization",
+    "key": "package-modal.confirm-rate-plan.min-charge.header",
+    "lang": "es",
+    "message": "\"Tarifa\" should be lowercase mid-sentence",
+    "value": "Confirmar Tarifa Mínima"
+  },
+  {
+    "severity": "WARNING",
+    "check": "es_capitalization",
+    "key": "package-modal.create.header",
+    "lang": "es",
+    "message": "\"Paquete\" should be lowercase mid-sentence",
+    "value": "Creación de Paquete"
+  },
+  {
+    "severity": "WARNING",
+    "check": "es_capitalization",
+    "key": "package-modal.modification.create.header",
+    "lang": "es",
+    "message": "\"Paquete\" should be lowercase mid-sentence",
+    "value": "Creación de Paquete"
+  },
+  {
+    "severity": "WARNING",
+    "check": "es_capitalization",
+    "key": "payment-alarm-notification.label",
+    "lang": "es",
+    "message": "\"Pago\" should be lowercase mid-sentence",
+    "value": "Notificaciones de Pago"
+  },
+  {
+    "severity": "WARNING",
+    "check": "es_capitalization",
+    "key": "payment-history-column.detail",
+    "lang": "es",
+    "message": "\"Pago\" should be lowercase mid-sentence",
+    "value": "Elemento de Pago"
+  },
+  {
+    "severity": "WARNING",
+    "check": "es_capitalization",
+    "key": "payment-history-column.price",
+    "lang": "es",
+    "message": "\"Pago\" should be lowercase mid-sentence",
+    "value": "Total de Pago"
+  },
+  {
+    "severity": "WARNING",
+    "check": "es_capitalization",
+    "key": "payment-history-rows.CANCELED",
+    "lang": "es",
+    "message": "\"Pago\" should be lowercase mid-sentence",
+    "value": "Cancelación de Pago"
+  },
+  {
+    "severity": "WARNING",
+    "check": "es_capitalization",
+    "key": "payment-history-rows.NOTIFICATION_PER_ALARM",
+    "lang": "es",
+    "message": "\"Notificación\" should be lowercase mid-sentence",
+    "value": "Contactos de Notificación"
+  },
+  {
+    "severity": "WARNING",
+    "check": "es_capitalization",
+    "key": "payment-history-rows.READY",
+    "lang": "es",
+    "message": "\"Pago\" should be lowercase mid-sentence",
+    "value": "Preparación de Pago"
+  },
+  {
+    "severity": "WARNING",
+    "check": "es_capitalization",
+    "key": "payment-info.title",
+    "lang": "es",
+    "message": "\"Pago\" should be lowercase mid-sentence",
+    "value": "Información de Pago"
+  },
+  {
+    "severity": "WARNING",
+    "check": "es_capitalization",
+    "key": "payment-option.paymentedAt.MONTHLY",
+    "lang": "es",
+    "message": "\"Pago\" should be lowercase mid-sentence",
+    "value": "Fecha de Pago"
+  },
+  {
+    "severity": "WARNING",
+    "check": "es_capitalization",
+    "key": "payment-option.paymentedAt.YEARLY",
+    "lang": "es",
+    "message": "\"Pago\" should be lowercase mid-sentence",
+    "value": "Fecha de Pago"
+  },
+  {
+    "severity": "WARNING",
+    "check": "es_capitalization",
+    "key": "rate-modal.modification.create.header",
+    "lang": "es",
+    "message": "\"Tarifa\" should be lowercase mid-sentence",
+    "value": "Creación de Tarifa"
+  },
+  {
+    "severity": "WARNING",
+    "check": "es_capitalization",
+    "key": "rate-modal.modification.name.placeholder",
+    "lang": "es",
+    "message": "\"Tarifa\" should be lowercase mid-sentence",
+    "value": "Ejemplo: Tarifa Deluxe"
+  },
+  {
+    "severity": "WARNING",
+    "check": "es_capitalization",
+    "key": "rates-button-selector.create-rate",
+    "lang": "es",
+    "message": "\"Tarifa\" should be lowercase mid-sentence",
+    "value": "Generar Tarifa"
+  },
+  {
+    "severity": "WARNING",
+    "check": "es_capitalization",
+    "key": "setting-package-buttons.create-package",
+    "lang": "es",
+    "message": "\"Paquete\" should be lowercase mid-sentence",
+    "value": "Creación de Paquete"
+  },
+  {
+    "severity": "WARNING",
+    "check": "es_capitalization",
+    "key": "setting-rate-header.add",
+    "lang": "es",
+    "message": "\"Tarifa\" should be lowercase mid-sentence",
+    "value": "Generar Tarifa"
+  },
+  {
+    "severity": "WARNING",
+    "check": "es_capitalization",
+    "key": "subscription-modal.content.terms",
+    "lang": "es",
+    "message": "\"Tarifa\" should be lowercase mid-sentence",
+    "value": "Suscripción y política de reembolso \n· Hasta 10 habitaciones: Tarifa base, no por habitación. \n<1>· "
+  },
+  {
+    "severity": "WARNING",
+    "check": "es_capitalization",
+    "key": "subscription-prompt.modal.footer.tooltip.first-payment-both",
+    "lang": "es",
+    "message": "\"Pago\" should be lowercase mid-sentence",
+    "value": "Pago anual (Incluye {yearDuration} días a partir de hoy) {yearPrice}  \nPago mensual (Incluye {monthD"
+  },
+  {
+    "severity": "WARNING",
+    "check": "es_capitalization",
+    "key": "subscription-prompt.modal.payment-option.alarm.label",
+    "lang": "es",
+    "message": "\"Notificación\" should be lowercase mid-sentence",
+    "value": "{withCount, plural,\nother {Contactos de Notificación Usados: { count }}\n=0 {Contactos de Notificació"
+  },
+  {
+    "severity": "WARNING",
+    "check": "es_capitalization",
+    "key": "subscription-prompt.modal.section.payment-date.label",
+    "lang": "es",
+    "message": "\"Pago\" should be lowercase mid-sentence",
+    "value": "Seleccionar Fecha de Pago"
+  },
+  {
+    "severity": "WARNING",
+    "check": "es_capitalization",
+    "key": "subscription-prompt.modal.terms",
+    "lang": "es",
+    "message": "\"Suscripción\" should be lowercase mid-sentence",
+    "value": "Información de Suscripción y Política de Reembolso\n\n· Las tarifas de suscripción incluyen IVA y el s"
+  },
+  {
+    "severity": "WARNING",
+    "check": "es_capitalization",
+    "key": "subscription-service.modal.header",
+    "lang": "es",
+    "message": "\"Suscripción\" should be lowercase mid-sentence",
+    "value": "Cambio de Suscripción"
+  },
+  {
+    "severity": "WARNING",
+    "check": "es_capitalization",
+    "key": "tabs.percentageAndCharge",
+    "lang": "es",
+    "message": "\"Monto\" should be lowercase mid-sentence",
+    "value": "Porcentaje + Monto"
+  },
+  {
+    "severity": "WARNING",
+    "check": "es_capitalization",
+    "key": "update-alarm-contact.modal.header",
+    "lang": "es",
+    "message": "\"Pago\" should be lowercase mid-sentence",
+    "value": "Información de Pago Adicional"
+  },
+  {
+    "severity": "WARNING",
+    "check": "es_capitalization",
+    "key": "update-batch-modal.preview.badge.channelPackage",
+    "lang": "es",
+    "message": "\"Canal\" should be lowercase mid-sentence",
+    "value": "Paquete de Canal"
+  },
+  {
+    "severity": "WARNING",
+    "check": "es_capitalization",
+    "key": "update-batch-modal.same-charge.placeholder",
+    "lang": "es",
+    "message": "\"Tarifa\" should be lowercase mid-sentence",
+    "value": "Ingreso de Tarifa"
+  },
+  {
+    "severity": "WARNING",
+    "check": "es_capitalization",
+    "key": "update-billing-method.modal.placeholder.card-name",
+    "lang": "es",
+    "message": "\"Pago\" should be lowercase mid-sentence",
+    "value": "Tarjeta de Pago Principal"
+  },
+  {
+    "severity": "WARNING",
+    "check": "es_capitalization",
+    "key": "update-package-modal.propagate.label",
+    "lang": "es",
+    "message": "\"Sincronización\" should be lowercase mid-sentence",
+    "value": "Configuración de Sincronización"
+  },
+  {
+    "severity": "WARNING",
+    "check": "es_capitalization",
+    "key": "upsert-room-type-modal.pay-and-add",
+    "lang": "es",
+    "message": "\"Pago\" should be lowercase mid-sentence",
+    "value": "Agregar con Pago"
+  },
+  {
+    "severity": "WARNING",
+    "check": "placeholder_extra",
+    "key": "channel-identity.input-field-figure.identity.placeholder",
+    "lang": "en",
+    "message": "Extra: {'name'}"
+  },
+  {
+    "severity": "WARNING",
+    "check": "placeholder_extra",
+    "key": "channel-identity.input-field-figure.password.placeholder",
+    "lang": "en",
+    "message": "Extra: {'name'}"
+  },
+  {
+    "severity": "WARNING",
+    "check": "placeholder_extra",
+    "key": "modification-channel-form.id.placeholder",
+    "lang": "en",
+    "message": "Extra: {'name'}"
+  },
+  {
+    "severity": "WARNING",
+    "check": "placeholder_extra",
+    "key": "modification-channel-form.identity.placeholder",
+    "lang": "en",
+    "message": "Extra: {'name'}"
+  },
+  {
+    "severity": "WARNING",
+    "check": "placeholder_extra",
+    "key": "modification-channel-form.password.placeholder",
+    "lang": "en",
+    "message": "Extra: {'name'}"
+  },
+  {
+    "severity": "WARNING",
+    "check": "placeholder_extra",
+    "key": "modification-channel-form.pw.placeholder",
+    "lang": "en",
+    "message": "Extra: {'name'}"
+  },
+  {
+    "severity": "WARNING",
+    "check": "placeholder_extra",
+    "key": "upsert-room-type-modal.brief",
+    "lang": "en",
+    "message": "Extra: {'name', 'count'}"
+  },
+  {
+    "severity": "WARNING",
+    "check": "placeholder_extra",
+    "key": "modification-channel-form.identity.placeholder",
+    "lang": "ja",
+    "message": "Extra: {'名前'}"
+  },
+  {
+    "severity": "WARNING",
+    "check": "placeholder_extra",
+    "key": "channel-identity.input-field-figure.identity.placeholder",
+    "lang": "zh",
+    "message": "Extra: {'id'}"
+  },
+  {
+    "severity": "WARNING",
+    "check": "placeholder_extra",
+    "key": "modification-channel-form.id.placeholder",
+    "lang": "zh",
+    "message": "Extra: {'name'}"
+  },
+  {
+    "severity": "WARNING",
+    "check": "placeholder_extra",
+    "key": "modification-channel-form.identity.placeholder",
+    "lang": "zh",
+    "message": "Extra: {'name'}"
+  },
+  {
+    "severity": "WARNING",
+    "check": "placeholder_extra",
+    "key": "modification-channel-form.password.placeholder",
+    "lang": "zh",
+    "message": "Extra: {'name'}"
+  },
+  {
+    "severity": "WARNING",
+    "check": "placeholder_extra",
+    "key": "modification-channel-form.pw.placeholder",
+    "lang": "zh",
+    "message": "Extra: {'name'}"
+  },
+  {
+    "severity": "WARNING",
+    "check": "placeholder_extra",
+    "key": "channel-identity.input-field-figure.identity.placeholder",
+    "lang": "es",
+    "message": "Extra: {'name'}"
+  },
+  {
+    "severity": "WARNING",
+    "check": "placeholder_extra",
+    "key": "channel-identity.input-field-figure.password.placeholder",
+    "lang": "es",
+    "message": "Extra: {'nombre'}"
+  },
+  {
+    "severity": "WARNING",
+    "check": "placeholder_extra",
+    "key": "modification-channel-form.id.placeholder",
+    "lang": "es",
+    "message": "Extra: {'name'}"
+  },
+  {
+    "severity": "WARNING",
+    "check": "placeholder_extra",
+    "key": "modification-channel-form.identity.placeholder",
+    "lang": "es",
+    "message": "Extra: {'nombre'}"
+  },
+  {
+    "severity": "WARNING",
+    "check": "placeholder_extra",
+    "key": "modification-channel-form.password.placeholder",
+    "lang": "es",
+    "message": "Extra: {'nombre'}"
+  },
+  {
+    "severity": "WARNING",
+    "check": "placeholder_extra",
+    "key": "modification-channel-form.pw.placeholder",
+    "lang": "es",
+    "message": "Extra: {'nombre'}"
+  },
+  {
+    "severity": "WARNING",
+    "check": "newline_mismatch",
+    "key": "ORDINAL",
+    "lang": "en",
+    "message": "ko:0 vs en:4"
+  },
+  {
+    "severity": "WARNING",
+    "check": "newline_mismatch",
+    "key": "ORDINAL_DAY",
+    "lang": "en",
+    "message": "ko:0 vs en:4"
+  },
+  {
+    "severity": "WARNING",
+    "check": "newline_mismatch",
+    "key": "audit-event.value.updatePackageTimeTableOrders",
+    "lang": "en",
+    "message": "ko:0 vs en:2"
+  },
+  {
+    "severity": "WARNING",
+    "check": "newline_mismatch",
+    "key": "booking-nights",
+    "lang": "en",
+    "message": "ko:0 vs en:3"
+  },
+  {
+    "severity": "WARNING",
+    "check": "newline_mismatch",
+    "key": "card-day-use-package.delete",
+    "lang": "en",
+    "message": "ko:1 vs en:3"
+  },
+  {
+    "severity": "WARNING",
+    "check": "newline_mismatch",
+    "key": "create-accommodation.select-accommodation.empty.title",
+    "lang": "en",
+    "message": "ko:2 vs en:0"
+  },
+  {
+    "severity": "WARNING",
+    "check": "newline_mismatch",
+    "key": "gql-error.TOKEN_ISSUE",
+    "lang": "en",
+    "message": "ko:0 vs en:2"
+  },
+  {
+    "severity": "WARNING",
+    "check": "newline_mismatch",
+    "key": "inclusion-modification-modal.name.error.max-length",
+    "lang": "en",
+    "message": "ko:0 vs en:2"
+  },
+  {
+    "severity": "WARNING",
+    "check": "newline_mismatch",
+    "key": "inventory-table-body.perfomance-info",
+    "lang": "en",
+    "message": "ko:0 vs en:2"
+  },
+  {
+    "severity": "WARNING",
+    "check": "newline_mismatch",
+    "key": "inventory-view-guide-popover.min-rate.description",
+    "lang": "en",
+    "message": "ko:0 vs en:2"
+  },
+  {
+    "severity": "WARNING",
+    "check": "newline_mismatch",
+    "key": "notification.dropdown.row.channel.account.unbanned",
+    "lang": "en",
+    "message": "ko:0 vs en:2"
+  },
+  {
+    "severity": "WARNING",
+    "check": "newline_mismatch",
+    "key": "package-form.tooltip.refill-amount.max-room-count",
+    "lang": "en",
+    "message": "ko:1 vs en:3"
+  },
+  {
+    "severity": "WARNING",
+    "check": "newline_mismatch",
+    "key": "package-form.tooltip.refill-amount.min",
+    "lang": "en",
+    "message": "ko:1 vs en:3"
+  },
+  {
+    "severity": "WARNING",
+    "check": "newline_mismatch",
+    "key": "rate-modal.modification.static-rate-tooltip",
+    "lang": "en",
+    "message": "ko:1 vs en:4"
+  },
+  {
+    "severity": "WARNING",
+    "check": "newline_mismatch",
+    "key": "rate-period-row.order",
+    "lang": "en",
+    "message": "ko:0 vs en:4"
+  },
+  {
+    "severity": "WARNING",
+    "check": "newline_mismatch",
+    "key": "subscription-modal.content.alarm-contact-terms",
+    "lang": "en",
+    "message": "ko:6 vs en:3"
+  },
+  {
+    "severity": "WARNING",
+    "check": "newline_mismatch",
+    "key": "terms.private",
+    "lang": "en",
+    "message": "ko:74 vs en:80"
+  },
+  {
+    "severity": "WARNING",
+    "check": "newline_mismatch",
+    "key": "unsubscription-service-modal.terms",
+    "lang": "en",
+    "message": "ko:6 vs en:3"
+  },
+  {
+    "severity": "WARNING",
+    "check": "newline_mismatch",
+    "key": "INVENTORY_CELL.tooltip.has-child-item",
+    "lang": "ja",
+    "message": "ko:5 vs ja:3"
+  },
+  {
+    "severity": "WARNING",
+    "check": "newline_mismatch",
+    "key": "gql-error.FORBIDDEN_RESOURCE",
+    "lang": "ja",
+    "message": "ko:2 vs ja:0"
+  },
+  {
+    "severity": "WARNING",
+    "check": "newline_mismatch",
+    "key": "onboarding.inclusions.preview.description.0",
+    "lang": "ja",
+    "message": "ko:2 vs ja:0"
+  },
+  {
+    "severity": "WARNING",
+    "check": "newline_mismatch",
+    "key": "onboarding.select-inclusions.title",
+    "lang": "ja",
+    "message": "ko:2 vs ja:0"
+  },
+  {
+    "severity": "WARNING",
+    "check": "newline_mismatch",
+    "key": "room-count.chip",
+    "lang": "ja",
+    "message": "ko:2 vs ja:5"
+  },
+  {
+    "severity": "WARNING",
+    "check": "newline_mismatch",
+    "key": "room-count.chip.label",
+    "lang": "ja",
+    "message": "ko:2 vs ja:5"
+  },
+  {
+    "severity": "WARNING",
+    "check": "newline_mismatch",
+    "key": "subscription-modal.content.alarm-contact-terms",
+    "lang": "ja",
+    "message": "ko:6 vs ja:3"
+  },
+  {
+    "severity": "WARNING",
+    "check": "newline_mismatch",
+    "key": "terms.private",
+    "lang": "ja",
+    "message": "ko:74 vs ja:80"
+  },
+  {
+    "severity": "WARNING",
+    "check": "newline_mismatch",
+    "key": "terms.service",
+    "lang": "ja",
+    "message": "ko:369 vs ja:110"
+  },
+  {
+    "severity": "WARNING",
+    "check": "newline_mismatch",
+    "key": "unsubscription-service-modal.terms",
+    "lang": "ja",
+    "message": "ko:6 vs ja:3"
+  },
+  {
+    "severity": "WARNING",
+    "check": "newline_mismatch",
+    "key": "update-batch-modal.preview.change-to.is-closed",
+    "lang": "ja",
+    "message": "ko:0 vs ja:4"
+  },
+  {
+    "severity": "WARNING",
+    "check": "newline_mismatch",
+    "key": "INVENTORY_CELL.tooltip.has-child-item",
+    "lang": "zh",
+    "message": "ko:5 vs zh:3"
+  },
+  {
+    "severity": "WARNING",
+    "check": "newline_mismatch",
+    "key": "create-accommodation.select-accommodation.empty.title",
+    "lang": "zh",
+    "message": "ko:2 vs zh:0"
+  },
+  {
+    "severity": "WARNING",
+    "check": "newline_mismatch",
+    "key": "delete-time-table-modal.description",
+    "lang": "zh",
+    "message": "ko:2 vs zh:0"
+  },
+  {
+    "severity": "WARNING",
+    "check": "newline_mismatch",
+    "key": "gql-error.FORBIDDEN_RESOURCE",
+    "lang": "zh",
+    "message": "ko:2 vs zh:0"
+  },
+  {
+    "severity": "WARNING",
+    "check": "newline_mismatch",
+    "key": "onboarding.inclusions.preview.description.0",
+    "lang": "zh",
+    "message": "ko:2 vs zh:0"
+  },
+  {
+    "severity": "WARNING",
+    "check": "newline_mismatch",
+    "key": "selectable-days-button-group.금",
+    "lang": "zh",
+    "message": "ko:0 vs zh:3"
+  },
+  {
+    "severity": "WARNING",
+    "check": "newline_mismatch",
+    "key": "selectable-days-button-group.월",
+    "lang": "zh",
+    "message": "ko:0 vs zh:2"
+  },
+  {
+    "severity": "WARNING",
+    "check": "newline_mismatch",
+    "key": "selectable-days-button-group.일",
+    "lang": "zh",
+    "message": "ko:0 vs zh:2"
+  },
+  {
+    "severity": "WARNING",
+    "check": "newline_mismatch",
+    "key": "selectable-days-button-group.화",
+    "lang": "zh",
+    "message": "ko:0 vs zh:2"
+  },
+  {
+    "severity": "WARNING",
+    "check": "newline_mismatch",
+    "key": "setting-rate-header.createdAt.desc",
+    "lang": "zh",
+    "message": "ko:0 vs zh:2"
+  },
+  {
+    "severity": "WARNING",
+    "check": "newline_mismatch",
+    "key": "subscription-modal.content.alarm-contact-terms",
+    "lang": "zh",
+    "message": "ko:6 vs zh:3"
+  },
+  {
+    "severity": "WARNING",
+    "check": "newline_mismatch",
+    "key": "terms.private",
+    "lang": "zh",
+    "message": "ko:74 vs zh:80"
+  },
+  {
+    "severity": "WARNING",
+    "check": "newline_mismatch",
+    "key": "terms.service",
+    "lang": "zh",
+    "message": "ko:369 vs zh:110"
+  },
+  {
+    "severity": "WARNING",
+    "check": "newline_mismatch",
+    "key": "unsubscription-service-modal.terms",
+    "lang": "zh",
+    "message": "ko:6 vs zh:3"
+  },
+  {
+    "severity": "WARNING",
+    "check": "newline_mismatch",
+    "key": "update-batch-modal.preview.change-to.is-closed",
+    "lang": "zh",
+    "message": "ko:0 vs zh:4"
+  },
+  {
+    "severity": "WARNING",
+    "check": "newline_mismatch",
+    "key": "GLOBAL.COUNT.EVENT",
+    "lang": "es",
+    "message": "ko:0 vs es:3"
+  },
+  {
+    "severity": "WARNING",
+    "check": "newline_mismatch",
+    "key": "GLOBAL.FOLD",
+    "lang": "es",
+    "message": "ko:0 vs es:2"
+  },
+  {
+    "severity": "WARNING",
+    "check": "newline_mismatch",
+    "key": "accommodation-bookings.header.total-count-label.mobile",
+    "lang": "es",
+    "message": "ko:0 vs es:3"
+  },
+  {
+    "severity": "WARNING",
+    "check": "newline_mismatch",
+    "key": "accommodation-modal.update-integration-period.tooltip",
+    "lang": "es",
+    "message": "ko:2 vs es:0"
+  },
+  {
+    "severity": "WARNING",
+    "check": "newline_mismatch",
+    "key": "accommodation-room-new.rooms-form.label",
+    "lang": "es",
+    "message": "ko:0 vs es:3"
+  },
+  {
+    "severity": "WARNING",
+    "check": "newline_mismatch",
+    "key": "card-day-use-package.delete",
+    "lang": "es",
+    "message": "ko:1 vs es:5"
+  },
+  {
+    "severity": "WARNING",
+    "check": "newline_mismatch",
+    "key": "card-night-use-package.delete",
+    "lang": "es",
+    "message": "ko:1 vs es:5"
+  },
+  {
+    "severity": "WARNING",
+    "check": "newline_mismatch",
+    "key": "channelAccountSetting.map-packages.unmapped-channel-package.title",
+    "lang": "es",
+    "message": "ko:2 vs es:5"
+  },
+  {
+    "severity": "WARNING",
+    "check": "newline_mismatch",
+    "key": "create-package.stepper.step.rate-period",
+    "lang": "es",
+    "message": "ko:0 vs es:2"
+  },
+  {
+    "severity": "WARNING",
+    "check": "newline_mismatch",
+    "key": "gql-error.FORBIDDEN_RESOURCE",
+    "lang": "es",
+    "message": "ko:2 vs es:0"
+  },
+  {
+    "severity": "WARNING",
+    "check": "newline_mismatch",
+    "key": "max-occupancy",
+    "lang": "es",
+    "message": "ko:0 vs es:3"
+  },
+  {
+    "severity": "WARNING",
+    "check": "newline_mismatch",
+    "key": "modification-package-multiplier-modal.properties.label",
+    "lang": "es",
+    "message": "ko:2 vs es:5"
+  },
+  {
+    "severity": "WARNING",
+    "check": "newline_mismatch",
+    "key": "onboarding.inclusions.preview.description.0",
+    "lang": "es",
+    "message": "ko:2 vs es:0"
+  },
+  {
+    "severity": "WARNING",
+    "check": "newline_mismatch",
+    "key": "onboarding.select-inclusions.title",
+    "lang": "es",
+    "message": "ko:2 vs es:0"
+  },
+  {
+    "severity": "WARNING",
+    "check": "newline_mismatch",
+    "key": "package-multiplier-alert.callout",
+    "lang": "es",
+    "message": "ko:2 vs es:0"
+  },
+  {
+    "severity": "WARNING",
+    "check": "newline_mismatch",
+    "key": "package-table.room-type",
+    "lang": "es",
+    "message": "ko:0 vs es:3"
+  },
+  {
+    "severity": "WARNING",
+    "check": "newline_mismatch",
+    "key": "package.night-use.preview.inclusion.title",
+    "lang": "es",
+    "message": "ko:0 vs es:3"
+  },
+  {
+    "severity": "WARNING",
+    "check": "newline_mismatch",
+    "key": "package.night-use.preview.package.obp",
+    "lang": "es",
+    "message": "ko:0 vs es:7"
+  },
+  {
+    "severity": "WARNING",
+    "check": "newline_mismatch",
+    "key": "package.night-use.preview.package.package-quantity.refill-quantity",
+    "lang": "es",
+    "message": "ko:0 vs es:7"
+  },
+  {
+    "severity": "WARNING",
+    "check": "newline_mismatch",
+    "key": "rate-modal.modification.static-rate-tooltip",
+    "lang": "es",
+    "message": "ko:1 vs es:4"
+  },
+  {
+    "severity": "WARNING",
+    "check": "newline_mismatch",
+    "key": "room-count.chip",
+    "lang": "es",
+    "message": "ko:2 vs es:5"
+  },
+  {
+    "severity": "WARNING",
+    "check": "newline_mismatch",
+    "key": "room-count.chip.label",
+    "lang": "es",
+    "message": "ko:2 vs es:5"
+  },
+  {
+    "severity": "WARNING",
+    "check": "newline_mismatch",
+    "key": "subscription-modal.content.alarm-contact-terms",
+    "lang": "es",
+    "message": "ko:6 vs es:3"
+  },
+  {
+    "severity": "WARNING",
+    "check": "newline_mismatch",
+    "key": "terms.private",
+    "lang": "es",
+    "message": "ko:74 vs es:80"
+  },
+  {
+    "severity": "WARNING",
+    "check": "newline_mismatch",
+    "key": "terms.service",
+    "lang": "es",
+    "message": "ko:369 vs es:110"
+  },
+  {
+    "severity": "WARNING",
+    "check": "newline_mismatch",
+    "key": "unsubscription-service-modal.terms",
+    "lang": "es",
+    "message": "ko:6 vs es:3"
+  },
+  {
+    "severity": "WARNING",
+    "check": "newline_mismatch",
+    "key": "update-batch-modal.preview.change-to.is-closed",
+    "lang": "es",
+    "message": "ko:0 vs es:4"
+  },
+  {
+    "severity": "WARNING",
+    "check": "untranslated",
+    "key": "input-room.tooltip.badge",
+    "lang": "en",
+    "message": "Same as ko: \"Enter\""
+  },
+  {
+    "severity": "WARNING",
+    "check": "untranslated",
+    "key": "inventory-table-body.sales-performance.value",
+    "lang": "en",
+    "message": "Same as ko: \"<green>{sales}</green> / {total}\""
+  },
+  {
+    "severity": "WARNING",
+    "check": "untranslated",
+    "key": "link-airbnb-login-guide",
+    "lang": "en",
+    "message": "Same as ko: \"https://docs.vcms.io/ko/faq/channels/connect-airbn\""
+  },
+  {
+    "severity": "WARNING",
+    "check": "untranslated",
+    "key": "link-faq",
+    "lang": "en",
+    "message": "Same as ko: \"https://docs.vcms.io/ko/faq\""
+  },
+  {
+    "severity": "WARNING",
+    "check": "untranslated",
+    "key": "link-notice-home",
+    "lang": "en",
+    "message": "Same as ko: \"https://docs.vcms.io/ko/accommodation/signup-login\""
+  },
+  {
+    "severity": "WARNING",
+    "check": "untranslated",
+    "key": "link-update-note",
+    "lang": "en",
+    "message": "Same as ko: \"https://docs.vcms.io/ko/accommodation/signup-login\""
+  },
+  {
+    "severity": "WARNING",
+    "check": "untranslated",
+    "key": "DATE_FORMAT.V_MONTH_DAY_MED",
+    "lang": "ja",
+    "message": "Same as ko: \"M. d\""
+  },
+  {
+    "severity": "WARNING",
+    "check": "untranslated",
+    "key": "inventory-table-body.sales-performance.value",
+    "lang": "ja",
+    "message": "Same as ko: \"<green>{sales}</green> / {total}\""
+  },
+  {
+    "severity": "WARNING",
+    "check": "untranslated",
+    "key": "link-airbnb-login-guide",
+    "lang": "ja",
+    "message": "Same as ko: \"https://docs.vcms.io/ko/faq/channels/connect-airbn\""
+  },
+  {
+    "severity": "WARNING",
+    "check": "untranslated",
+    "key": "link-faq",
+    "lang": "ja",
+    "message": "Same as ko: \"https://docs.vcms.io/ko/faq\""
+  },
+  {
+    "severity": "WARNING",
+    "check": "untranslated",
+    "key": "link-notice-home",
+    "lang": "ja",
+    "message": "Same as ko: \"https://docs.vcms.io/ko/accommodation/signup-login\""
+  },
+  {
+    "severity": "WARNING",
+    "check": "untranslated",
+    "key": "link-update-note",
+    "lang": "ja",
+    "message": "Same as ko: \"https://docs.vcms.io/ko/accommodation/signup-login\""
+  },
+  {
+    "severity": "WARNING",
+    "check": "untranslated",
+    "key": "DATETIME_RANGE",
+    "lang": "zh",
+    "message": "Same as ko: \"{from} ~ {to}\""
+  },
+  {
+    "severity": "WARNING",
+    "check": "untranslated",
+    "key": "DATE_FORMAT.V_MONTH_DAY_MED",
+    "lang": "zh",
+    "message": "Same as ko: \"M. d\""
+  },
+  {
+    "severity": "WARNING",
+    "check": "untranslated",
+    "key": "DATE_FORMAT.V_MONTH_DAY_WEEKDAY_FULL",
+    "lang": "zh",
+    "message": "Same as ko: \"MM-dd (ccc)\""
+  },
+  {
+    "severity": "WARNING",
+    "check": "untranslated",
+    "key": "DATE_FORMAT.V_MONTH_DAY_WEEKDAY_MED",
+    "lang": "zh",
+    "message": "Same as ko: \"M. d(ccc)\""
+  },
+  {
+    "severity": "WARNING",
+    "check": "untranslated",
+    "key": "inventory-table-body.sales-performance.value",
+    "lang": "zh",
+    "message": "Same as ko: \"<green>{sales}</green> / {total}\""
+  },
+  {
+    "severity": "WARNING",
+    "check": "untranslated",
+    "key": "link-airbnb-login-guide",
+    "lang": "zh",
+    "message": "Same as ko: \"https://docs.vcms.io/ko/faq/channels/connect-airbn\""
+  },
+  {
+    "severity": "WARNING",
+    "check": "untranslated",
+    "key": "link-faq",
+    "lang": "zh",
+    "message": "Same as ko: \"https://docs.vcms.io/ko/faq\""
+  },
+  {
+    "severity": "WARNING",
+    "check": "untranslated",
+    "key": "link-notice-home",
+    "lang": "zh",
+    "message": "Same as ko: \"https://docs.vcms.io/ko/accommodation/signup-login\""
+  },
+  {
+    "severity": "WARNING",
+    "check": "untranslated",
+    "key": "link-update-note",
+    "lang": "zh",
+    "message": "Same as ko: \"https://docs.vcms.io/ko/accommodation/signup-login\""
+  },
+  {
+    "severity": "WARNING",
+    "check": "untranslated",
+    "key": "package.night-use.preview.package.charge-range.min-max",
+    "lang": "zh",
+    "message": "Same as ko: \"{min} ~ {max}\""
+  },
+  {
+    "severity": "WARNING",
+    "check": "untranslated",
+    "key": "DATETIME_RANGE",
+    "lang": "es",
+    "message": "Same as ko: \"{from} ~ {to}\""
+  },
+  {
+    "severity": "WARNING",
+    "check": "untranslated",
+    "key": "DATE_FORMAT.V_MONTH_DAY_MED",
+    "lang": "es",
+    "message": "Same as ko: \"M. d\""
+  },
+  {
+    "severity": "WARNING",
+    "check": "untranslated",
+    "key": "DATE_FORMAT.V_MONTH_DAY_WEEKDAY_MED",
+    "lang": "es",
+    "message": "Same as ko: \"M. d(ccc)\""
+  },
+  {
+    "severity": "WARNING",
+    "check": "untranslated",
+    "key": "inventory-table-body.sales-performance.value",
+    "lang": "es",
+    "message": "Same as ko: \"<green>{sales}</green> / {total}\""
+  },
+  {
+    "severity": "WARNING",
+    "check": "untranslated",
+    "key": "link-airbnb-login-guide",
+    "lang": "es",
+    "message": "Same as ko: \"https://docs.vcms.io/ko/faq/channels/connect-airbn\""
+  },
+  {
+    "severity": "WARNING",
+    "check": "untranslated",
+    "key": "link-faq",
+    "lang": "es",
+    "message": "Same as ko: \"https://docs.vcms.io/ko/faq\""
+  },
+  {
+    "severity": "WARNING",
+    "check": "untranslated",
+    "key": "link-notice-home",
+    "lang": "es",
+    "message": "Same as ko: \"https://docs.vcms.io/ko/accommodation/signup-login\""
+  },
+  {
+    "severity": "WARNING",
+    "check": "untranslated",
+    "key": "link-update-note",
+    "lang": "es",
+    "message": "Same as ko: \"https://docs.vcms.io/ko/accommodation/signup-login\""
+  }
+]
