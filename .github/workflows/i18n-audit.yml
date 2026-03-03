@@ -22,29 +22,103 @@ jobs:
         with:
           python-version: '3.11'
 
-      - name: Run QA audit
-        id: qa
-        run: |
-          python scripts/qa_check.py \
-            --locales locales/latest \
-            --glossary glossary/glossary.json \
-            --output /tmp/audit.json || true
-          BLOCKS=$(python3 -c "import json;d=json.load(open('/tmp/audit.json'));print(len([i for i in d if i['severity']=='BLOCK']))")
-          WARNS=$(python3 -c "import json;d=json.load(open('/tmp/audit.json'));print(len([i for i in d if i['severity']=='WARNING']))")
-          echo "blocks=$BLOCKS" >> $GITHUB_OUTPUT
-          echo "warnings=$WARNS" >> $GITHUB_OUTPUT
+      - name: Install requests
+        run: pip install requests
 
-      - name: Slack audit report
+      - name: Weekly audit with sampling
         run: |
-          if [ -z "$SLACK_BOT_TOKEN" ]; then exit 0; fi
-          BLOCKS="${{ steps.qa.outputs.blocks }}"
-          WARNS="${{ steps.qa.outputs.warnings }}"
-          if [ "$BLOCKS" = "0" ] && [ "$WARNS" = "0" ]; then
-            MSG="✅ 주간 i18n 감사: 이슈 없음"
-          else
-            MSG="📊 주간 i18n 감사: BLOCK ${BLOCKS}건 / WARNING ${WARNS}건"
-          fi
-          curl -s -X POST https://slack.com/api/chat.postMessage \
-            -H "Authorization: Bearer $SLACK_BOT_TOKEN" \
-            -H "Content-Type: application/json" \
-            -d '{"channel":"'"$SLACK_CHANNEL"'","text":"'"$MSG"'"}'
+          python3 << 'PYEOF'
+          import json, os, random, requests, subprocess
+
+          LOCALES = "locales/latest"
+          GLOSSARY = "glossary/glossary.json"
+          TOKEN = os.environ.get("SLACK_BOT_TOKEN", "")
+          CHANNEL = os.environ.get("SLACK_CHANNEL", "")
+          SAMPLE_SIZE = 50
+
+          if not TOKEN or not CHANNEL:
+              print("SLACK env missing"); exit(0)
+
+          headers = {"Authorization": f"Bearer {TOKEN}", "Content-Type": "application/json"}
+          API = "https://slack.com/api/chat.postMessage"
+
+          ko = json.load(open(f"{LOCALES}/ko.json", encoding="utf-8"))
+          glossary = json.load(open(GLOSSARY, encoding="utf-8")).get("terms", [])
+          total = len(ko)
+
+          langs = {}
+          for l in ["en", "ja", "zh-CN", "es"]:
+              p = f"{LOCALES}/{l}.json"
+              if os.path.exists(p):
+                  langs[l] = json.load(open(p, encoding="utf-8"))
+
+          keys = list(ko.keys())
+          sample = random.sample(keys, min(SAMPLE_SIZE, len(keys)))
+
+          subprocess.run(["python", "scripts/qa_check.py", "--locales", LOCALES,
+              "--glossary", GLOSSARY, "--output", "/tmp/qa-full.json"],
+              capture_output=True, text=True, timeout=120)
+          full_issues = []
+          if os.path.exists("/tmp/qa-full.json"):
+              full_issues = json.load(open("/tmp/qa-full.json"))
+          blk = len([i for i in full_issues if i.get("severity") == "BLOCK"])
+          wrn = len([i for i in full_issues if i.get("severity") == "WARNING"])
+
+          glossary_misses = []
+          for term in glossary:
+              ko_term = term.get("ko", "")
+              for key in sample:
+                  if ko_term in ko.get(key, ""):
+                      for lang in ["en", "ja", "zh-CN", "es"]:
+                          lk = "zh" if lang.startswith("zh") else lang
+                          expected = term.get(lk) or term.get(lang, "")
+                          actual = langs.get(lang, {}).get(key, "")
+                          if expected and actual and expected not in actual:
+                              glossary_misses.append({"key": key, "lang": lang,
+                                  "ko_term": ko_term, "expected": expected, "actual": actual[:60]})
+
+          missing_per_lang = {}
+          for l in ["en", "ja", "zh-CN", "es"]:
+              missing_per_lang[l] = len([k for k in ko if k not in langs.get(l, {})])
+          total_missing = sum(missing_per_lang.values())
+
+          status = "\u2705" if blk == 0 and total_missing == 0 else "\U0001f4ca"
+
+          msg = [
+              {"type": "header", "text": {"type": "plain_text",
+                  "text": f"{status} \uc8fc\uac04 i18n \uac10\uc0ac", "emoji": True}},
+              {"type": "section", "text": {"type": "mrkdwn", "text": (
+                  f"*\ucd1d:* {total}\ud0a4 | *\uc0d8\ud50c:* {len(sample)}\uac1c\n"
+                  f"*QA:* BLOCK {blk} | WARNING {wrn}\n"
+                  f"*\ubbf8\ubc88\uc5ed:* EN {missing_per_lang.get('en',0)} | "
+                  f"JA {missing_per_lang.get('ja',0)} | "
+                  f"ZH {missing_per_lang.get('zh-CN',0)} | "
+                  f"ES {missing_per_lang.get('es',0)}")}},
+          ]
+
+          if glossary_misses:
+              d = f"\U0001f4d6 *\uc6a9\uc5b4\uc9d1 \ubd88\uc77c\uce58 ({len(glossary_misses)}\uac74):*\n"
+              for m in glossary_misses[:8]:
+                  d += f"\u2022 [{m['lang']}] {m['key']}: \"{m['ko_term']}\" -> expected \"{m['expected']}\"\n"
+              if len(glossary_misses) > 8:
+                  d += f"_...\uc678 {len(glossary_misses)-8}\uac74_\n"
+              msg.append({"type": "section", "text": {"type": "mrkdwn", "text": d}})
+          else:
+              msg.append({"type": "section", "text": {"type": "mrkdwn",
+                  "text": "\u2705 *\uc6a9\uc5b4\uc9d1 \uc0d8\ud50c\ub9c1:* \ubd88\uc77c\uce58 \uc5c6\uc74c"}})
+
+          if blk > 0:
+              brand = [i for i in full_issues if i.get("check") == "brand_translated"]
+              glos = [i for i in full_issues if i.get("check") == "glossary_violation"]
+              other = [i for i in full_issues if i["severity"]=="BLOCK" and i["check"] not in ("brand_translated","glossary_violation")]
+              s = ""
+              if brand: s += f"\U0001f3f7 \ube0c\ub79c\ub4dc: {len(brand)}\uac74\n"
+              if glos: s += f"\U0001f4d6 \uc6a9\uc5b4\uc9d1: {len(glos)}\uac74\n"
+              if other: s += f"\U0001f6a8 \uae30\ud0c0: {len(other)}\uac74\n"
+              if s: msg.append({"type": "section", "text": {"type": "mrkdwn", "text": f"*BLOCK \uc694\uc57d:*\n{s}"}})
+
+          requests.post(API, headers=headers, json={
+              "channel": CHANNEL, "blocks": msg,
+              "text": f"{status} \uc8fc\uac04 i18n: BLOCK {blk} / \ubbf8\ubc88\uc5ed {total_missing}"})
+          print(f"Audit: {total} keys, sample {len(sample)}, BLOCK {blk}, WARN {wrn}, glossary misses {len(glossary_misses)}")
+          PYEOF
