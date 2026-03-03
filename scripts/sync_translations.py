@@ -1,16 +1,16 @@
 #!/usr/bin/env python3
-"""VCMS i18n Translation Sync: ko -> en,ja,zh-CN,es via Gemini Flash"""
+"""VCMS i18n Translation Sync: ko -> en,ja,zh,es via Gemini Flash"""
 import json, os, sys, re, unicodedata, time, urllib.request, urllib.error
 
 LOCALES_DIR = os.environ.get("LOCALES_DIR", "locales/latest")
 GLOSSARY_PATH = os.environ.get("GLOSSARY_PATH", "glossary/glossary.json")
 PROMPT_PATH = os.environ.get("PROMPT_PATH", "prompts/translate.txt")
 SOURCE_LANG = "ko"
-TARGET_LANGS = ["en", "ja", "zh-CN", "es"]
+TARGET_LANGS = ["en", "ja", "zh", "es"]
 GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY", "")
 GEMINI_MODEL = "gemini-2.5-flash"
 GEMINI_URL = f"https://generativelanguage.googleapis.com/v1beta/models/{GEMINI_MODEL}:generateContent"
-LANG_NAMES = {"en": "English", "ja": "Japanese", "zh-CN": "Simplified Chinese", "es": "Spanish"}
+LANG_NAMES = {"en": "English", "ja": "Japanese", "zh": "Simplified Chinese", "es": "Spanish"}
 
 def strip_zw(s):
     return ''.join(c for c in s if unicodedata.category(c) not in ('Cf', 'Mn', 'Cc'))
@@ -105,7 +105,6 @@ def main():
     for lang in TARGET_LANGS:
         print(f"\n--- {lang} ---"); path = get_path(lang)
         if os.path.exists(path): data = load_json(path)
-        elif lang == "zh-CN" and os.path.exists(get_path("zh")): data = load_json(get_path("zh")); print("  Migrated from zh.json")
         else: data = {}
         data, zw = cleanup_zw(data)
         if zw: print(f"  {zw} zw-dupes removed")
