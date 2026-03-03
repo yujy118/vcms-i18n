@@ -1,0 +1,35 @@
+{
+  "source_keys": 2652,
+  "languages": {
+    "en": {
+      "keys": 2652,
+      "coverage": "100.0%",
+      "translated": 164,
+      "auto_fixed": 234
+    },
+    "ja": {
+      "keys": 2652,
+      "coverage": "100.0%",
+      "translated": 164,
+      "auto_fixed": 43
+    },
+    "zh-CN": {
+      "keys": 2652,
+      "coverage": "100.0%",
+      "translated": 164,
+      "auto_fixed": 47
+    },
+    "zh-TW": {
+      "keys": 2652,
+      "coverage": "100.0%",
+      "translated": 2652,
+      "auto_fixed": 2
+    },
+    "es": {
+      "keys": 2652,
+      "coverage": "100.0%",
+      "translated": 164,
+      "auto_fixed": 71
+    }
+  }
+}
