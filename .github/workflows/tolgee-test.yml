@@ -1,0 +1,28 @@
+name: Tolgee Connection Test
+
+on:
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Test Tolgee API
+        env:
+          TOLGEE_API_KEY: ${{ secrets.TOLGEE_API_KEY }}
+        run: |
+          echo "Testing Tolgee API connection..."
+          STATUS=$(curl -s -o /dev/null -w "%{http_code}" \
+            -H "X-API-Key: $TOLGEE_API_KEY" \
+            "https://tolgee.internal.vendit.tech/v2/projects/4" \
+            --connect-timeout 10 --max-time 15 2>&1) || STATUS="FAILED"
+          echo "HTTP Status: $STATUS"
+          if [ "$STATUS" = "200" ]; then
+            echo "✅ Tolgee API accessible!"
+            curl -s -H "X-API-Key: $TOLGEE_API_KEY" \
+              "https://tolgee.internal.vendit.tech/v2/projects/4/stats" \
+              --connect-timeout 10 --max-time 15
+          else
+            echo "❌ Cannot reach Tolgee ($STATUS)"
+            echo "Internal network not accessible from GitHub Actions"
+          fi
