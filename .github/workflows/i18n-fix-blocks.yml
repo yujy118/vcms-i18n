@@ -1,0 +1,158 @@
+name: i18n Fix BLOCK (Retranslate → PR)
+
+on:
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: '테스트만 (PR 생성 안 함)'
+        type: boolean
+        default: false
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  fix-blocks:
+    runs-on: ubuntu-latest
+    env:
+      GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+      SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
+      SLACK_CHANNEL: ${{ secrets.SLACK_CHANNEL }}
+      LOCALES_DIR: locales/latest
+      GLOSSARY_PATH: glossary/glossary.json
+      PROMPT_PATH: prompts/translate.txt
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Run QA to get current BLOCK list
+        run: |
+          python scripts/qa_check.py \
+            --locales locales/latest \
+            --glossary glossary/glossary.json \
+            --output locales/latest/.qa-report.json || true
+
+      - name: Count BLOCK keys
+        id: count
+        run: |
+          python3 -c "
+          import json
+          qa = json.load(open('locales/latest/.qa-report.json'))
+          blocks = [i for i in qa if i.get('severity') == 'BLOCK']
+          print(f'BLOCK issues: {len(blocks)}')
+          # Unique keys per lang
+          by_lang = {}
+          for i in blocks:
+            lang = i.get('lang','')
+            key = i.get('key','')
+            if lang and key:
+              by_lang.setdefault(lang, set()).add(key)
+          total = sum(len(v) for v in by_lang.values())
+          print(f'Unique keys to retranslate: {total}')
+          for l, keys in by_lang.items():
+            print(f'  {l}: {len(keys)}')
+          with open(os.environ['GITHUB_OUTPUT'], 'a') as f:
+            f.write(f'total={total}\n')
+          " 2>/dev/null || echo "total=0" >> "$GITHUB_OUTPUT"
+
+      - name: Retranslate BLOCK keys
+        if: steps.count.outputs.total != '0'
+        run: |
+          python scripts/sync_translations.py \
+            --fix-blocks \
+            --qa-report locales/latest/.qa-report.json
+
+      - name: Run QA again (verify fixes)
+        if: steps.count.outputs.total != '0'
+        run: |
+          python scripts/qa_check.py \
+            --locales locales/latest \
+            --glossary glossary/glossary.json \
+            --output locales/latest/.qa-report-after.json || true
+          echo "=== Before vs After ==="
+          python3 -c "
+          import json
+          before = json.load(open('locales/latest/.qa-report.json'))
+          after = json.load(open('locales/latest/.qa-report-after.json'))
+          bb = len([i for i in before if i['severity']=='BLOCK'])
+          ab = len([i for i in after if i['severity']=='BLOCK'])
+          print(f'BLOCK: {bb} -> {ab} ({bb-ab} fixed)')
+          "
+
+      - name: Create PR
+        if: steps.count.outputs.total != '0' && inputs.dry_run == false
+        run: |
+          BRANCH="fix/qa-blocks-$(date +%Y%m%d-%H%M)"
+          git config user.name "i18n-bot"
+          git config user.email "i18n-bot@vcms.dev"
+          git checkout -b "$BRANCH"
+          git add locales/latest/
+          git diff --cached --quiet && echo "No changes" && exit 0
+          git commit -m "fix(i18n): retranslate QA BLOCK keys
+
+          - Auto-retranslated keys flagged as BLOCK by qa_check
+          - Please review diff carefully before merge"
+          git push origin "$BRANCH"
+
+          # Create PR via GitHub API
+          PR_BODY=$(python3 -c "
+          import json, os
+          report = {}
+          rp = 'locales/latest/.fix-report.json'
+          if os.path.exists(rp): report = json.load(open(rp))
+          before = json.load(open('locales/latest/.qa-report.json'))
+          bb = len([i for i in before if i['severity']=='BLOCK'])
+          after_p = 'locales/latest/.qa-report-after.json'
+          ab = 0
+          if os.path.exists(after_p):
+            after = json.load(open(after_p))
+            ab = len([i for i in after if i['severity']=='BLOCK'])
+          body = f'## QA BLOCK 재번역\n\n'
+          body += f'- BLOCK: {bb} → {ab} ({bb-ab} fixed)\n'
+          body += f'- Total changed: {report.get(\"fixed\", 0)} keys\n\n'
+          body += '### 언어별\n'
+          for lang, info in report.get('languages', {}).items():
+            body += f'- **{lang}**: {info[\"changed\"]}/{info[\"keys\"]} keys changed\n'
+          body += '\n---\n⚠️ **반드시 diff 확인 후 merge 해주세요.**\n'
+          body += '특히 HTML 태그(\`<bold>\`, \`<1>\` 등)와 플레이스홀더(\`{변수}\`)가 보존되었는지 확인.'
+          print(body)
+          ")
+
+          curl -s -X POST \
+            -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+            -H "Accept: application/vnd.github.v3+json" \
+            "https://api.github.com/repos/${{ github.repository }}/pulls" \
+            -d "$(python3 -c "
+          import json
+          print(json.dumps({
+            'title': 'fix(i18n): QA BLOCK 재번역',
+            'head': '$BRANCH',
+            'base': 'main',
+            'body': '''$PR_BODY''',
+          }))
+          ")"
+
+      - name: Slack notify
+        if: steps.count.outputs.total != '0' && inputs.dry_run == false
+        run: |
+          python3 -c "
+          import json, os, urllib.request
+          TOKEN = os.environ.get('SLACK_BOT_TOKEN','')
+          CHANNEL = os.environ.get('SLACK_CHANNEL','')
+          if not TOKEN or not CHANNEL: exit(0)
+          report = {}
+          rp = 'locales/latest/.fix-report.json'
+          if os.path.exists(rp): report = json.load(open(rp))
+          fixed = report.get('fixed', 0)
+          text = f'🔧 QA BLOCK 재번역 PR 생성: {fixed}건 수정\nPR에서 diff 확인 후 merge 해주세요.'
+          body = json.dumps({'channel': CHANNEL, 'text': text}).encode()
+          req = urllib.request.Request('https://slack.com/api/chat.postMessage', data=body,
+            headers={'Content-Type':'application/json;charset=utf-8','Authorization':f'Bearer {TOKEN}'})
+          urllib.request.urlopen(req, timeout=30)
+          print('Slack OK')
+          "
