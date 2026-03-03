@@ -31,7 +31,7 @@ jobs:
           GITHUB_REPOSITORY: ${{ github.repository }}
         run: |
           python3 << 'PYEOF'
-          import json, os, subprocess, requests, math
+          import json, os, subprocess, requests, math, csv, io
 
           LOCALES = "locales/latest"
           GLOSSARY = "glossary/glossary.json"
@@ -43,6 +43,7 @@ jobs:
               print("SLACK env missing"); exit(0)
 
           headers = {"Authorization": f"Bearer {TOKEN}", "Content-Type": "application/json"}
+          headers_upload = {"Authorization": f"Bearer {TOKEN}"}
           API = "https://slack.com/api/chat.postMessage"
 
           # Load ko
@@ -50,24 +51,28 @@ jobs:
           total_keys = len(ko)
 
           # Lang config
-          lang_files = {"en": "en.json", "ja": "ja.json", "zh": None, "es": "es.json"}
+          lang_map = {"en": "en.json", "ja": "ja.json", "zh-CN": None, "es": "es.json"}
           if os.path.exists(f"{LOCALES}/zh-CN.json"):
-              lang_files["zh"] = "zh-CN.json"
+              lang_map["zh-CN"] = "zh-CN.json"
           elif os.path.exists(f"{LOCALES}/zh.json"):
-              lang_files["zh"] = "zh.json"
+              lang_map["zh-CN"] = "zh.json"
 
-          flags = {"en": "\U0001f1fa\U0001f1f8", "ja": "\U0001f1ef\U0001f1f5", "zh": "\U0001f1e8\U0001f1f3", "es": "\U0001f1ea\U0001f1f8"}
-          names = {"en": "EN", "ja": "JA", "zh": "ZH", "es": "ES"}
+          flags = {"en": "\U0001f1fa\U0001f1f8", "ja": "\U0001f1ef\U0001f1f5", "zh-CN": "\U0001f1e8\U0001f1f3", "es": "\U0001f1ea\U0001f1f8"}
+          display = {"en": "EN", "ja": "JA", "zh-CN": "ZH", "es": "ES"}
+
+          # Load all lang data
+          lang_data = {}
+          for lang, fname in lang_map.items():
+              if fname and os.path.exists(f"{LOCALES}/{fname}"):
+                  lang_data[lang] = json.load(open(f"{LOCALES}/{fname}", encoding="utf-8"))
+              else:
+                  lang_data[lang] = {}
 
           # Missing keys per lang
           missing = {}
           all_missing = set()
-          for lang, fname in lang_files.items():
-              if not fname or not os.path.exists(f"{LOCALES}/{fname}"):
-                  missing[lang] = list(ko.keys())
-              else:
-                  data = json.load(open(f"{LOCALES}/{fname}", encoding="utf-8"))
-                  missing[lang] = [k for k in ko if k not in data]
+          for lang in lang_map:
+              missing[lang] = [k for k in ko if k not in lang_data[lang]]
               all_missing.update(missing[lang])
 
           total_missing = len(all_missing)
@@ -95,19 +100,17 @@ jobs:
           # Cost estimate
           batch_size = 30
           total_batches = sum(math.ceil(len(missing[l]) / batch_size) for l in missing if len(missing[l]) > 0)
-          prompt_tokens = 550
-          output_per_key = 50
-          cost_input = total_batches * prompt_tokens * 3 / 1_000_000
-          cost_output = sum(len(missing[l]) for l in missing) * output_per_key * 15 / 1_000_000
+          cost_input = total_batches * 550 * 3 / 1_000_000
+          cost_output = sum(len(missing[l]) for l in missing) * 50 * 15 / 1_000_000
           cost_total = cost_input + cost_output
           cost_krw = int(cost_total * 1400)
           est_minutes = max(1, total_batches // 3)
 
           # Lang status
           lang_parts = []
-          for lang in ["en", "ja", "zh", "es"]:
+          for lang in ["en", "ja", "zh-CN", "es"]:
               cnt = len(missing.get(lang, []))
-              lang_parts.append(f"{flags[lang]} {names[lang]} {cnt}건")
+              lang_parts.append(f"{flags[lang]} {display[lang]} {cnt}건")
           lang_line = " | ".join(lang_parts)
 
           status = "\u2705" if total_missing == 0 else "\U0001f504"
@@ -134,29 +137,52 @@ jobs:
           if total_missing == 0:
               print("No missing keys"); exit(0)
 
-          # === THREAD 1: Missing keys list (chunked) ===
+          # === BUILD CSV ===
           sorted_keys = sorted(list(all_missing))
-          chunks = []
-          current = f"\U0001f4cb *미번역 키 목록* ({total_missing}건)\n{'─' * 20}\n"
+          buf = io.StringIO()
+          writer = csv.writer(buf)
+          writer.writerow(["key", "ko", "en", "ja", "zh-CN", "es"])
           for k in sorted_keys:
-              v = ko.get(k, "?")
-              if len(v) > 40:
-                  v = v[:37] + "..."
-              line = f"• `{k}`\n   \U0001f1f0\U0001f1f7 {v}\n"
-              if len(current) + len(line) > 3500:
-                  chunks.append(current)
-                  current = ""
-              current += line
-          if current:
-              chunks.append(current)
+              writer.writerow([
+                  k,
+                  ko.get(k, ""),
+                  lang_data["en"].get(k, ""),
+                  lang_data["ja"].get(k, ""),
+                  lang_data["zh-CN"].get(k, ""),
+                  lang_data["es"].get(k, ""),
+              ])
+          csv_content = buf.getvalue().encode("utf-8-sig")
 
-          for chunk in chunks:
-              requests.post(API, headers=headers, json={
-                  "channel": CHANNEL, "thread_ts": main_ts,
-                  "text": chunk, "mrkdwn": True
-              })
+          # Upload CSV to Slack
+          csv_uploaded = False
+          try:
+              # Step 1: get upload URL
+              resp1 = requests.post("https://slack.com/api/files.getUploadURLExternal",
+                  headers=headers_upload,
+                  data={"filename": "missing_keys.csv", "length": len(csv_content)}
+              )
+              r1 = resp1.json()
+              if r1.get("ok"):
+                  upload_url = r1["upload_url"]
+                  file_id = r1["file_id"]
+                  # Step 2: upload file
+                  requests.post(upload_url,
+                      files={"file": ("missing_keys.csv", csv_content, "text/csv")}
+                  )
+                  # Step 3: complete upload and share to thread
+                  requests.post("https://slack.com/api/files.completeUploadExternal",
+                      headers=headers,
+                      json={"files": [{"id": file_id}], "channel_id": CHANNEL, "thread_ts": main_ts,
+                            "initial_comment": f"\U0001f4ce *미번역 키 목록* ({total_missing}건)\n전체 키와 원문이 포함된 CSV 파일입니다."}
+                  )
+                  csv_uploaded = True
+                  print("CSV uploaded")
+              else:
+                  print(f"Upload URL failed: {r1}")
+          except Exception as e:
+              print(f"CSV upload error: {e}")
 
-          # === THREAD 2: Cost + buttons ===
+          # === THREAD: Cost + buttons ===
           cost_blocks = [
               {"type": "section", "text": {"type": "mrkdwn", "text": (
                   f"\U0001f4b0 *자동 번역 예상*\n"
@@ -184,30 +210,28 @@ jobs:
               {"type": "divider"},
               {"type": "section", "text": {"type": "mrkdwn", "text": (
                   "\U0001f4dd *수동 번역 방법 (비용 $0)*\n\n"
-                  "*1단계: 미번역 키 복사*\n"
-                  "   이 스레드의 키 목록을 복사합니다.\n\n"
-                  "*2단계: Claude 프로젝트에서 번역 요청*\n"
-                  f"   <https://claude.ai|Claude.ai> → 프로젝트 `vcms-i18n` 에서:\n"
-                  "   ```미번역 키 목록입니다. 5개국어(en, ja, zh-CN, es) 번역해주세요.\n"
-                  "   glossary.json 용어집을 따르고, 숙박업 채널매니저 맥락으로 번역해주세요.```\n"
-                  "   키 목록을 함께 붙여넣습니다.\n\n"
-                  "*3단계: 번역 결과 적용*\n"
-                  "   Claude가 번역한 JSON 결과를 각 언어 파일에 추가합니다.\n"
-                  f"   • <https://github.com/{REPO}/edit/main/locales/latest/en.json|en.json 편집>\n"
-                  f"   • <https://github.com/{REPO}/edit/main/locales/latest/ja.json|ja.json 편집>\n"
-                  f"   • <https://github.com/{REPO}/edit/main/locales/latest/zh-CN.json|zh-CN.json 편집>\n"
-                  f"   • <https://github.com/{REPO}/edit/main/locales/latest/es.json|es.json 편집>\n\n"
-                  "*4단계: push → QA 자동 실행*\n"
-                  "   커밋하면 이 QA 체크가 다시 자동으로 돌아갑니다.\n"
-                  "   미번역 0건이면 ✅ 완료!"
+                  "*1. CSV 다운로드*\n"
+                  "   위 첨부된 `missing_keys.csv`를 다운로드합니다.\n\n"
+                  "*2. Claude 프로젝트에서 번역 요청*\n"
+                  f"   <https://claude.ai|Claude.ai> \u2192 프로젝트 *vcms-i18n* 에서 CSV를 업로드하고:\n"
+                  "   _\"이 CSV의 미번역 키를 5개국어(en, ja, zh-CN, es) 번역해줘._\n"
+                  "   _glossary.json 용어집을 따르고, 숙박업 채널매니저 맥락으로 번역해줘.\"_\n\n"
+                  "*3. 번역 결과 적용*\n"
+                  "   Claude가 번역한 JSON을 각 파일에 추가합니다:\n"
+                  f"   \u2022 <https://github.com/{REPO}/edit/main/locales/latest/en.json|en.json 편집>\n"
+                  f"   \u2022 <https://github.com/{REPO}/edit/main/locales/latest/ja.json|ja.json 편집>\n"
+                  f"   \u2022 <https://github.com/{REPO}/edit/main/locales/latest/zh-CN.json|zh-CN.json 편집>\n"
+                  f"   \u2022 <https://github.com/{REPO}/edit/main/locales/latest/es.json|es.json 편집>\n\n"
+                  "*4. Push \u2192 QA 자동 재실행*\n"
+                  "   커밋하면 QA가 다시 돌아갑니다. 미번역 0건이면 \u2705 완료!"
               )}},
           ]
 
           requests.post(API, headers=headers, json={
               "channel": CHANNEL, "thread_ts": main_ts,
               "blocks": cost_blocks,
-              "text": "번역 실행 옵션"
+              "text": "번역 옵션"
           })
 
-          print(f"Thread posted: {total_missing} missing keys, est ${cost_total:.2f}")
+          print(f"Done: {total_missing} missing, est ${cost_total:.2f}")
           PYEOF
