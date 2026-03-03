@@ -3,7 +3,7 @@ name: i18n Merge New Translations
 on:
   push:
     paths:
-      - 'locales/new/*.json'
+      - 'locales/latest/*_new.json'
     branches: [main]
   workflow_dispatch:
 
@@ -16,30 +16,39 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Merge new into latest
+      - name: Merge _new.json into base files
         run: |
           python3 << 'PYEOF'
           import json, os, glob
-          new_files = glob.glob('locales/new/*.json')
+
+          new_files = glob.glob('locales/latest/*_new.json')
           if not new_files:
-              print('No new files'); exit(0)
+              print('No _new.json files found')
+              exit(0)
+
           for nf in new_files:
               fname = os.path.basename(nf)
-              lf = 'locales/latest/' + fname
+              lang = fname.replace('_new.json', '')
+              base = f'locales/latest/{lang}.json'
+
               new = json.load(open(nf, encoding='utf-8'))
-              print(fname + ': ' + str(len(new)) + ' new keys')
-              if os.path.exists(lf):
-                  old = json.load(open(lf, encoding='utf-8'))
-                  print('  existing: ' + str(len(old)) + ' keys')
+              print(f'{fname}: {len(new)} new keys')
+
+              if os.path.exists(base):
+                  old = json.load(open(base, encoding='utf-8'))
+                  print(f'  {lang}.json existing: {len(old)} keys')
                   old.update(new)
                   merged = old
               else:
                   merged = new
+
               s = dict(sorted(merged.items()))
-              json.dump(s, open(lf, 'w', encoding='utf-8'), ensure_ascii=False, indent=2)
-              print('  merged: ' + str(len(s)) + ' keys')
+              json.dump(s, open(base, 'w', encoding='utf-8'), ensure_ascii=False, indent=2)
+              print(f'  merged: {len(s)} keys -> {base}')
+
               os.remove(nf)
-              print('  cleaned: ' + nf)
+              print(f'  cleaned: {nf}')
+
           print('Done!')
           PYEOF
 
