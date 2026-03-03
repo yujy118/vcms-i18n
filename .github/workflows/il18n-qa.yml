@@ -1,0 +1,88 @@
+name: i18n QA Check (Auto)
+
+on:
+  push:
+    paths:
+      - 'locales/latest/*.json'
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  qa:
+    runs-on: ubuntu-latest
+    env:
+      SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
+      SLACK_CHANNEL: ${{ secrets.SLACK_CHANNEL }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Run QA check
+        id: qa
+        run: |
+          python scripts/qa_check.py \
+            --locales locales/latest \
+            --glossary glossary/glossary.json \
+            --output /tmp/qa-report.json || true
+          BLOCKS=$(python3 -c "import json;d=json.load(open('/tmp/qa-report.json'));print(len([i for i in d if i['severity']=='BLOCK']))" 2>/dev/null || echo "0")
+          WARNS=$(python3 -c "import json;d=json.load(open('/tmp/qa-report.json'));print(len([i for i in d if i['severity']=='WARNING']))" 2>/dev/null || echo "0")
+          echo "blocks=$BLOCKS" >> $GITHUB_OUTPUT
+          echo "warnings=$WARNS" >> $GITHUB_OUTPUT
+
+      - name: Count missing keys
+        id: missing
+        run: |
+          python3 -c "
+          import json
+          ko = json.load(open('locales/latest/ko.json'))
+          langs = ['en','ja','es']
+          zh_file = 'locales/latest/zh-CN.json' if __import__('os').path.exists('locales/latest/zh-CN.json') else 'locales/latest/zh.json'
+          total_missing = 0
+          for lang in langs:
+              try:
+                  data = json.load(open(f'locales/latest/{lang}.json'))
+                  total_missing += len([k for k in ko if k not in data])
+              except: total_missing += len(ko)
+          try:
+              data = json.load(open(zh_file))
+              total_missing += len([k for k in ko if k not in data])
+          except: total_missing += len(ko)
+          print(f'missing={total_missing}')
+          " >> $GITHUB_OUTPUT
+
+      - name: Notify Slack with translate button
+        env:
+          GITHUB_REPOSITORY: ${{ github.repository }}
+        run: |
+          if [ -z "$SLACK_BOT_TOKEN" ]; then exit 0; fi
+          BLOCKS="${{ steps.qa.outputs.blocks }}"
+          WARNS="${{ steps.qa.outputs.warnings }}"
+          MISSING="${{ steps.missing.outputs.missing }}"
+
+          if [ "$MISSING" = "0" ]; then
+            STATUS="✅"
+            TRANSLATE_BTN=""
+          else
+            STATUS="🔄"
+            TRANSLATE_BTN=',{"type":"actions","block_id":"i18n_translate_action","elements":[{"type":"button","text":{"type":"plain_text","text":"🔄 번역 실행","emoji":true},"style":"primary","action_id":"i18n_translate","value":"{\"repo\":\"'$GITHUB_REPOSITORY'\"}","confirm":{"title":{"type":"plain_text","text":"번역 실행"},"text":{"type":"mrkdwn","text":"Sonnet으로 누락 '$MISSING'키 자동 번역을 시작합니다."},"confirm":{"type":"plain_text","text":"실행"},"deny":{"type":"plain_text","text":"취소"}}}]}'
+          fi
+
+          BLOCKS_JSON='[
+            {"type":"header","text":{"type":"plain_text","text":"'$STATUS' i18n QA 결과"}},
+            {"type":"section","fields":[
+              {"type":"mrkdwn","text":"*QA BLOCK:*\n'$BLOCKS'건"},
+              {"type":"mrkdwn","text":"*QA WARNING:*\n'$WARNS'건"},
+              {"type":"mrkdwn","text":"*미번역 키:*\n'$MISSING'건"}
+            ]}'$TRANSLATE_BTN'
+          ]'
+
+          curl -s -X POST https://slack.com/api/chat.postMessage \
+            -H "Authorization: Bearer $SLACK_BOT_TOKEN" \
+            -H "Content-Type: application/json" \
+            -d '{"channel":"'"$SLACK_CHANNEL"'","blocks":'"$BLOCKS_JSON"'}'
