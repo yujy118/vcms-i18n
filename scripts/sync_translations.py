@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
-"""VCMS i18n Translation Sync: ko -> en,ja,zh,es via Gemini Flash"""
-import json, os, sys, re, unicodedata, time, urllib.request, urllib.error
+"""VCMS i18n Translation Sync: ko -> en,ja,zh,es via Gemini Flash
+  --fix-blocks: Retranslate only QA BLOCK keys (for PR review)
+"""
+import json, os, sys, re, unicodedata, time, urllib.request, urllib.error, argparse
 
 LOCALES_DIR = os.environ.get("LOCALES_DIR", "locales/latest")
 GLOSSARY_PATH = os.environ.get("GLOSSARY_PATH", "glossary/glossary.json")
@@ -11,6 +13,7 @@ GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY", "")
 GEMINI_MODEL = "gemini-2.5-flash"
 GEMINI_URL = f"https://generativelanguage.googleapis.com/v1beta/models/{GEMINI_MODEL}:generateContent"
 LANG_NAMES = {"en": "English", "ja": "Japanese", "zh": "Simplified Chinese", "es": "Spanish"}
+
 
 def strip_zw(s):
     return ''.join(c for c in s if unicodedata.category(c) not in ('Cf', 'Mn', 'Cc'))
@@ -93,7 +96,110 @@ def translate_batch(texts, tgt, glossary, prompt_tpl):
         if i + bs < len(items): time.sleep(2)
     return results
 
-def main():
+
+# ========== Fix Blocks Mode ==========
+def get_block_keys_by_lang(qa_path):
+    """Extract BLOCK keys grouped by lang from QA report.
+    Returns: {lang: [key1, key2, ...]}
+    """
+    if not os.path.exists(qa_path):
+        print(f"ERROR: QA report not found: {qa_path}")
+        return {}
+    qa = load_json(qa_path)
+    blocks = [i for i in qa if i.get("severity") == "BLOCK"]
+    by_lang = {}
+    for issue in blocks:
+        lang = issue.get("lang", "")
+        key = issue.get("key", "")
+        if lang and key and lang != "ko":
+            if lang not in by_lang:
+                by_lang[lang] = set()
+            by_lang[lang].add(key)
+    # Convert sets to sorted lists
+    return {lang: sorted(keys) for lang, keys in by_lang.items()}
+
+
+def fix_blocks(qa_path):
+    """Retranslate only BLOCK keys from QA report."""
+    print("=" * 60)
+    print("VCMS i18n Fix BLOCK Keys (Gemini Flash)")
+    print("=" * 60)
+
+    glossary = load_glossary()
+    print(f"Glossary: {len(glossary)} terms")
+    prompt_tpl = load_prompt_template()
+
+    ko_path = get_path(SOURCE_LANG)
+    ko = load_json(ko_path)
+    print(f"ko.json: {len(ko)} keys")
+
+    block_keys = get_block_keys_by_lang(qa_path)
+    if not block_keys:
+        print("No BLOCK keys found. Nothing to fix.")
+        return {"fixed": 0, "languages": {}}
+
+    total_keys = sum(len(v) for v in block_keys.values())
+    print(f"\nBLOCK keys to retranslate: {total_keys}")
+    for lang, keys in block_keys.items():
+        print(f"  {lang}: {len(keys)} keys")
+
+    report = {"fixed": 0, "languages": {}}
+
+    for lang, keys in block_keys.items():
+        print(f"\n--- {lang}: {len(keys)} BLOCK keys ---")
+        path = get_path(lang)
+        if not os.path.exists(path):
+            print(f"  SKIP: {path} not found")
+            continue
+
+        data = load_json(path)
+
+        # Build source dict: ko values for block keys
+        source = {}
+        for k in keys:
+            if k in ko:
+                source[k] = ko[k]
+            else:
+                print(f"  SKIP: {k} not in ko.json")
+
+        if not source:
+            print("  No keys to translate")
+            continue
+
+        # Show before values
+        print(f"  Retranslating {len(source)} keys...")
+        for k in list(source.keys())[:5]:
+            old = data.get(k, "")
+            print(f"    {k}: {old[:60]}...")
+
+        # Translate
+        translated = translate_batch(source, lang, glossary, prompt_tpl)
+
+        # Apply
+        changed = 0
+        for k, new_val in translated.items():
+            old_val = data.get(k, "")
+            if old_val != new_val:
+                data[k] = new_val
+                changed += 1
+
+        # Save (preserve key order from ko.json)
+        ordered = {k: data[k] for k in ko if k in data}
+        save_json(path, ordered)
+        print(f"  Changed: {changed}/{len(source)} keys")
+        report["languages"][lang] = {"keys": len(source), "changed": changed}
+        report["fixed"] += changed
+
+    # Save fix report
+    fix_report_path = os.path.join(LOCALES_DIR, ".fix-report.json")
+    save_json(fix_report_path, report)
+    print(f"\nFix report: {fix_report_path}")
+    print(f"Total fixed: {report['fixed']} keys")
+    return report
+
+
+# ========== Normal Sync Mode ==========
+def sync():
     print("=" * 60 + "\nVCMS i18n Translation Sync (Gemini Flash)\n" + "=" * 60)
     glossary = load_glossary(); print(f"Glossary: {len(glossary)} terms")
     prompt_tpl = load_prompt_template(); print(f"Prompt: {PROMPT_PATH}")
@@ -121,4 +227,14 @@ def main():
     for l, i in report["languages"].items(): print(f"  {l}: {i['coverage']} +{i['translated']}")
     print("Done")
 
-if __name__ == "__main__": main()
+
+if __name__ == "__main__":
+    p = argparse.ArgumentParser()
+    p.add_argument("--fix-blocks", action="store_true", help="Retranslate QA BLOCK keys only")
+    p.add_argument("--qa-report", default="locales/latest/.qa-report.json", help="QA report path")
+    args = p.parse_args()
+
+    if args.fix_blocks:
+        fix_blocks(args.qa_report)
+    else:
+        sync()
