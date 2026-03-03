@@ -2,146 +2,10 @@
   {
     "severity": "BLOCK",
     "check": "glossary_violation",
-    "key": "ONBOARDING.CHANNELS.success",
-    "lang": "en",
-    "message": "\"Accommodation\" -> \"Property\"",
-    "value": "Accommodation setup is complete."
-  },
-  {
-    "severity": "BLOCK",
-    "check": "glossary_violation",
-    "key": "change-payment-date-modal.summary.subscription-fee",
-    "lang": "en",
-    "message": "\"Fee\" -> \"Rate\"",
-    "value": "Recurring {type, select, YEARLY {Annual} other {Monthly}} Subscription Fee"
-  },
-  {
-    "severity": "BLOCK",
-    "check": "glossary_violation",
     "key": "dropdown-avatar.label.contact-customer-support",
     "lang": "en",
     "message": "\"Fee\" -> \"Rate\"",
-    "value": "Feedback"
-  },
-  {
-    "severity": "BLOCK",
-    "check": "glossary_violation",
-    "key": "integration-modal.guide.label",
-    "lang": "en",
-    "message": "\"Accommodation\" -> \"Property\"",
-    "value": "Accommodation ID Example\n"
-  },
-  {
-    "severity": "BLOCK",
-    "check": "glossary_violation",
-    "key": "inventory.floating-message.sold-out",
-    "lang": "en",
-    "message": "\"Sold Out\" -> \"Sold\"",
-    "value": "Sold Out"
-  },
-  {
-    "severity": "BLOCK",
-    "check": "glossary_violation",
-    "key": "onboarding.channels.select-property.preview.connect-channel",
-    "lang": "en",
-    "message": "\"Accommodation\" -> \"Property\"",
-    "value": "Connected Accommodation"
-  },
-  {
-    "severity": "BLOCK",
-    "check": "glossary_violation",
-    "key": "onboarding.channels.select-property.preview.disconnect-channel",
-    "lang": "en",
-    "message": "\"Accommodation\" -> \"Property\"",
-    "value": "Available Accommodations"
-  },
-  {
-    "severity": "BLOCK",
-    "check": "glossary_violation",
-    "key": "onboarding.packages.preview.description",
-    "lang": "en",
-    "message": "\"Accommodation\" -> \"Property\"",
-    "value": "Accommodations that sell at least one additional packages per room type generate \napproximately <sem"
-  },
-  {
-    "severity": "BLOCK",
-    "check": "glossary_violation",
-    "key": "package-form.rate-type.obp-base.extra-adult-charge",
-    "lang": "en",
-    "message": "\"Fee\" -> \"Rate\"",
-    "value": "Fee per extra guest"
-  },
-  {
-    "severity": "BLOCK",
-    "check": "glossary_violation",
-    "key": "package-modification-summary.with-rate-plan",
-    "lang": "en",
-    "message": "\"Fee\" -> \"Rate\"",
-    "value": "{totalCharge, plural,\nother {<1>Create the { name } package for the { roomTypeName } room type .\nThe"
-  },
-  {
-    "severity": "BLOCK",
-    "check": "glossary_violation",
-    "key": "package.badge.extra-adult-charge-zero",
-    "lang": "en",
-    "message": "\"Fee\" -> \"Rate\"",
-    "value": "No Extra Guest Fee"
-  },
-  {
-    "severity": "BLOCK",
-    "check": "glossary_violation",
-    "key": "package.badge.obp-tooltip.extra-adult-charge-zero",
-    "lang": "en",
-    "message": "\"Fee\" -> \"Rate\"",
-    "value": "Base occupancy {baseOccupancy}, Max occupancy {maxOccupancy}\nNo Extra Guest Fee"
-  },
-  {
-    "severity": "BLOCK",
-    "check": "glossary_violation",
-    "key": "payment-option.MONTHLY.name",
-    "lang": "en",
-    "message": "\"Fee\" -> \"Rate\"",
-    "value": "Subscription Fee"
-  },
-  {
-    "severity": "BLOCK",
-    "check": "glossary_violation",
-    "key": "payment-option.YEARLY.name",
-    "lang": "en",
-    "message": "\"Fee\" -> \"Rate\"",
-    "value": "Subscription Fee"
-  },
-  {
-    "severity": "BLOCK",
-    "check": "glossary_violation",
-    "key": "rate-plan-form.rate-type.obp-base.extra-adult-charge",
-    "lang": "en",
-    "message": "\"Fee\" -> \"Rate\"",
-    "value": "Extra Guest Fee"
-  },
-  {
-    "severity": "BLOCK",
-    "check": "glossary_violation",
-    "key": "setting-rate-header.charge.asc",
-    "lang": "en",
-    "message": "\"Price\" -> \"Rate\"",
-    "value": "Lowest Price"
-  },
-  {
-    "severity": "BLOCK",
-    "check": "glossary_violation",
-    "key": "setting-rate-header.charge.desc",
-    "lang": "en",
-    "message": "\"Price\" -> \"Rate\"",
-    "value": "Highest Price"
-  },
-  {
-    "severity": "BLOCK",
-    "check": "glossary_violation",
-    "key": "subscription-modal.summary.subscription-fee",
-    "lang": "en",
-    "message": "\"Fee\" -> \"Rate\"",
-    "value": "Total Recurring {type, select, YEARLY {Annual} other {Monthly}} Subscription Fee"
+    "value": "Send Feedback"
   },
   {
     "severity": "BLOCK",
@@ -149,7 +13,7 @@
     "key": "subscription-prompt.modal.footer.tooltip.first-payment-both",
     "lang": "en",
     "message": "\"Price\" -> \"Rate\"",
-    "value": "Annual Payment (Includes {yearDuration} Days Starting Today) {yearPrice}\nMonthly Payment (Includes {"
+    "value": "[ERROR:en] 연간 결제 (오늘 포함 {yearDuration}일치) {yearPrice}\n월간 결제 (오늘 포함 {monthDuration}일치) {monthPrice}"
   },
   {
     "severity": "BLOCK",
@@ -157,7 +21,7 @@
     "key": "subscription-prompt.modal.footer.tooltip.first-payment-month",
     "lang": "en",
     "message": "\"Price\" -> \"Rate\"",
-    "value": "Monthly Payment (Includes {monthDuration} Days Starting Today) {monthPrice}"
+    "value": "[ERROR:en] 월간 결제 (오늘 포함 {monthDuration}일치) {monthPrice}"
   },
   {
     "severity": "BLOCK",
@@ -165,7 +29,7 @@
     "key": "subscription-prompt.modal.footer.tooltip.first-payment-year",
     "lang": "en",
     "message": "\"Price\" -> \"Rate\"",
-    "value": "Annual Payment (Includes {yearDuration} days from today) {yearPrice}"
+    "value": "[ERROR:en] 연간 결제 (오늘 포함 {yearDuration}일치) {yearPrice}"
   },
   {
     "severity": "BLOCK",
@@ -173,7 +37,7 @@
     "key": "subscription-service-detail-modal.inventory-and-rate-per-room.subscription-fee",
     "lang": "en",
     "message": "\"Fee\" -> \"Rate\"",
-    "value": "Up to {baseQuantity} rooms {baseFee} / {additionalFee} per additional room"
+    "value": "[ERROR:en] 기본 {baseQuantity}객실까지 {baseFee} / 추가 객실 1개당 {additionalFee}"
   },
   {
     "severity": "BLOCK",
@@ -181,7 +45,7 @@
     "key": "subscription-service-detail-modal.inventory-per-room.subscription-fee",
     "lang": "en",
     "message": "\"Fee\" -> \"Rate\"",
-    "value": "Up to {baseQuantity} rooms {baseFee} / {additionalFee} per additional room"
+    "value": "[ERROR:en] 기본 {baseQuantity}객실까지 {baseFee} / 추가 객실 1개당 {additionalFee}"
   },
   {
     "severity": "BLOCK",
@@ -189,31 +53,7 @@
     "key": "subscription-service-detail-modal.notification-per-alarm.subscription-fee",
     "lang": "en",
     "message": "\"Fee\" -> \"Rate\"",
-    "value": "1 included / {additionalFee} per additional contact"
-  },
-  {
-    "severity": "BLOCK",
-    "check": "glossary_violation",
-    "key": "subscription-service-detail-modal.subscription-fee",
-    "lang": "en",
-    "message": "\"Fee\" -> \"Rate\"",
-    "value": "{type, select, YEARLY {Annual} other {Monthly}} Subscription Fee Total"
-  },
-  {
-    "severity": "BLOCK",
-    "check": "glossary_violation",
-    "key": "terms.service",
-    "lang": "en",
-    "message": "\"Fee\" -> \"Rate\"",
-    "value": "Article 1 (Purpose)\nThese Terms and Conditions define the rights, obligations, and responsibilities "
-  },
-  {
-    "severity": "BLOCK",
-    "check": "glossary_violation",
-    "key": "update-package-modal.propagate.unsynced.callout-1",
-    "lang": "en",
-    "message": "\"Reservation\" -> \"Booking\"",
-    "value": "Reservations will still sync, but sales status, availability, and rates may differ from the connecte"
+    "value": "[ERROR:en] 기본 1개 제공 / 추가 1개당 {additionalFee}"
   },
   {
     "severity": "WARNING",
@@ -602,6 +442,14 @@
   {
     "severity": "WARNING",
     "check": "es_capitalization",
+    "key": "onboarding.inclusions.cardPreview.title",
+    "lang": "es",
+    "message": "\"Paquete\" should be lowercase mid-sentence",
+    "value": "{inclusion} Paquete"
+  },
+  {
+    "severity": "WARNING",
+    "check": "es_capitalization",
     "key": "onboarding.inclusions.preview.preview.title",
     "lang": "es",
     "message": "\"Canal\" should be lowercase mid-sentence",
@@ -918,13 +766,6 @@
     "message": "Extra: {'name'}"
   },
   {
-    "severity": "BLOCK",
-    "check": "placeholder_missing",
-    "key": "create-accommodation.select-accommodation.title",
-    "lang": "en",
-    "message": "Missing: {'keyword', 'count'}"
-  },
-  {
     "severity": "WARNING",
     "check": "placeholder_extra",
     "key": "modification-channel-form.id.placeholder",
@@ -953,109 +794,11 @@
     "message": "Extra: {'name'}"
   },
   {
-    "severity": "BLOCK",
-    "check": "placeholder_missing",
-    "key": "modification-channel-package.title",
-    "lang": "en",
-    "message": "Missing: {'channelName', 'property'}"
-  },
-  {
-    "severity": "BLOCK",
-    "check": "placeholder_missing",
-    "key": "modification-channel-properties.title",
-    "lang": "en",
-    "message": "Missing: {'count'}"
-  },
-  {
-    "severity": "BLOCK",
-    "check": "placeholder_missing",
-    "key": "package-table.room-type",
-    "lang": "en",
-    "message": "Missing: {'roomType'}"
-  },
-  {
-    "severity": "BLOCK",
-    "check": "placeholder_missing",
-    "key": "rate-plan-table.room-type",
-    "lang": "en",
-    "message": "Missing: {'roomType'}"
-  },
-  {
-    "severity": "BLOCK",
-    "check": "placeholder_missing",
-    "key": "refill.chip",
-    "lang": "en",
-    "message": "Missing: {'refill'}"
-  },
-  {
-    "severity": "WARNING",
-    "check": "placeholder_extra",
-    "key": "refill.chip",
-    "lang": "en",
-    "message": "Extra: {'value'}"
-  },
-  {
-    "severity": "BLOCK",
-    "check": "placeholder_missing",
-    "key": "subscription-modal.content.free-trial.callout",
-    "lang": "en",
-    "message": "Missing: {'expiredAt'}"
-  },
-  {
-    "severity": "WARNING",
-    "check": "placeholder_extra",
-    "key": "subscription-modal.content.free-trial.callout",
-    "lang": "en",
-    "message": "Extra: {'date'}"
-  },
-  {
-    "severity": "BLOCK",
-    "check": "placeholder_missing",
-    "key": "update-batch-modal.preview.change-to",
-    "lang": "en",
-    "message": "Missing: {'updateItem'}"
-  },
-  {
-    "severity": "BLOCK",
-    "check": "placeholder_missing",
-    "key": "update-batch-modal.preview.label.more",
-    "lang": "en",
-    "message": "Missing: {'count'}"
-  },
-  {
-    "severity": "WARNING",
-    "check": "placeholder_extra",
-    "key": "update-batch-modal.preview.label.more",
-    "lang": "en",
-    "message": "Extra: {'countExcludeOne'}"
-  },
-  {
     "severity": "WARNING",
     "check": "placeholder_extra",
     "key": "upsert-room-type-modal.brief",
     "lang": "en",
-    "message": "Extra: {'name', 'count'}"
-  },
-  {
-    "severity": "BLOCK",
-    "check": "placeholder_missing",
-    "key": "COUNTRY",
-    "lang": "ja",
-    "message": "Missing: {'countryCode'}"
-  },
-  {
-    "severity": "WARNING",
-    "check": "placeholder_extra",
-    "key": "COUNTRY",
-    "lang": "ja",
-    "message": "Extra: {'国コード'}"
-  },
-  {
-    "severity": "BLOCK",
-    "check": "placeholder_missing",
-    "key": "create-accommodation.select-accommodation.title",
-    "lang": "ja",
-    "message": "Missing: {'keyword', 'count'}"
+    "message": "Extra: {'count', 'name'}"
   },
   {
     "severity": "WARNING",
@@ -1065,46 +808,11 @@
     "message": "Extra: {'名前'}"
   },
   {
-    "severity": "BLOCK",
-    "check": "placeholder_missing",
-    "key": "subscription-service.modal.paymentedAt",
-    "lang": "ja",
-    "message": "Missing: {'paymentType'}"
-  },
-  {
-    "severity": "WARNING",
-    "check": "placeholder_extra",
-    "key": "subscription-service.modal.paymentedAt",
-    "lang": "ja",
-    "message": "Extra: {'支払いタイプ'}"
-  },
-  {
-    "severity": "BLOCK",
-    "check": "placeholder_missing",
-    "key": "COUNTRY",
-    "lang": "zh",
-    "message": "Missing: {'countryCode'}"
-  },
-  {
-    "severity": "WARNING",
-    "check": "placeholder_extra",
-    "key": "COUNTRY",
-    "lang": "zh",
-    "message": "Extra: {'国家代码'}"
-  },
-  {
     "severity": "WARNING",
     "check": "placeholder_extra",
     "key": "channel-identity.input-field-figure.identity.placeholder",
     "lang": "zh",
     "message": "Extra: {'id'}"
-  },
-  {
-    "severity": "BLOCK",
-    "check": "placeholder_missing",
-    "key": "create-accommodation.select-accommodation.title",
-    "lang": "zh",
-    "message": "Missing: {'keyword', 'count'}"
   },
   {
     "severity": "WARNING",
@@ -1133,69 +841,6 @@
     "key": "modification-channel-form.pw.placeholder",
     "lang": "zh",
     "message": "Extra: {'name'}"
-  },
-  {
-    "severity": "BLOCK",
-    "check": "placeholder_missing",
-    "key": "update-batch-modal.preview.change-to",
-    "lang": "zh",
-    "message": "Missing: {'updateItem'}"
-  },
-  {
-    "severity": "BLOCK",
-    "check": "placeholder_missing",
-    "key": "COUNTRY",
-    "lang": "es",
-    "message": "Missing: {'countryCode'}"
-  },
-  {
-    "severity": "WARNING",
-    "check": "placeholder_extra",
-    "key": "COUNTRY",
-    "lang": "es",
-    "message": "Extra: {'códigoDePaís'}"
-  },
-  {
-    "severity": "BLOCK",
-    "check": "placeholder_missing",
-    "key": "GLOBAL.CURRENCY",
-    "lang": "es",
-    "message": "Missing: {'currency'}"
-  },
-  {
-    "severity": "WARNING",
-    "check": "placeholder_extra",
-    "key": "GLOBAL.CURRENCY",
-    "lang": "es",
-    "message": "Extra: {'moneda'}"
-  },
-  {
-    "severity": "BLOCK",
-    "check": "placeholder_missing",
-    "key": "GLOBAL.DAY",
-    "lang": "es",
-    "message": "Missing: {'day'}"
-  },
-  {
-    "severity": "WARNING",
-    "check": "placeholder_extra",
-    "key": "GLOBAL.DAY",
-    "lang": "es",
-    "message": "Extra: {'día'}"
-  },
-  {
-    "severity": "BLOCK",
-    "check": "placeholder_missing",
-    "key": "booking-quantity",
-    "lang": "es",
-    "message": "Missing: {'value'}"
-  },
-  {
-    "severity": "WARNING",
-    "check": "placeholder_extra",
-    "key": "booking-quantity",
-    "lang": "es",
-    "message": "Extra: {'count'}"
   },
   {
     "severity": "WARNING",
@@ -1212,83 +857,6 @@
     "message": "Extra: {'nombre'}"
   },
   {
-    "severity": "BLOCK",
-    "check": "placeholder_missing",
-    "key": "create-accommodation.select-accommodation.title",
-    "lang": "es",
-    "message": "Missing: {'keyword', 'count'}"
-  },
-  {
-    "severity": "BLOCK",
-    "check": "placeholder_missing",
-    "key": "create-integration-adapter.error",
-    "lang": "es",
-    "message": "Missing: {'integration'}"
-  },
-  {
-    "severity": "WARNING",
-    "check": "placeholder_extra",
-    "key": "create-integration-adapter.error",
-    "lang": "es",
-    "message": "Extra: {'integración'}"
-  },
-  {
-    "severity": "BLOCK",
-    "check": "placeholder_missing",
-    "key": "create-integration-adapter.success",
-    "lang": "es",
-    "message": "Missing: {'integration'}"
-  },
-  {
-    "severity": "WARNING",
-    "check": "placeholder_extra",
-    "key": "create-integration-adapter.success",
-    "lang": "es",
-    "message": "Extra: {'integración'}"
-  },
-  {
-    "severity": "BLOCK",
-    "check": "placeholder_missing",
-    "key": "delete-integration-adapter.error",
-    "lang": "es",
-    "message": "Missing: {'integration'}"
-  },
-  {
-    "severity": "WARNING",
-    "check": "placeholder_extra",
-    "key": "delete-integration-adapter.error",
-    "lang": "es",
-    "message": "Extra: {'integración'}"
-  },
-  {
-    "severity": "BLOCK",
-    "check": "placeholder_missing",
-    "key": "delete-integration-adapter.success",
-    "lang": "es",
-    "message": "Missing: {'integration'}"
-  },
-  {
-    "severity": "WARNING",
-    "check": "placeholder_extra",
-    "key": "delete-integration-adapter.success",
-    "lang": "es",
-    "message": "Extra: {'integración'}"
-  },
-  {
-    "severity": "BLOCK",
-    "check": "placeholder_missing",
-    "key": "integration-modal.link.header",
-    "lang": "es",
-    "message": "Missing: {'integration'}"
-  },
-  {
-    "severity": "WARNING",
-    "check": "placeholder_extra",
-    "key": "integration-modal.link.header",
-    "lang": "es",
-    "message": "Extra: {'integración'}"
-  },
-  {
     "severity": "WARNING",
     "check": "placeholder_extra",
     "key": "modification-channel-form.id.placeholder",
@@ -1315,167 +883,6 @@
     "key": "modification-channel-form.pw.placeholder",
     "lang": "es",
     "message": "Extra: {'nombre'}"
-  },
-  {
-    "severity": "BLOCK",
-    "check": "placeholder_missing",
-    "key": "onboarding.inclusions.cardPreview.title",
-    "lang": "es",
-    "message": "Missing: {'inclusion'}"
-  },
-  {
-    "severity": "WARNING",
-    "check": "placeholder_extra",
-    "key": "onboarding.inclusions.cardPreview.title",
-    "lang": "es",
-    "message": "Extra: {'inclusión'}"
-  },
-  {
-    "severity": "BLOCK",
-    "check": "placeholder_missing",
-    "key": "package.night-use.preview.package.charge-range.min-max",
-    "lang": "es",
-    "message": "Missing: {'max', 'min'}"
-  },
-  {
-    "severity": "WARNING",
-    "check": "placeholder_extra",
-    "key": "package.night-use.preview.package.charge-range.min-max",
-    "lang": "es",
-    "message": "Extra: {'mín', 'máx'}"
-  },
-  {
-    "severity": "BLOCK",
-    "check": "placeholder_missing",
-    "key": "rate-period-row.order",
-    "lang": "es",
-    "message": "Missing: {'order'}"
-  },
-  {
-    "severity": "WARNING",
-    "check": "placeholder_extra",
-    "key": "rate-period-row.order",
-    "lang": "es",
-    "message": "Extra: {'orden'}"
-  },
-  {
-    "severity": "BLOCK",
-    "check": "placeholder_missing",
-    "key": "rate-plan-table.room-type",
-    "lang": "es",
-    "message": "Missing: {'roomType'}"
-  },
-  {
-    "severity": "WARNING",
-    "check": "placeholder_extra",
-    "key": "rate-plan-table.room-type",
-    "lang": "es",
-    "message": "Extra: {'tipoDeHabitación'}"
-  },
-  {
-    "severity": "BLOCK",
-    "check": "placeholder_missing",
-    "key": "refill.chip",
-    "lang": "es",
-    "message": "Missing: {'refill'}"
-  },
-  {
-    "severity": "WARNING",
-    "check": "placeholder_extra",
-    "key": "refill.chip",
-    "lang": "es",
-    "message": "Extra: {'valor'}"
-  },
-  {
-    "severity": "BLOCK",
-    "check": "placeholder_missing",
-    "key": "request-billing-auth-error",
-    "lang": "es",
-    "message": "Missing: {'code'}"
-  },
-  {
-    "severity": "WARNING",
-    "check": "placeholder_extra",
-    "key": "request-billing-auth-error",
-    "lang": "es",
-    "message": "Extra: {'código'}"
-  },
-  {
-    "severity": "BLOCK",
-    "check": "placeholder_missing",
-    "key": "setting-room-type-header.total-room-type",
-    "lang": "es",
-    "message": "Missing: {'total'}"
-  },
-  {
-    "severity": "WARNING",
-    "check": "placeholder_extra",
-    "key": "setting-room-type-header.total-room-type",
-    "lang": "es",
-    "message": "Extra: {'value'}"
-  },
-  {
-    "severity": "BLOCK",
-    "check": "placeholder_missing",
-    "key": "subscription-service.modal.paymentedAt",
-    "lang": "es",
-    "message": "Missing: {'paymentType'}"
-  },
-  {
-    "severity": "WARNING",
-    "check": "placeholder_extra",
-    "key": "subscription-service.modal.paymentedAt",
-    "lang": "es",
-    "message": "Extra: {'tipoDePago'}"
-  },
-  {
-    "severity": "BLOCK",
-    "check": "placeholder_missing",
-    "key": "unsubscribe.step-3.date-of-use",
-    "lang": "es",
-    "message": "Missing: {'days'}"
-  },
-  {
-    "severity": "WARNING",
-    "check": "placeholder_extra",
-    "key": "unsubscribe.step-3.date-of-use",
-    "lang": "es",
-    "message": "Extra: {'días'}"
-  },
-  {
-    "severity": "BLOCK",
-    "check": "placeholder_missing",
-    "key": "update-batch-modal.preview.change-to",
-    "lang": "es",
-    "message": "Missing: {'updateItem'}"
-  },
-  {
-    "severity": "BLOCK",
-    "check": "placeholder_missing",
-    "key": "update-integration-adapter.error",
-    "lang": "es",
-    "message": "Missing: {'integration'}"
-  },
-  {
-    "severity": "WARNING",
-    "check": "placeholder_extra",
-    "key": "update-integration-adapter.error",
-    "lang": "es",
-    "message": "Extra: {'integración'}"
-  },
-  {
-    "severity": "BLOCK",
-    "check": "placeholder_missing",
-    "key": "update-integration-adapter.success",
-    "lang": "es",
-    "message": "Missing: {'integration'}"
-  },
-  {
-    "severity": "WARNING",
-    "check": "placeholder_extra",
-    "key": "update-integration-adapter.success",
-    "lang": "es",
-    "message": "Extra: {'integración'}"
   },
   {
     "severity": "WARNING",
@@ -1595,13 +1002,6 @@
     "key": "terms.private",
     "lang": "en",
     "message": "ko:74 vs en:80"
-  },
-  {
-    "severity": "WARNING",
-    "check": "newline_mismatch",
-    "key": "terms.service",
-    "lang": "en",
-    "message": "ko:369 vs en:110"
   },
   {
     "severity": "WARNING",
@@ -1830,13 +1230,6 @@
   {
     "severity": "WARNING",
     "check": "newline_mismatch",
-    "key": "booking-quantity",
-    "lang": "es",
-    "message": "ko:0 vs es:3"
-  },
-  {
-    "severity": "WARNING",
-    "check": "newline_mismatch",
     "key": "card-day-use-package.delete",
     "lang": "es",
     "message": "ko:1 vs es:5"
@@ -1991,226 +1384,9 @@
   {
     "severity": "BLOCK",
     "check": "html_broken",
-    "key": "charge-copy-popover.equalize-charge",
-    "lang": "en",
-    "message": "Tags mismatch ko=['<price>', '</price>']"
-  },
-  {
-    "severity": "BLOCK",
-    "check": "html_broken",
-    "key": "create-accommodation.select-accommodation.title",
-    "lang": "en",
-    "message": "Tags mismatch ko=['<highlight>', '</highlight>', '<highlight>', '</highlight>']"
-  },
-  {
-    "severity": "BLOCK",
-    "check": "html_broken",
-    "key": "delete-inclusion-modal-modal.description",
-    "lang": "en",
-    "message": "Tags mismatch ko=['<bold>', '</bold>']"
-  },
-  {
-    "severity": "BLOCK",
-    "check": "html_broken",
-    "key": "delete-package-modal.description",
-    "lang": "en",
-    "message": "Tags mismatch ko=['<bold>', '</bold>']"
-  },
-  {
-    "severity": "BLOCK",
-    "check": "html_broken",
-    "key": "delete-periods-modal-modal.description",
-    "lang": "en",
-    "message": "Tags mismatch ko=['<bold>', '</bold>']"
-  },
-  {
-    "severity": "BLOCK",
-    "check": "html_broken",
-    "key": "delete-room-type-modal.description",
-    "lang": "en",
-    "message": "Tags mismatch ko=['<bold>', '</bold>']"
-  },
-  {
-    "severity": "BLOCK",
-    "check": "html_broken",
-    "key": "delete-time-table-modal.description",
-    "lang": "en",
-    "message": "Tags mismatch ko=['<bold>', '</bold>']"
-  },
-  {
-    "severity": "BLOCK",
-    "check": "html_broken",
-    "key": "modification-channel-package.title",
-    "lang": "en",
-    "message": "Tags mismatch ko=['<1>', '</1>', '<1>', '</1>']"
-  },
-  {
-    "severity": "BLOCK",
-    "check": "html_broken",
-    "key": "modification-channel-properties.title",
-    "lang": "en",
-    "message": "Tags mismatch ko=['<primary>', '</primary>', '<primary>', '</primary>']"
-  },
-  {
-    "severity": "BLOCK",
-    "check": "html_broken",
-    "key": "package-modification-summary.only-package",
-    "lang": "en",
-    "message": "Tags mismatch ko=['<1>', '<bold>', '</bold>', '<bold>', '</bold>', '</1>']"
-  },
-  {
-    "severity": "BLOCK",
-    "check": "html_broken",
-    "key": "package-modification-summary.with-rate-plan",
-    "lang": "en",
-    "message": "Tags mismatch ko=['<1>', '<bold>', '</bold>', '<bold>', '</bold>', '<bold>', '</bold>', '</1>', '<2>', '</2>']"
-  },
-  {
-    "severity": "BLOCK",
-    "check": "html_broken",
     "key": "package-multiplier-alert.body",
     "lang": "en",
     "message": "Tags mismatch ko=['<1>', '</1>']"
-  },
-  {
-    "severity": "BLOCK",
-    "check": "html_broken",
-    "key": "subscription-service.next-payment",
-    "lang": "en",
-    "message": "Tags mismatch ko=['<strong>', '</strong>', '<strong>', '</strong>', '<strong>', '</strong>']"
-  },
-  {
-    "severity": "BLOCK",
-    "check": "html_broken",
-    "key": "update-inclusion-modal.description",
-    "lang": "en",
-    "message": "Tags mismatch ko=['<bold>', '</bold>']"
-  },
-  {
-    "severity": "BLOCK",
-    "check": "html_broken",
-    "key": "create-accommodation.select-accommodation.title",
-    "lang": "ja",
-    "message": "Tags mismatch ko=['<highlight>', '</highlight>', '<highlight>', '</highlight>']"
-  },
-  {
-    "severity": "BLOCK",
-    "check": "html_broken",
-    "key": "delete-inclusion-modal-modal.description",
-    "lang": "ja",
-    "message": "Tags mismatch ko=['<bold>', '</bold>']"
-  },
-  {
-    "severity": "BLOCK",
-    "check": "html_broken",
-    "key": "delete-package-modal.description",
-    "lang": "ja",
-    "message": "Tags mismatch ko=['<bold>', '</bold>']"
-  },
-  {
-    "severity": "BLOCK",
-    "check": "html_broken",
-    "key": "delete-periods-modal-modal.description",
-    "lang": "ja",
-    "message": "Tags mismatch ko=['<bold>', '</bold>']"
-  },
-  {
-    "severity": "BLOCK",
-    "check": "html_broken",
-    "key": "delete-room-type-modal.description",
-    "lang": "ja",
-    "message": "Tags mismatch ko=['<bold>', '</bold>']"
-  },
-  {
-    "severity": "BLOCK",
-    "check": "html_broken",
-    "key": "delete-time-table-modal.description",
-    "lang": "ja",
-    "message": "Tags mismatch ko=['<bold>', '</bold>']"
-  },
-  {
-    "severity": "BLOCK",
-    "check": "html_broken",
-    "key": "subscription-service.next-payment",
-    "lang": "ja",
-    "message": "Tags mismatch ko=['<strong>', '</strong>', '<strong>', '</strong>', '<strong>', '</strong>']"
-  },
-  {
-    "severity": "BLOCK",
-    "check": "html_broken",
-    "key": "update-inclusion-modal.description",
-    "lang": "ja",
-    "message": "Tags mismatch ko=['<bold>', '</bold>']"
-  },
-  {
-    "severity": "BLOCK",
-    "check": "html_broken",
-    "key": "charge-copy-popover.equalize-charge",
-    "lang": "zh",
-    "message": "Tags mismatch ko=['<price>', '</price>']"
-  },
-  {
-    "severity": "BLOCK",
-    "check": "html_broken",
-    "key": "create-accommodation.select-accommodation.title",
-    "lang": "zh",
-    "message": "Tags mismatch ko=['<highlight>', '</highlight>', '<highlight>', '</highlight>']"
-  },
-  {
-    "severity": "BLOCK",
-    "check": "html_broken",
-    "key": "package-modification-summary.only-package",
-    "lang": "zh",
-    "message": "Tags mismatch ko=['<1>', '<bold>', '</bold>', '<bold>', '</bold>', '</1>']"
-  },
-  {
-    "severity": "BLOCK",
-    "check": "html_broken",
-    "key": "rate-modal.confirm-static.body",
-    "lang": "zh",
-    "message": "Tags mismatch ko=['<bold>', '</bold>']"
-  },
-  {
-    "severity": "BLOCK",
-    "check": "html_broken",
-    "key": "update-time-table-modal.description",
-    "lang": "zh",
-    "message": "Tags mismatch ko=['<bold>', '</bold>']"
-  },
-  {
-    "severity": "BLOCK",
-    "check": "html_broken",
-    "key": "charge-copy-popover.equalize-charge",
-    "lang": "es",
-    "message": "Tags mismatch ko=['<price>', '</price>']"
-  },
-  {
-    "severity": "BLOCK",
-    "check": "html_broken",
-    "key": "create-accommodation.select-accommodation.title",
-    "lang": "es",
-    "message": "Tags mismatch ko=['<highlight>', '</highlight>', '<highlight>', '</highlight>']"
-  },
-  {
-    "severity": "BLOCK",
-    "check": "html_broken",
-    "key": "modification-channel-package.title",
-    "lang": "es",
-    "message": "Tags mismatch ko=['<1>', '</1>', '<1>', '</1>']"
-  },
-  {
-    "severity": "BLOCK",
-    "check": "html_broken",
-    "key": "onboarding.packages.preview.diagram.package.1",
-    "lang": "es",
-    "message": "Tags mismatch ko=['<gray>', '</gray>']"
-  },
-  {
-    "severity": "BLOCK",
-    "check": "html_broken",
-    "key": "package-modification-summary.only-package",
-    "lang": "es",
-    "message": "Tags mismatch ko=['<1>', '<bold>', '</bold>', '<bold>', '</bold>', '</1>']"
   },
   {
     "severity": "BLOCK",
@@ -2428,47 +1604,5 @@
     "key": "link-update-note",
     "lang": "es",
     "message": "Same as ko: \"https://docs.vcms.io/ko/accommodation/signup-login\""
-  },
-  {
-    "severity": "BLOCK",
-    "check": "icu_mismatch",
-    "key": "management-payment-info",
-    "lang": "en",
-    "message": "ICU changed: ko=[('isYearsType', 'plural')] vs en=[('isYearsType', 'plural'), ('isYearsType', 'plural')]"
-  },
-  {
-    "severity": "BLOCK",
-    "check": "icu_mismatch",
-    "key": "package-modification-summary.with-rate-plan",
-    "lang": "en",
-    "message": "ICU changed: ko=[('totalCharge', 'plural'), ('inclusionsCharge', 'plural'), ('rateCharge', 'plural'), ('isObp', 'plural')] vs en=[('totalCharge', 'plural'), ('rateCharge', 'plural'), ('isObp', 'plural')]"
-  },
-  {
-    "severity": "BLOCK",
-    "check": "icu_mismatch",
-    "key": "package-modification-summary.with-rate-plan",
-    "lang": "ja",
-    "message": "ICU changed: ko=[('totalCharge', 'plural'), ('inclusionsCharge', 'plural'), ('rateCharge', 'plural'), ('isObp', 'plural')] vs ja=[('totalCharge', 'plural'), ('rateCharge', 'plural'), ('isObp', 'plural')]"
-  },
-  {
-    "severity": "BLOCK",
-    "check": "icu_broken",
-    "key": "subscription-service.modal.paymentedAt",
-    "lang": "ja",
-    "message": "ICU format lost: [('paymentType', 'select')]"
-  },
-  {
-    "severity": "BLOCK",
-    "check": "icu_mismatch",
-    "key": "package-modification-summary.with-rate-plan",
-    "lang": "zh",
-    "message": "ICU changed: ko=[('totalCharge', 'plural'), ('inclusionsCharge', 'plural'), ('rateCharge', 'plural'), ('isObp', 'plural')] vs zh=[('totalCharge', 'plural'), ('rateCharge', 'plural'), ('isObp', 'plural')]"
-  },
-  {
-    "severity": "BLOCK",
-    "check": "icu_broken",
-    "key": "subscription-service.modal.paymentedAt",
-    "lang": "es",
-    "message": "ICU format lost: [('paymentType', 'select')]"
   }
 ]
