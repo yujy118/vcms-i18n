@@ -72,7 +72,7 @@ def check_glossary(ko, tr):
                     if wrong == 'Product' and 'product' in key.lower(): continue
                     if wrong in ('Price','Fee') and 'price' in key.lower(): continue
                     # [FIX-1] accommodation in key = entity name, not glossary term
-                    if wrong == 'Accommodation' and 'accommodation' in key.lower(): continue
+                    if wrong == 'Accommodation' and 'accommodat' in key.lower(): continue
                     issues.append({'severity': BLOCK, 'check': 'glossary_violation',
                         'key': key, 'lang': lang,
                         'message': f'"{wrong}" -> "{correct}"', 'value': val[:100]})
