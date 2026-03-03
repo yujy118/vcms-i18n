@@ -1,10 +1,6 @@
-name: i18n Translation Sync
+name: i18n Translation Sync (Manual)
 
 on:
-  push:
-    paths:
-      - 'locales/latest/ko.json'
-    branches: [main]
   workflow_dispatch:
 
 permissions:
