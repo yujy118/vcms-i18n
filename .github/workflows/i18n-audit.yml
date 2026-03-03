@@ -1,0 +1,50 @@
+name: i18n Weekly Audit
+
+on:
+  schedule:
+    - cron: '0 0 * * 1'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    env:
+      SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
+      SLACK_CHANNEL: ${{ secrets.SLACK_CHANNEL }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Run QA audit
+        id: qa
+        run: |
+          python scripts/qa_check.py \
+            --locales locales/latest \
+            --glossary glossary/glossary.json \
+            --output /tmp/audit.json || true
+          BLOCKS=$(python3 -c "import json;d=json.load(open('/tmp/audit.json'));print(len([i for i in d if i['severity']=='BLOCK']))")
+          WARNS=$(python3 -c "import json;d=json.load(open('/tmp/audit.json'));print(len([i for i in d if i['severity']=='WARNING']))")
+          echo "blocks=$BLOCKS" >> $GITHUB_OUTPUT
+          echo "warnings=$WARNS" >> $GITHUB_OUTPUT
+
+      - name: Slack audit report
+        run: |
+          if [ -z "$SLACK_BOT_TOKEN" ]; then exit 0; fi
+          BLOCKS="${{ steps.qa.outputs.blocks }}"
+          WARNS="${{ steps.qa.outputs.warnings }}"
+          if [ "$BLOCKS" = "0" ] && [ "$WARNS" = "0" ]; then
+            MSG="✅ 주간 i18n 감사: 이슈 없음"
+          else
+            MSG="📊 주간 i18n 감사: BLOCK ${BLOCKS}건 / WARNING ${WARNS}건"
+          fi
+          curl -s -X POST https://slack.com/api/chat.postMessage \
+            -H "Authorization: Bearer $SLACK_BOT_TOKEN" \
+            -H "Content-Type: application/json" \
+            -d '{"channel":"'"$SLACK_CHANNEL"'","text":"'"$MSG"'"}'
