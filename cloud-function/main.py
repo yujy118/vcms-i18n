@@ -21,7 +21,8 @@ def trigger_workflow(repo, workflow, inputs=None):
 def update_msg(url, text):
     body = json.dumps({"replace_original": True, "text": text}).encode()
     try:
-        urllib.request.urlopen(urllib.request.Request(url, data=body, headers={"Content-Type": "application/json"}), timeout=10)
+        urllib.request.urlopen(urllib.request.Request(url, data=body,
+            headers={"Content-Type": "application/json"}), timeout=10)
     except:
         pass
 
@@ -40,15 +41,10 @@ def handle_slack_callback(request):
             repo = val.get("repo", "yujy118/vcms-i18n")
 
             if aid == "i18n_translate":
-                ok = trigger_workflow(repo, "i18n-sync.yml")
-                update_msg(rurl, f"🔄 *{user}* triggered translation. Running..." if ok else "❌ Trigger failed.")
-
-            elif aid == "i18n_approve":
-                rid = val.get("run_id", "")
-                ok = trigger_workflow(repo, "i18n-deploy.yml", {"source_run_id": str(rid), "approved_by": "slack"})
-                update_msg(rurl, f"✅ *{user}* approved. Deploying..." if ok else "❌ Deploy trigger failed.")
+                ok = trigger_workflow(repo, "i18n-auto-sync.yml")
+                update_msg(rurl, f"\U0001f504 *{user}* triggered Gemini translation. Running..." if ok else "\u274c Trigger failed.")
 
             elif aid == "i18n_reject":
-                update_msg(rurl, f"❌ *{user}* rejected. Fix and re-push.")
+                update_msg(rurl, f"\u274c *{user}* rejected.")
 
     return "", 200
