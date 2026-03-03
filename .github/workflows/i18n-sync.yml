@@ -1,0 +1,60 @@
+name: i18n Translation Sync
+
+on:
+  push:
+    paths:
+      - 'locales/latest/ko.json'
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    env:
+      ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+      SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
+      SLACK_CHANNEL: ${{ secrets.SLACK_CHANNEL }}
+      LOCALES_DIR: locales/latest
+      GLOSSARY_PATH: glossary/glossary.json
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Migrate zh to zh-CN
+        run: |
+          if [ -f locales/latest/zh.json ] && [ ! -f locales/latest/zh-CN.json ]; then
+            cp locales/latest/zh.json locales/latest/zh-CN.json
+          fi
+
+      - name: Run translation sync
+        run: python scripts/sync_translations.py
+
+      - name: Run QA check
+        run: |
+          python scripts/qa_check.py \
+            --locales locales/latest \
+            --glossary glossary/glossary.json \
+            --output locales/latest/.qa-report.json || true
+
+      - name: Commit to staging branch
+        run: |
+          git config user.name "i18n-bot"
+          git config user.email "i18n-bot@vcms.dev"
+          git checkout -B i18n/staging
+          git add locales/latest/
+          git diff --cached --quiet || git commit -m "i18n: translation sync $(date +%Y-%m-%d)"
+          git push -f origin i18n/staging
+
+      - name: Notify Slack
+        env:
+          REPORT_PATH: locales/latest/.sync-report.json
+          QA_REPORT_PATH: locales/latest/.qa-report.json
+          GITHUB_RUN_ID: ${{ github.run_id }}
+        run: python scripts/notify_slack.py
