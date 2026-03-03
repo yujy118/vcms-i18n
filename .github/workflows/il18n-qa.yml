@@ -23,66 +23,191 @@ jobs:
         with:
           python-version: '3.11'
 
-      - name: Run QA check
-        id: qa
-        run: |
-          python scripts/qa_check.py \
-            --locales locales/latest \
-            --glossary glossary/glossary.json \
-            --output /tmp/qa-report.json || true
-          BLOCKS=$(python3 -c "import json;d=json.load(open('/tmp/qa-report.json'));print(len([i for i in d if i['severity']=='BLOCK']))" 2>/dev/null || echo "0")
-          WARNS=$(python3 -c "import json;d=json.load(open('/tmp/qa-report.json'));print(len([i for i in d if i['severity']=='WARNING']))" 2>/dev/null || echo "0")
-          echo "blocks=$BLOCKS" >> $GITHUB_OUTPUT
-          echo "warnings=$WARNS" >> $GITHUB_OUTPUT
+      - name: Install requests
+        run: pip install requests
 
-      - name: Count missing keys
-        id: missing
-        run: |
-          python3 -c "
-          import json
-          ko = json.load(open('locales/latest/ko.json'))
-          langs = ['en','ja','es']
-          zh_file = 'locales/latest/zh-CN.json' if __import__('os').path.exists('locales/latest/zh-CN.json') else 'locales/latest/zh.json'
-          total_missing = 0
-          for lang in langs:
-              try:
-                  data = json.load(open(f'locales/latest/{lang}.json'))
-                  total_missing += len([k for k in ko if k not in data])
-              except: total_missing += len(ko)
-          try:
-              data = json.load(open(zh_file))
-              total_missing += len([k for k in ko if k not in data])
-          except: total_missing += len(ko)
-          print(f'missing={total_missing}')
-          " >> $GITHUB_OUTPUT
-
-      - name: Notify Slack with translate button
+      - name: QA check and Slack notify
         env:
           GITHUB_REPOSITORY: ${{ github.repository }}
         run: |
-          if [ -z "$SLACK_BOT_TOKEN" ]; then exit 0; fi
-          BLOCKS="${{ steps.qa.outputs.blocks }}"
-          WARNS="${{ steps.qa.outputs.warnings }}"
-          MISSING="${{ steps.missing.outputs.missing }}"
+          python3 << 'PYEOF'
+          import json, os, subprocess, requests, math
 
-          if [ "$MISSING" = "0" ]; then
-            STATUS="✅"
-            TRANSLATE_BTN=""
-          else
-            STATUS="🔄"
-            TRANSLATE_BTN=',{"type":"actions","block_id":"i18n_translate_action","elements":[{"type":"button","text":{"type":"plain_text","text":"🔄 번역 실행","emoji":true},"style":"primary","action_id":"i18n_translate","value":"{\"repo\":\"'$GITHUB_REPOSITORY'\"}","confirm":{"title":{"type":"plain_text","text":"번역 실행"},"text":{"type":"mrkdwn","text":"Sonnet으로 누락 '$MISSING'키 자동 번역을 시작합니다."},"confirm":{"type":"plain_text","text":"실행"},"deny":{"type":"plain_text","text":"취소"}}}]}'
-          fi
+          LOCALES = "locales/latest"
+          GLOSSARY = "glossary/glossary.json"
+          TOKEN = os.environ.get("SLACK_BOT_TOKEN", "")
+          CHANNEL = os.environ.get("SLACK_CHANNEL", "")
+          REPO = os.environ.get("GITHUB_REPOSITORY", "yujy118/vcms-i18n")
 
-          BLOCKS_JSON='[
-            {"type":"header","text":{"type":"plain_text","text":"'$STATUS' i18n QA 결과"}},
-            {"type":"section","fields":[
-              {"type":"mrkdwn","text":"*QA BLOCK:*\n'$BLOCKS'건"},
-              {"type":"mrkdwn","text":"*QA WARNING:*\n'$WARNS'건"},
-              {"type":"mrkdwn","text":"*미번역 키:*\n'$MISSING'건"}
-            ]}'$TRANSLATE_BTN'
-          ]'
+          if not TOKEN or not CHANNEL:
+              print("SLACK env missing"); exit(0)
 
-          curl -s -X POST https://slack.com/api/chat.postMessage \
-            -H "Authorization: Bearer $SLACK_BOT_TOKEN" \
-            -H "Content-Type: application/json" \
-            -d '{"channel":"'"$SLACK_CHANNEL"'","blocks":'"$BLOCKS_JSON"'}'
+          headers = {"Authorization": f"Bearer {TOKEN}", "Content-Type": "application/json"}
+          API = "https://slack.com/api/chat.postMessage"
+
+          # Load ko
+          ko = json.load(open(f"{LOCALES}/ko.json", encoding="utf-8"))
+          total_keys = len(ko)
+
+          # Lang config
+          lang_files = {"en": "en.json", "ja": "ja.json", "zh": None, "es": "es.json"}
+          if os.path.exists(f"{LOCALES}/zh-CN.json"):
+              lang_files["zh"] = "zh-CN.json"
+          elif os.path.exists(f"{LOCALES}/zh.json"):
+              lang_files["zh"] = "zh.json"
+
+          flags = {"en": "\U0001f1fa\U0001f1f8", "ja": "\U0001f1ef\U0001f1f5", "zh": "\U0001f1e8\U0001f1f3", "es": "\U0001f1ea\U0001f1f8"}
+          names = {"en": "EN", "ja": "JA", "zh": "ZH", "es": "ES"}
+
+          # Missing keys per lang
+          missing = {}
+          all_missing = set()
+          for lang, fname in lang_files.items():
+              if not fname or not os.path.exists(f"{LOCALES}/{fname}"):
+                  missing[lang] = list(ko.keys())
+              else:
+                  data = json.load(open(f"{LOCALES}/{fname}", encoding="utf-8"))
+                  missing[lang] = [k for k in ko if k not in data]
+              all_missing.update(missing[lang])
+
+          total_missing = len(all_missing)
+
+          # QA check
+          blocks_count = 0
+          warns_count = 0
+          try:
+              subprocess.run(
+                  ["python", "scripts/qa_check.py", "--locales", LOCALES,
+                   "--glossary", GLOSSARY, "--output", "/tmp/qa-report.json"],
+                  capture_output=True, text=True, timeout=60
+              )
+              if os.path.exists("/tmp/qa-report.json"):
+                  qa = json.load(open("/tmp/qa-report.json"))
+                  if isinstance(qa, list):
+                      blocks_count = len([i for i in qa if i.get("severity") == "BLOCK"])
+                      warns_count = len([i for i in qa if i.get("severity") == "WARNING"])
+                  elif isinstance(qa, dict):
+                      blocks_count = qa.get("block", 0)
+                      warns_count = qa.get("warning", 0)
+          except Exception as e:
+              print(f"QA error: {e}")
+
+          # Cost estimate
+          batch_size = 30
+          total_batches = sum(math.ceil(len(missing[l]) / batch_size) for l in missing if len(missing[l]) > 0)
+          prompt_tokens = 550
+          output_per_key = 50
+          cost_input = total_batches * prompt_tokens * 3 / 1_000_000
+          cost_output = sum(len(missing[l]) for l in missing) * output_per_key * 15 / 1_000_000
+          cost_total = cost_input + cost_output
+          cost_krw = int(cost_total * 1400)
+          est_minutes = max(1, total_batches // 3)
+
+          # Lang status
+          lang_parts = []
+          for lang in ["en", "ja", "zh", "es"]:
+              cnt = len(missing.get(lang, []))
+              lang_parts.append(f"{flags[lang]} {names[lang]} {cnt}건")
+          lang_line = " | ".join(lang_parts)
+
+          status = "\u2705" if total_missing == 0 else "\U0001f504"
+
+          # === MAIN MESSAGE ===
+          main_blocks = [
+              {"type": "header", "text": {"type": "plain_text", "text": f"{status} i18n QA 결과", "emoji": True}},
+              {"type": "section", "text": {"type": "mrkdwn", "text": (
+                  f"*총 키:* {total_keys}개\n"
+                  f"*QA:* BLOCK {blocks_count}건 | WARNING {warns_count}건\n"
+                  f"*미번역:* {total_missing}건\n\n"
+                  f"{lang_line}"
+              )}},
+          ]
+
+          resp = requests.post(API, headers=headers, json={
+              "channel": CHANNEL,
+              "blocks": main_blocks,
+              "text": f"{status} i18n QA: 미번역 {total_missing}건"
+          })
+          main_ts = resp.json().get("ts", "")
+          print(f"Main posted: {main_ts}")
+
+          if total_missing == 0:
+              print("No missing keys"); exit(0)
+
+          # === THREAD 1: Missing keys list (chunked) ===
+          sorted_keys = sorted(list(all_missing))
+          chunks = []
+          current = f"\U0001f4cb *미번역 키 목록* ({total_missing}건)\n{'─' * 20}\n"
+          for k in sorted_keys:
+              v = ko.get(k, "?")
+              if len(v) > 40:
+                  v = v[:37] + "..."
+              line = f"• `{k}`\n   \U0001f1f0\U0001f1f7 {v}\n"
+              if len(current) + len(line) > 3500:
+                  chunks.append(current)
+                  current = ""
+              current += line
+          if current:
+              chunks.append(current)
+
+          for chunk in chunks:
+              requests.post(API, headers=headers, json={
+                  "channel": CHANNEL, "thread_ts": main_ts,
+                  "text": chunk, "mrkdwn": True
+              })
+
+          # === THREAD 2: Cost + buttons ===
+          cost_blocks = [
+              {"type": "section", "text": {"type": "mrkdwn", "text": (
+                  f"\U0001f4b0 *자동 번역 예상*\n"
+                  f"• API 호출: {total_batches}회\n"
+                  f"• 예상 비용: *${cost_total:.2f}* (약 {cost_krw}원)\n"
+                  f"• 예상 소요: 약 {est_minutes}분\n"
+                  f"• 모델: Claude Sonnet 4.5"
+              )}},
+              {"type": "divider"},
+              {"type": "actions", "elements": [
+                  {
+                      "type": "button",
+                      "text": {"type": "plain_text", "text": "\U0001f504 자동 번역 실행", "emoji": True},
+                      "style": "primary",
+                      "action_id": "i18n_translate",
+                      "value": json.dumps({"repo": REPO, "missing": total_missing, "cost": f"${cost_total:.2f}"}),
+                      "confirm": {
+                          "title": {"type": "plain_text", "text": "자동 번역 실행"},
+                          "text": {"type": "mrkdwn", "text": f"미번역 {total_missing}키를 Sonnet으로 번역합니다.\n예상 비용: *${cost_total:.2f}* (약 {cost_krw}원)\n\n실행하시겠습니까?"},
+                          "confirm": {"type": "plain_text", "text": "실행"},
+                          "deny": {"type": "plain_text", "text": "취소"}
+                      }
+                  },
+              ]},
+              {"type": "divider"},
+              {"type": "section", "text": {"type": "mrkdwn", "text": (
+                  "\U0001f4dd *수동 번역 방법 (비용 $0)*\n\n"
+                  "*1단계: 미번역 키 복사*\n"
+                  "   이 스레드의 키 목록을 복사합니다.\n\n"
+                  "*2단계: Claude 프로젝트에서 번역 요청*\n"
+                  f"   <https://claude.ai|Claude.ai> → 프로젝트 `vcms-i18n` 에서:\n"
+                  "   ```미번역 키 목록입니다. 5개국어(en, ja, zh-CN, es) 번역해주세요.\n"
+                  "   glossary.json 용어집을 따르고, 숙박업 채널매니저 맥락으로 번역해주세요.```\n"
+                  "   키 목록을 함께 붙여넣습니다.\n\n"
+                  "*3단계: 번역 결과 적용*\n"
+                  "   Claude가 번역한 JSON 결과를 각 언어 파일에 추가합니다.\n"
+                  f"   • <https://github.com/{REPO}/edit/main/locales/latest/en.json|en.json 편집>\n"
+                  f"   • <https://github.com/{REPO}/edit/main/locales/latest/ja.json|ja.json 편집>\n"
+                  f"   • <https://github.com/{REPO}/edit/main/locales/latest/zh-CN.json|zh-CN.json 편집>\n"
+                  f"   • <https://github.com/{REPO}/edit/main/locales/latest/es.json|es.json 편집>\n\n"
+                  "*4단계: push → QA 자동 실행*\n"
+                  "   커밋하면 이 QA 체크가 다시 자동으로 돌아갑니다.\n"
+                  "   미번역 0건이면 ✅ 완료!"
+              )}},
+          ]
+
+          requests.post(API, headers=headers, json={
+              "channel": CHANNEL, "thread_ts": main_ts,
+              "blocks": cost_blocks,
+              "text": "번역 실행 옵션"
+          })
+
+          print(f"Thread posted: {total_missing} missing keys, est ${cost_total:.2f}")
+          PYEOF
