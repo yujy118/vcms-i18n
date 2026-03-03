@@ -7,6 +7,10 @@ on:
         description: "테스트만 (실제 반영 안 함)"
         type: boolean
         default: true
+      force_overwrite:
+        description: "기존 번역도 덮어쓰기 (GitHub 기준)"
+        type: boolean
+        default: false
 
 permissions:
   contents: read
@@ -20,6 +24,7 @@ jobs:
       TOLGEE_PROJECT_ID: 4
       TOLGEE_NAMESPACE: vcms
       DRY_RUN: ${{ github.event.inputs.dry_run }}
+      FORCE_OVERWRITE: ${{ github.event.inputs.force_overwrite }}
 
     steps:
       - uses: actions/checkout@v4
@@ -33,24 +38,25 @@ jobs:
 
       - name: Import translations to Tolgee
         run: |
-          python3 -c "
+          python3 << 'PYEOF'
           import json, os, requests, time
+          from collections import defaultdict
 
           URL = os.environ['TOLGEE_URL']
           PID = os.environ['TOLGEE_PROJECT_ID']
           API = os.environ['TOLGEE_API_KEY']
           NS  = os.environ['TOLGEE_NAMESPACE']
           DRY = os.environ.get('DRY_RUN', 'true') == 'true'
+          FORCE = os.environ.get('FORCE_OVERWRITE', 'false') == 'true'
           hdrs = {'X-API-Key': API, 'Content-Type': 'application/json'}
 
           LOCALES = 'locales/latest'
           LANGS = {'en': 'en.json', 'ja': 'ja.json', 'zh': 'zh.json', 'es': 'es.json'}
 
-          # Load ko as base
           ko = json.load(open(f'{LOCALES}/ko.json', encoding='utf-8'))
           print(f'Total ko keys: {len(ko)}')
+          print(f'Mode: {"FORCE OVERWRITE" if FORCE else "NEW ONLY"} | DRY: {DRY}')
 
-          # Load all lang data
           lang_data = {}
           for lang, fname in LANGS.items():
               path = f'{LOCALES}/{fname}'
@@ -60,7 +66,6 @@ jobs:
                   lang_data[lang] = {}
               print(f'{lang}: {len(lang_data[lang])} keys loaded')
 
-          # Fetch existing Tolgee translations to compare
           print('Fetching Tolgee data...')
           tolgee_keys = {}
           page = 0
@@ -84,31 +89,35 @@ jobs:
               if page >= total_pages: break
           print(f'Tolgee keys fetched: {len(tolgee_keys)}')
 
-          # Find keys that need updating (new translations not in Tolgee)
           updates = []
+          new_count = 0
+          changed_count = 0
           for key in ko:
               for lang in LANGS:
                   local_val = lang_data[lang].get(key, '')
                   tolgee_val = tolgee_keys.get(key, {}).get(lang, '')
-                  if local_val and not tolgee_val:
-                      updates.append({'key': key, 'lang': lang, 'text': local_val})
+                  if not local_val:
+                      continue
+                  if not tolgee_val:
+                      updates.append({'key': key, 'lang': lang, 'text': local_val, 'type': 'NEW'})
+                      new_count += 1
+                  elif FORCE and local_val != tolgee_val:
+                      updates.append({'key': key, 'lang': lang, 'text': local_val, 'type': 'CHANGED'})
+                      changed_count += 1
 
-          print(f'Updates needed: {len(updates)}')
+          print(f'Updates: {len(updates)} (new: {new_count}, changed: {changed_count})')
           if len(updates) == 0:
               print('Nothing to import'); exit(0)
 
-          # Show sample
-          for u in updates[:20]:
-              print(f'  ' + u['key'] + ' [' + u['lang'] + ']: ' + u['text'][:50])
-          if len(updates) > 20:
-              print(f'  ... and {len(updates) - 20} more')
+          for u in updates[:30]:
+              print(f'  [{u["type"]}] {u["key"]} [{u["lang"]}]: {u["text"][:60]}')
+          if len(updates) > 30:
+              print(f'  ... and {len(updates) - 30} more')
 
           if DRY:
               print('DRY RUN - no changes made')
               exit(0)
 
-          # Batch update: group by key
-          from collections import defaultdict
           by_key = defaultdict(dict)
           for u in updates:
               by_key[u['key']][u['lang']] = u['text']
@@ -130,10 +139,9 @@ jobs:
                   failed += 1
                   print(f'  ERROR: {key} - {e}')
 
-              # rate limit
               if (i + 1) % 50 == 0:
                   print(f'  Progress: {i+1}/{len(by_key)}')
                   time.sleep(1)
 
           print(f'Done! Success: {success}, Failed: {failed}')
-          "
+          PYEOF
