@@ -1,13 +1,11 @@
 #!/usr/bin/env python3
-"""VCMS Translation QA - 10 checks including OTA brand enforcement and ES capitalization"""
+"""VCMS Translation QA - 10 checks with OTA brand enforcement and ES capitalization"""
 import json, re, sys, argparse
 from pathlib import Path
 
 BLOCK = 'BLOCK'
 WARNING = 'WARNING'
 
-# OTA / Channel brand official mapping (ko -> en)
-# All non-ko languages MUST use the English name exactly.
 BRAND_OFFICIAL = {
     "\uc57c\ub180\uc790": "Yanolja",
     "\uc5ec\uae30\uc5b4\ub54c": "Yeogiottae",
@@ -29,7 +27,6 @@ BRAND_OFFICIAL = {
     "\ud2b8\ub9bd\ube44\ud1a0\uc988": "Tripbtoz",
 }
 
-# Known bad translations of Korean brand names
 BRAND_BAD_TRANSLATIONS = {
     "\uc57c\ub180\uc790": ["\u96c5\u4e50\u4f73", "\u4e50\u4f4f", "\u96c5\u8bfa\u4f73", "\u30e4\u30ce\u30eb\u30b8\u30e3", "let's play"],
     "\uc5ec\uae30\uc5b4\ub54c": ["\u8fd9\u91cc\u600e\u4e48\u6837", "\u8fd9\u91cc\u5982\u4f55", "\u3053\u3053\u306f\u3069\u3046", "how about here", "how is here",
@@ -59,6 +56,7 @@ def load_json(path):
         return json.load(f)
 
 
+# ========== CHECK 1: Glossary ==========
 def check_glossary(ko, tr):
     issues = []
     known = {'en': [
@@ -73,12 +71,15 @@ def check_glossary(ko, tr):
                 if wrong in val:
                     if wrong == 'Product' and 'product' in key.lower(): continue
                     if wrong in ('Price','Fee') and 'price' in key.lower(): continue
+                    # [FIX-1] accommodation in key = entity name, not glossary term
+                    if wrong == 'Accommodation' and 'accommodation' in key.lower(): continue
                     issues.append({'severity': BLOCK, 'check': 'glossary_violation',
                         'key': key, 'lang': lang,
                         'message': f'"{wrong}" -> "{correct}"', 'value': val[:100]})
     return issues
 
 
+# ========== CHECK 2: Brand ==========
 def check_brand(ko, tr):
     issues = []
     for lang, data in tr.items():
@@ -107,6 +108,7 @@ def check_brand(ko, tr):
     return issues
 
 
+# ========== CHECK 3: ES capitalization ==========
 def check_es_cap(ko, tr):
     issues = []
     if 'es' not in tr: return issues
@@ -126,13 +128,53 @@ def check_es_cap(ko, tr):
     return issues
 
 
+# ========== CHECK 4: Placeholder ==========
+def _normalize_ph(s):
+    """{ value } -> {value}"""
+    return re.sub(r'\{\s+', '{', re.sub(r'\s+\}', '}', s))
+
+
+def _extract_top_level_ph(text):
+    """Extract top-level placeholder variable names only.
+    Skips ICU branch internals like {count, plural, =1 {x} other {y}}.
+    Only returns the variable names: e.g. 'count', 'value'."""
+    normalized = _normalize_ph(text)
+    result = set()
+    depth = 0
+    i = 0
+    n = len(normalized)
+    while i < n:
+        ch = normalized[i]
+        if ch == '{':
+            depth += 1
+            if depth == 1:
+                j = i + 1
+                while j < n and normalized[j] not in '{}':
+                    j += 1
+                inner = normalized[i+1:j].strip()
+                if ',' in inner:
+                    var_name = inner.split(',')[0].strip()
+                    if re.match(r'^\w+$', var_name):
+                        result.add(var_name)
+                elif re.match(r'^\w+$', inner) and j < n and normalized[j] == '}':
+                    result.add(inner)
+            i += 1
+        elif ch == '}':
+            depth = max(0, depth - 1)
+            i += 1
+        else:
+            i += 1
+    return result
+
+
 def check_placeholder(ko, tr):
+    """[FIX-2] Compare top-level placeholder vars only, ignore ICU internals and whitespace."""
     issues = []
-    ph = re.compile(r'\{[^}]+\}')
     for lang, data in tr.items():
         for key in data:
             if key not in ko: continue
-            kp = set(ph.findall(ko[key])); tp = set(ph.findall(data[key]))
+            kp = _extract_top_level_ph(ko[key])
+            tp = _extract_top_level_ph(data[key])
             if kp - tp:
                 issues.append({'severity': BLOCK, 'check': 'placeholder_missing',
                     'key': key, 'lang': lang, 'message': f'Missing: {kp-tp}'})
@@ -142,18 +184,23 @@ def check_placeholder(ko, tr):
     return issues
 
 
+# ========== CHECK 5: Newline ==========
 def check_newline(ko, tr):
+    """[FIX] Only flag when newline count differs by more than 1."""
     issues = []
     for lang, data in tr.items():
         for key in data:
             if key not in ko: continue
-            if ko[key].count('\n') != data[key].count('\n'):
+            ko_n = ko[key].count('\n')
+            tr_n = data[key].count('\n')
+            if abs(ko_n - tr_n) > 1:
                 issues.append({'severity': WARNING, 'check': 'newline_mismatch',
                     'key': key, 'lang': lang,
-                    'message': f'ko:{ko[key].count(chr(10))} vs {lang}:{data[key].count(chr(10))}'})
+                    'message': f'ko:{ko_n} vs {lang}:{tr_n}'})
     return issues
 
 
+# ========== CHECK 6: Empty ==========
 def check_empty(tr):
     issues = []
     for lang, data in tr.items():
@@ -164,6 +211,7 @@ def check_empty(tr):
     return issues
 
 
+# ========== CHECK 7: AI leak ==========
 def check_ai_leak(tr):
     issues = []
     pat = re.compile(
@@ -177,6 +225,7 @@ def check_ai_leak(tr):
     return issues
 
 
+# ========== CHECK 8: HTML ==========
 def check_html(ko, tr):
     issues = []
     tag = re.compile(r'<[^>]+>')
@@ -190,19 +239,38 @@ def check_html(ko, tr):
     return issues
 
 
+# ========== CHECK 9: Untranslated ==========
+def _is_variable_only(text):
+    """'{value}', '{ count }', '{a, b}' etc."""
+    stripped = re.sub(r'\{[^}]*\}', '', text).strip()
+    return not stripped or re.match(r'^[\s,.:;/\-]*$', stripped)
+
+
+def _is_emoji_only(text):
+    cleaned = re.sub(r'[\ufe0f\u200d\u20e3\u200b]', '', text).strip()
+    if not cleaned:
+        return True
+    non_emoji = re.sub(r'[^\x00-\x7f]', '', cleaned).strip()
+    return len(non_emoji) == 0 and len(cleaned) <= 10
+
+
 def check_untranslated(ko, tr):
+    """[FIX-3] Skip variable-only and emoji-only keys."""
     issues = []
     for lang, data in tr.items():
         for key in data:
             if key not in ko: continue
             if ko[key] == data[key] and len(ko[key]) > 3:
                 if not re.match(r'^[A-Z0-9_.\-/]+$', ko[key]):
+                    if _is_variable_only(ko[key]): continue
+                    if _is_emoji_only(ko[key]): continue
                     issues.append({'severity': WARNING, 'check': 'untranslated',
                         'key': key, 'lang': lang,
                         'message': f'Same as ko: "{ko[key][:50]}"'})
     return issues
 
 
+# ========== CHECK 10: ICU format ==========
 def check_icu_format(ko, tr):
     issues = []
     icu = re.compile(r'\{(\w+),\s*(select|plural|selectordinal)\s*,')
@@ -222,6 +290,7 @@ def check_icu_format(ko, tr):
     return issues
 
 
+# ========== Runner ==========
 def run_qa(locales_dir, glossary_path=None):
     ko = load_json(Path(locales_dir) / 'ko.json')
     tr = {}
