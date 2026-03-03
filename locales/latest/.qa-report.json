@@ -10,14 +10,6 @@
   {
     "severity": "BLOCK",
     "check": "glossary_violation",
-    "key": "banner-setting.accommodatoin-info.title",
-    "lang": "en",
-    "message": "\"Accommodation\" -> \"Property\"",
-    "value": "Accommodation"
-  },
-  {
-    "severity": "BLOCK",
-    "check": "glossary_violation",
     "key": "change-payment-date-modal.summary.subscription-fee",
     "lang": "en",
     "message": "\"Fee\" -> \"Rate\"",
@@ -965,7 +957,7 @@
     "check": "placeholder_missing",
     "key": "modification-channel-package.title",
     "lang": "en",
-    "message": "Missing: {'property', 'channelName'}"
+    "message": "Missing: {'channelName', 'property'}"
   },
   {
     "severity": "BLOCK",
@@ -1343,7 +1335,7 @@
     "check": "placeholder_missing",
     "key": "package.night-use.preview.package.charge-range.min-max",
     "lang": "es",
-    "message": "Missing: {'min', 'max'}"
+    "message": "Missing: {'max', 'min'}"
   },
   {
     "severity": "WARNING",
