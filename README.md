@@ -1,39 +1,118 @@
-# VENDIT VCMS 번역 자동화 파이프라인
+# VENDIT VCMS i18n 자동화 파이프라인
 
-> **목적:** PM이 승인/샘플링만 하는 구조. 코드 접근 없는 PM이 운영 가능.
+> VCMS 채널매니저 다국어 번역 자동화. ko 기준 → en / ja / zh / es 자동 번역 + QA + Tolgee 동기화.
 
 ## 레포 구조
 
 ```
 vcms-i18n/
-├── locales/           # Tolgee 번역 파일 (KO/EN/JA/ZH/ES)
-├── glossary/          # 용어집 (32 terms × 5 langs)
-├── analysis/          # 분석 결과 (미번역 키, 배치 분류)
-├── scripts/           # QA 및 자동화 스크립트
-└── docs/              # 설계 문서
+├── .github/workflows/
+│   ├── i18n-auto-sync.yml      # 자동 번역 (Gemini Flash)
+│   ├── i18n-audit.yml          # 주간 감사 (매주 월요일)
+│   ├── i18n-merge.yml          # 스냅샷 머지
+│   ├── il18n-qa.yml            # QA 전용
+│   └── tolgee-import.yml       # GitHub → Tolgee 푸시
+├── locales/latest/             # 번역 파일 (ko/en/ja/zh/es.json)
+├── glossary/glossary.json      # 용어집 (32 terms × 5 langs)
+├── prompts/translate.txt       # Gemini 번역 프롬프트
+├── scripts/
+│   ├── sync_translations.py    # Gemini 번역 엔진
+│   ├── qa_check.py             # QA 10종 검사
+│   ├── notify_slack.py         # Slack 알림 (스레드 상세)
+│   └── generate_snapshot.py    # 스냅샷 생성
+├── cloud-function/             # Cloud Function (Tolgee 웹훅)
+├── snapshots/                  # 번역 스냅샷
+└── docs/                       # 설계 문서
 ```
 
 ## 현재 상태
 
 | 항목 | 수치 |
 |------|------|
-| 총 키 (KO) | 2,677 |
-| 번역 완료 (EN/JA/ZH/ES) | 2,513 |
-| **미번역** | **164키** |
+| 총 키 (KO) | 2,656 |
+| 번역 커버리지 | EN/JA/ZH/ES 모두 **100%** |
 | 용어집 | 32개 term |
+| QA 엔진 | 10종 검사 |
 
-### 미번역 164키 배치 분류
+## 워크플로우
 
-| 배치 | 키 수 | 리뷰 방식 |
-|------|------|-----------|
-| Batch 1: Payment | 38키 | PM 전수 리뷰 |
-| Batch 2: Subscription | 124키 | PM 전수 리뷰 |
-| Batch 3: Other | 2키 | PM 샘플링 |
+### 1. i18n Auto Translate (Gemini)
 
-## 파이프라인 Phase
+수동 실행. ko.json 기준으로 누락된 키를 Gemini Flash로 번역하고 QA 실행 후 커밋.
 
-- **Phase 0 (즉시):** Tolgee Auto-translate ON, 용어집 등록
-- **Phase 1 (1주차):** 라벨 자동 태깅, Batch 1 번역
-- **Phase 2 (2~3주차):** Batch 2~3 번역, QA 스크립트
-- **Phase 3 (4주차):** GitHub Actions 연동
-- **Phase 4 (운영):** 자동화 파이프라인 운영
+```
+ko.json 기준 → 누락키 감지 → Gemini 번역 → QA 검사 → 커밋 → Slack 알림
+```
+
+### 2. Tolgee Import
+
+수동 실행. GitHub의 번역 파일을 Tolgee에 푸시.
+
+| 옵션 | 설명 |
+|------|------|
+| 테스트만 (실제 반영 안 함) | dry_run — 변경 내역만 미리보기 |
+| 기존 번역도 덮어쓰기 | force_overwrite — 이미 있는 값도 GitHub 기준으로 갱신 |
+
+### 3. Weekly Audit
+
+매주 월요일 09:00 KST 자동 실행. 전체 QA 스캔 + 용어집 샘플링 + 미번역 키 카운트.
+
+### 4. i18n Merge / QA
+
+스냅샷 머지 및 QA 전용 워크플로우.
+
+## QA 검사 항목 (10종)
+
+| # | 검사 | 심각도 | 설명 |
+|---|------|--------|------|
+| 1 | 용어집 위반 | BLOCK | glossary.json 용어 미준수 (Package, Booking, Rate 등) |
+| 2 | OTA 브랜드 | BLOCK | 브랜드명 직역/한국어 유출 (야놀자→Yanolja 등) |
+| 3 | ES 대문자 | WARN | 스페인어 문중 대문자 오류 |
+| 4 | 플레이스홀더 | BLOCK | {변수} 누락 또는 추가 |
+| 5 | 줄바꿈 | WARN | \n 수 불일치 (차이 2 이상) |
+| 6 | 빈 값 | BLOCK | 번역값 비어있음 |
+| 7 | AI 유출 | BLOCK | "I cannot translate" 등 프롬프트 잔여 |
+| 8 | HTML 태그 | BLOCK | `<bold>`, `<1>` 등 커스텀 태그 불일치 |
+| 9 | 미번역 | WARN | ko와 동일 (변수전용/이모지 제외) |
+| 10 | ICU 포맷 | BLOCK | select/plural 포맷 깨짐 |
+
+## Slack 알림
+
+auto-sync 실행 시 Slack으로 리포트 발송:
+
+- **메인 메시지**: 번역 요약 + QA 카테고리별 건수
+- **스레드 답글**: 카테고리별 전체 키 목록 (자동 분할)
+
+## 용어집 핵심 규칙
+
+| 한국어 | EN | 주의 |
+|--------|-----|------|
+| 상품 | Package | NOT Product |
+| 예약 | Booking | NOT Reservation |
+| 요금 | Rate | NOT Price/Fee |
+| 숙소 | Property | NOT Accommodation (UI) |
+| 판매 완료 | Sold | NOT Sold Out |
+| 연동 | Connect | verb form |
+
+전체 32개 용어 → `glossary/glossary.json` 참조.
+
+## Secrets 설정
+
+| Secret | 용도 |
+|--------|------|
+| `GEMINI_API_KEY` | Gemini Flash 번역 API |
+| `SLACK_BOT_TOKEN` | Slack 알림 |
+| `SLACK_CHANNEL` | Slack 채널 ID |
+| `TOLGEE_API_KEY` | Tolgee API |
+| `TOLGEE_URL` | Tolgee 서버 URL |
+| `TOLGEE_PROJECT_ID` | Tolgee 프로젝트 ID |
+
+## 대상 언어
+
+| 코드 | 언어 | 파일명 |
+|------|------|--------|
+| ko | 한국어 (기준) | ko.json |
+| en | English | en.json |
+| ja | 日本語 | ja.json |
+| zh | 中文 | zh.json (GitHub) / zh (Tolgee) |
+| es | Español | es.json |
