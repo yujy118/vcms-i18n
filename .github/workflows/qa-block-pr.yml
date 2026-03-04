@@ -1,0 +1,169 @@
+name: QA BLOCK → PR
+
+on:
+  workflow_run:
+    workflows: ["i18n QA Check (Auto)"]
+    types: [completed]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+  issues: write
+
+jobs:
+  create-block-pr:
+    runs-on: ubuntu-latest
+    if: ${{ github.event.workflow_run.conclusion == 'success' || github.event_name == 'workflow_dispatch' }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Run QA and generate PR
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          pip install requests
+
+          # Run QA
+          python scripts/qa_check.py --locales locales/latest --glossary glossary/glossary.json --output /tmp/qa-report.json || true
+
+          python3 << 'PYEOF'
+          import json, os, subprocess, re
+
+          report_path = "/tmp/qa-report.json"
+          if not os.path.exists(report_path):
+              print("No QA report"); exit(0)
+
+          issues = json.load(open(report_path))
+          blocks = [i for i in issues if i.get("severity") == "BLOCK"]
+          warns = [i for i in issues if i.get("severity") == "WARNING"]
+
+          if not blocks:
+              print("No BLOCK issues - closing existing PR if any")
+              # Close existing QA PR if all clear
+              result = subprocess.run(
+                  ["gh", "pr", "list", "--label", "qa-block", "--json", "number", "-q", ".[].number"],
+                  capture_output=True, text=True
+              )
+              for num in result.stdout.strip().split("\n"):
+                  if num.strip():
+                      subprocess.run(["gh", "pr", "close", num.strip(), "--comment", "✅ All BLOCK issues resolved"])
+              exit(0)
+
+          CHECK_LABELS = {
+              "glossary_violation": "📖 용어집 위반",
+              "brand_translated": "🏷 브랜드 오번역",
+              "brand_not_english": "🏷 브랜드 한국어 누출",
+              "placeholder_missing": "⚠️ 변수 누락",
+              "empty": "❌ 빈 값",
+              "ai_leak": "🤖 AI 프롬프트 누출",
+              "html_broken": "🔗 HTML 태그 깨짐",
+              "icu_broken": "💬 ICU 포맷 깨짐",
+              "icu_mismatch": "💬 ICU 포맷 불일치",
+          }
+
+          by_check = {}
+          for item in blocks:
+              chk = item.get("check", "unknown")
+              if chk not in by_check: by_check[chk] = []
+              by_check[chk].append(item)
+
+          # Build PR body
+          lines = []
+          lines.append(f"## 🚫 QA BLOCK ({len(blocks)}건)")
+          lines.append("")
+          lines.append("> 체크박스를 선택한 후 코멘트에 `/fix`를 입력하면 선택된 항목만 자동 재번역됩니다.")
+          lines.append("> `/fix-all`을 입력하면 전체 BLOCK 항목이 재번역됩니다.")
+          lines.append("")
+
+          for chk in ["glossary_violation", "placeholder_missing", "html_broken", "icu_broken", "icu_mismatch", "brand_translated", "brand_not_english", "empty", "ai_leak"]:
+              items = by_check.get(chk, [])
+              if not items: continue
+              label = CHECK_LABELS.get(chk, chk)
+              lines.append(f"### {label} ({len(items)}건)")
+              lines.append("")
+              for item in items:
+                  key = item.get("key", "")
+                  lang = item.get("lang", "")
+                  msg = item.get("message", "")
+                  val = item.get("value", "")
+                  detail = f"`{key}` [{lang}] {msg}"
+                  if val:
+                      short_val = val[:60].replace("|", "\\|")
+                      detail += f" — `{short_val}`"
+                  lines.append(f"- [ ] {detail}")
+              lines.append("")
+
+          # Add any remaining check types not in the ordered list
+          for chk, items in sorted(by_check.items()):
+              if chk in ["glossary_violation", "placeholder_missing", "html_broken", "icu_broken", "icu_mismatch", "brand_translated", "brand_not_english", "empty", "ai_leak"]:
+                  continue
+              label = CHECK_LABELS.get(chk, chk)
+              lines.append(f"### {label} ({len(items)}건)")
+              lines.append("")
+              for item in items:
+                  key = item.get("key", "")
+                  lang = item.get("lang", "")
+                  msg = item.get("message", "")
+                  lines.append(f"- [ ] `{key}` [{lang}] {msg}")
+              lines.append("")
+
+          lines.append("---")
+          lines.append(f"⚠️ WARNING: {len(warns)}건 (검토 권장, 자동 수정 대상 아님)")
+          lines.append("")
+          lines.append("### 명령어")
+          lines.append("| 명령어 | 설명 |")
+          lines.append("|--------|------|")
+          lines.append("| `/fix` | 체크된 항목만 재번역 |")
+          lines.append("| `/fix-all` | 전체 BLOCK 항목 재번역 |")
+
+          body = "\n".join(lines)
+
+          # Save PR body
+          with open("/tmp/pr-body.md", "w") as f:
+              f.write(body)
+
+          # Check if PR already exists
+          result = subprocess.run(
+              ["gh", "pr", "list", "--label", "qa-block", "--json", "number,headRefName", "-q", ".[0]"],
+              capture_output=True, text=True
+          )
+
+          existing = result.stdout.strip()
+          if existing and existing != "":
+              try:
+                  pr_data = json.loads(existing)
+                  pr_num = pr_data.get("number")
+                  if pr_num:
+                      # Update existing PR body
+                      subprocess.run(["gh", "pr", "edit", str(pr_num), "--body-file", "/tmp/pr-body.md"])
+                      print(f"Updated existing PR #{pr_num}")
+                      exit(0)
+              except:
+                  pass
+
+          # Create branch and PR
+          branch = "qa-block-fix"
+          subprocess.run(["git", "config", "user.name", "i18n-bot"])
+          subprocess.run(["git", "config", "user.email", "i18n-bot@vcms.dev"])
+
+          # Create or reset branch
+          subprocess.run(["git", "checkout", "-B", branch, "main"])
+          subprocess.run(["git", "push", "-f", "origin", branch])
+
+          # Create PR
+          subprocess.run([
+              "gh", "pr", "create",
+              "--base", "main",
+              "--head", branch,
+              "--title", f"🚫 QA BLOCK 수정 필요 ({len(blocks)}건)",
+              "--body-file", "/tmp/pr-body.md",
+              "--label", "qa-block",
+          ])
+          print(f"Created PR with {len(blocks)} BLOCK items")
+          PYEOF
