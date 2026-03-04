@@ -6,6 +6,16 @@ from pathlib import Path
 BLOCK = 'BLOCK'
 WARNING = 'WARNING'
 
+# Language-specific length ratio thresholds
+# ko is syllabic (1 char = 1 syllable), en/es are alphabetic (5-8 chars per word)
+LENGTH_RATIO_THRESHOLDS = {
+    'en': 3.0,   # English is naturally 2-3x longer than Korean
+    'es': 3.0,   # Spanish similar to English
+    'ja': 1.8,   # Japanese uses kanji/kana, closer to Korean density
+    'zh': 1.5,   # Chinese is most compact, closest to Korean
+    'zh-CN': 1.5,
+}
+
 BRAND_OFFICIAL = {
     "야놀자": "Yanolja",
     "여기어때": "Yeogiottae",
@@ -57,13 +67,11 @@ def load_json(path):
 
 
 # ========== CHECK 1: Glossary ==========
-# Keys where Fee is correct (subscription, extra guest charge)
 FEE_ALLOWED_PATTERNS = [
     'subscription', 'payment-option', 'extra-adult', 'extra-guest',
     'additional-fee', 'basefee', 'additionalfee',
     'rate-plan', 'terms.service', 'terms.private',
 ]
-# Keys where Price is correct (sorting, variable names)
 PRICE_ALLOWED_PATTERNS = [
     'price', 'charge.asc', 'charge.desc', 'first-payment',
 ]
@@ -322,9 +330,9 @@ def check_icu_format(ko, tr):
 
 # ========== CHECK 11: Length ratio ==========
 def check_length_ratio(ko, tr):
-    """WARN if translated text exceeds 1.5x Korean source length.
+    """WARN if translated text exceeds language-specific threshold vs Korean source.
+    Thresholds: en/es=3.0x, ja=1.8x, zh=1.5x (accounts for script density differences).
     Skip: variable-only values, very short strings (<5 chars), keys with ICU format.
-    Compares 'visible' length: strips {variables}, <tags>, whitespace for fair comparison.
     """
     issues = []
     var_re = re.compile(r'\{[^}]+\}')
@@ -338,6 +346,7 @@ def check_length_ratio(ko, tr):
         return len(s)
 
     for lang, data in tr.items():
+        threshold = LENGTH_RATIO_THRESHOLDS.get(lang, 2.0)
         for key in data:
             if key not in ko:
                 continue
@@ -356,13 +365,13 @@ def check_length_ratio(ko, tr):
                 continue
 
             ratio = tr_vl / ko_vl
-            if ratio > 1.5:
+            if ratio > threshold:
                 issues.append({
                     'severity': WARNING,
                     'check': 'length_ratio',
                     'key': key,
                     'lang': lang,
-                    'message': f'Translation too long: ko={ko_vl} vs {lang}={tr_vl} ({ratio:.1f}x)'
+                    'message': f'ko={ko_vl} vs {lang}={tr_vl} ({ratio:.1f}x, limit {threshold}x)'
                 })
     return issues
 
