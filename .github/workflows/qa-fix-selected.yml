@@ -1,0 +1,98 @@
+name: QA Fix Selected
+
+on:
+  issue_comment:
+    types: [created]
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  fix-selected:
+    runs-on: ubuntu-latest
+    if: |
+      github.event.issue.pull_request &&
+      contains(github.event.issue.labels.*.name, 'qa-block') &&
+      (github.event.comment.body == '/fix' || github.event.comment.body == '/fix-all')
+
+    env:
+      ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+      SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
+      SLACK_CHANNEL: ${{ secrets.SLACK_CHANNEL }}
+      GH_TOKEN: ${{ github.token }}
+
+    steps:
+      - name: Get PR info
+        id: pr
+        run: |
+          PR_NUM=${{ github.event.issue.number }}
+          PR_DATA=$(gh pr view $PR_NUM --repo ${{ github.repository }} --json headRefName,body)
+          BRANCH=$(echo "$PR_DATA" | jq -r '.headRefName')
+          echo "branch=$BRANCH" >> $GITHUB_OUTPUT
+          echo "pr_num=$PR_NUM" >> $GITHUB_OUTPUT
+          echo "$PR_DATA" | jq -r '.body' > /tmp/pr-body.md
+
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ steps.pr.outputs.branch }}
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install deps
+        run: pip install requests
+
+      - name: React to comment
+        run: |
+          gh api repos/${{ github.repository }}/issues/comments/${{ github.event.comment.id }}/reactions \
+            -f content=eyes
+
+      - name: Run fix script
+        run: |
+          COMMAND="${{ github.event.comment.body }}"
+          if [ "$COMMAND" = "/fix-all" ]; then
+            python scripts/qa-fix-checked.py /tmp/pr-body.md --all
+          else
+            python scripts/qa-fix-checked.py /tmp/pr-body.md
+          fi
+
+      - name: Commit and push
+        run: |
+          if [ ! -s /tmp/changed-files.txt ]; then
+            echo "No changes"
+            exit 0
+          fi
+          git config user.name "i18n-bot"
+          git config user.email "i18n-bot@vcms.dev"
+          git add locales/latest/
+          git diff --cached --quiet && echo "No diff" && exit 0
+          git commit -m "fix(i18n): retranslate checked QA BLOCK items"
+          git push
+
+      - name: Comment on PR
+        if: always()
+        run: |
+          if [ -f /tmp/fix-summary.txt ]; then
+            SUMMARY=$(cat /tmp/fix-summary.txt)
+          else
+            SUMMARY="재번역 대상 없음 또는 실패"
+          fi
+          gh pr comment ${{ steps.pr.outputs.pr_num }} --body "$SUMMARY"
+
+      - name: Slack notification
+        if: env.SLACK_BOT_TOKEN != ''
+        run: |
+          python3 -c "
+          import os, requests, json
+          TOKEN = os.environ.get('SLACK_BOT_TOKEN', '')
+          CHANNEL = os.environ.get('SLACK_CHANNEL', '')
+          if not TOKEN or not CHANNEL: exit(0)
+          summary = open('/tmp/fix-summary.txt').read() if os.path.exists('/tmp/fix-summary.txt') else 'No summary'
+          pr_num = '${{ steps.pr.outputs.pr_num }}'
+          repo = '${{ github.repository }}'
+          requests.post('https://slack.com/api/chat.postMessage',
+              headers={'Authorization': f'Bearer {TOKEN}', 'Content-Type': 'application/json'},
+              json={'channel': CHANNEL, 'text': f'QA BLOCK retranslation done\n{summary[:500]}\nhttps://github.com/{repo}/pull/{pr_num}'})
+          "
