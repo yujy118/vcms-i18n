@@ -1,42 +1,282 @@
 {
   "metadata": {
-    "version": "1.0",
-    "updated": "2026-02-26",
-    "total_terms": 32,
+    "version": "1.2",
+    "updated": "2026-03-04",
+    "total_terms": 34,
     "description": "VCMS 공식 용어집. AI 번역 시 반드시 이 용어를 사용해야 함."
   },
   "terms": [
-    {"ko": "채널 상품", "en": "Channel Package", "ja": "チャネルパッケージ", "zh": "渠道套餐", "es": "Paquete de canal", "note": "NOT 'Channel Product'"},
-    {"ko": "상품", "en": "Package", "ja": "パッケージ", "zh": "套餐", "es": "Paquete", "note": "NOT 'Product'"},
-    {"ko": "대실", "en": "Day-use", "ja": "デイユース", "zh": "日间使用", "es": "Uso diurno", "note": "숙박 도메인 전용"},
-    {"ko": "입실", "en": "Check-in", "ja": "チェックイン", "zh": "入住", "es": "Check-in", "note": "lowercase 'in'"},
-    {"ko": "퇴실", "en": "Check-out", "ja": "チェックアウト", "zh": "退房", "es": "Check-out", "note": "lowercase 'out'"},
-    {"ko": "객실 타입", "en": "Room Type", "ja": "客室タイプ", "zh": "房型", "es": "Tipo de habitación", "note": ""},
-    {"ko": "요금 기간", "en": "Rate Period", "ja": "料金期間", "zh": "费率期间", "es": "Período de tarifas", "note": ""},
-    {"ko": "판매 완료", "en": "Sold", "ja": "売り切れ", "zh": "已售完", "es": "Vendido", "note": "NOT 'Sold Out'"},
-    {"ko": "판매 중지", "en": "Stop Sell", "ja": "販売停止", "zh": "停止销售", "es": "Detener venta", "note": ""},
-    {"ko": "판매 재개", "en": "Open Sell", "ja": "販売再開", "zh": "恢复销售", "es": "Abrir venta", "note": ""},
-    {"ko": "잔여", "en": "Availability", "ja": "残室", "zh": "剩余", "es": "Disponibilidad", "note": ""},
-    {"ko": "예약", "en": "Booking", "ja": "予約", "zh": "预订", "es": "Reserva", "note": "NOT 'Reservation'"},
-    {"ko": "숙박", "en": "Stay", "ja": "宿泊", "zh": "住宿", "es": "Estancia", "note": ""},
-    {"ko": "연동", "en": "Connect", "ja": "連携", "zh": "对接", "es": "Conectar", "note": "verb form"},
-    {"ko": "연동 서비스", "en": "Connected Service", "ja": "連携サービス", "zh": "对接服务", "es": "Servicio conectado", "note": ""},
-    {"ko": "요금", "en": "Rate", "ja": "料金", "zh": "费率", "es": "Tarifa", "note": "NOT 'Price' or 'Fee' in room context"},
-    {"ko": "구독", "en": "Subscription", "ja": "サブスクリプション", "zh": "订阅", "es": "Suscripción", "note": ""},
-    {"ko": "결제", "en": "Payment", "ja": "決済", "zh": "支付", "es": "Pago", "note": ""},
-    {"ko": "환불", "en": "Refund", "ja": "返金", "zh": "退款", "es": "Reembolso", "note": ""},
-    {"ko": "해지", "en": "Unsubscribe", "ja": "解約", "zh": "取消订阅", "es": "Cancelar suscripción", "note": ""},
-    {"ko": "재고", "en": "Inventory", "ja": "在庫", "zh": "库存", "es": "Inventario", "note": ""},
-    {"ko": "알림", "en": "Notification", "ja": "通知", "zh": "通知", "es": "Notificación", "note": ""},
-    {"ko": "서비스 (포함 맥락)", "en": "Inclusion", "ja": "インクルージョン", "zh": "包含项", "es": "Inclusión", "note": "키에 inclusion/rate 포함 시"},
-    {"ko": "서비스 (일반)", "en": "Service", "ja": "サービス", "zh": "服务", "es": "Servicio", "note": "기본 번역"},
-    {"ko": "정산", "en": "Settlement", "ja": "精算", "zh": "结算", "es": "Liquidación", "note": ""},
-    {"ko": "채널", "en": "Channel", "ja": "チャネル", "zh": "渠道", "es": "Canal", "note": "OTA channel"},
-    {"ko": "숙소", "en": "Property", "ja": "宿泊施設", "zh": "住宿设施", "es": "Propiedad", "note": "NOT 'Accommodation' in UI"},
-    {"ko": "동기화", "en": "Sync", "ja": "同期", "zh": "同步", "es": "Sincronización", "note": ""},
-    {"ko": "비율", "en": "Percent", "ja": "割合", "zh": "比例", "es": "Porcentaje", "note": ""},
-    {"ko": "금액", "en": "Amount", "ja": "金額", "zh": "金额", "es": "Monto", "note": ""},
-    {"ko": "무료 체험", "en": "Free Trial", "ja": "無料トライアル", "zh": "免费试用", "es": "Prueba gratuita", "note": ""},
-    {"ko": "정기 결제", "en": "Recurring Payment", "ja": "定期決済", "zh": "定期支付", "es": "Pago recurrente", "note": ""}
+    {
+      "ko": "채널 상품",
+      "en": "Channel Package",
+      "ja": "チャネルパッケージ",
+      "zh": "渠道套餐",
+      "es": "Paquete de canal",
+      "note": "NOT 'Channel Product'"
+    },
+    {
+      "ko": "상품",
+      "en": "Package",
+      "ja": "パッケージ",
+      "zh": "套餐",
+      "es": "Paquete",
+      "note": "NOT 'Product'"
+    },
+    {
+      "ko": "대실",
+      "en": "Day-use",
+      "ja": "デイユース",
+      "zh": "日间使用",
+      "es": "Uso diurno",
+      "note": "숙박 도메인 전용"
+    },
+    {
+      "ko": "입실",
+      "en": "Check-in",
+      "ja": "チェックイン",
+      "zh": "入住",
+      "es": "Check-in",
+      "note": "lowercase 'in'"
+    },
+    {
+      "ko": "퇴실",
+      "en": "Check-out",
+      "ja": "チェックアウト",
+      "zh": "退房",
+      "es": "Check-out",
+      "note": "lowercase 'out'"
+    },
+    {
+      "ko": "객실 타입",
+      "en": "Room Type",
+      "ja": "客室タイプ",
+      "zh": "房型",
+      "es": "Tipo de habitación",
+      "note": ""
+    },
+    {
+      "ko": "요금 기간",
+      "en": "Rate Period",
+      "ja": "料金期間",
+      "zh": "费率期间",
+      "es": "Período de tarifas",
+      "note": ""
+    },
+    {
+      "ko": "요금제",
+      "en": "Rate Plan",
+      "ja": "料金プラン",
+      "zh": "费率方案",
+      "es": "Plan de tarifas",
+      "note": "NOT 'Rate Schedule' or 'Pricing Plan'"
+    },
+    {
+      "ko": "판매 완료",
+      "en": "Sold",
+      "ja": "売り切れ",
+      "zh": "已售完",
+      "es": "Vendido",
+      "note": "NOT 'Sold Out'"
+    },
+    {
+      "ko": "판매 중지",
+      "en": "Stop Sell",
+      "ja": "販売停止",
+      "zh": "停止销售",
+      "es": "Detener venta",
+      "note": ""
+    },
+    {
+      "ko": "판매 재개",
+      "en": "Open Sell",
+      "ja": "販売再開",
+      "zh": "恢复销售",
+      "es": "Abrir venta",
+      "note": ""
+    },
+    {
+      "ko": "잔여",
+      "en": "Availability",
+      "ja": "残室",
+      "zh": "剩余",
+      "es": "Disponibilidad",
+      "note": ""
+    },
+    {
+      "ko": "예약",
+      "en": "Booking",
+      "ja": "予約",
+      "zh": "预订",
+      "es": "Reserva",
+      "note": "NOT 'Reservation'"
+    },
+    {
+      "ko": "숙박",
+      "en": "Stay",
+      "ja": "宿泊",
+      "zh": "住宿",
+      "es": "Estancia",
+      "note": ""
+    },
+    {
+      "ko": "연동",
+      "en": "Connect",
+      "ja": "連携",
+      "zh": "对接",
+      "es": "Conectar",
+      "note": "verb form"
+    },
+    {
+      "ko": "연동 서비스",
+      "en": "Connected Service",
+      "ja": "連携サービス",
+      "zh": "对接服务",
+      "es": "Servicio conectado",
+      "note": ""
+    },
+    {
+      "ko": "요금",
+      "en": "Rate",
+      "ja": "料金",
+      "zh": "费率",
+      "es": "Tarifa",
+      "note": "NOT 'Price' or 'Fee' in room context"
+    },
+    {
+      "ko": "구독",
+      "en": "Subscription",
+      "ja": "サブスクリプション",
+      "zh": "订阅",
+      "es": "Suscripción",
+      "note": ""
+    },
+    {
+      "ko": "결제",
+      "en": "Payment",
+      "ja": "決済",
+      "zh": "支付",
+      "es": "Pago",
+      "note": ""
+    },
+    {
+      "ko": "환불",
+      "en": "Refund",
+      "ja": "返金",
+      "zh": "退款",
+      "es": "Reembolso",
+      "note": ""
+    },
+    {
+      "ko": "해지",
+      "en": "Unsubscribe",
+      "ja": "解約",
+      "zh": "取消订阅",
+      "es": "Cancelar suscripción",
+      "note": ""
+    },
+    {
+      "ko": "재고",
+      "en": "Inventory",
+      "ja": "在庫",
+      "zh": "库存",
+      "es": "Inventario",
+      "note": ""
+    },
+    {
+      "ko": "알림",
+      "en": "Notification",
+      "ja": "通知",
+      "zh": "通知",
+      "es": "Notificación",
+      "note": ""
+    },
+    {
+      "ko": "서비스 (포함 맥락)",
+      "en": "Inclusion",
+      "ja": "インクルージョン",
+      "zh": "包含项",
+      "es": "Inclusión",
+      "note": "키에 inclusion/rate 포함 시"
+    },
+    {
+      "ko": "서비스 (일반)",
+      "en": "Service",
+      "ja": "サービス",
+      "zh": "服务",
+      "es": "Servicio",
+      "note": "기본 번역"
+    },
+    {
+      "ko": "정산",
+      "en": "Settlement",
+      "ja": "精算",
+      "zh": "结算",
+      "es": "Liquidación",
+      "note": ""
+    },
+    {
+      "ko": "채널",
+      "en": "Channel",
+      "ja": "チャネル",
+      "zh": "渠道",
+      "es": "Canal",
+      "note": "OTA channel"
+    },
+    {
+      "ko": "숙소",
+      "en": "Property",
+      "ja": "宿泊施設",
+      "zh": "住宿设施",
+      "es": "Propiedad",
+      "note": "채널과 합쳐서 쓰는 숙소 단위. NOT 'Accommodation'"
+    },
+    {
+      "ko": "동기화",
+      "en": "Sync",
+      "ja": "同期",
+      "zh": "同步",
+      "es": "Sincronización",
+      "note": ""
+    },
+    {
+      "ko": "비율",
+      "en": "Percent",
+      "ja": "割合",
+      "zh": "比例",
+      "es": "Porcentaje",
+      "note": ""
+    },
+    {
+      "ko": "금액",
+      "en": "Amount",
+      "ja": "金額",
+      "zh": "金额",
+      "es": "Monto",
+      "note": ""
+    },
+    {
+      "ko": "무료 체험",
+      "en": "Free Trial",
+      "ja": "無料トライアル",
+      "zh": "免费试用",
+      "es": "Prueba gratuita",
+      "note": ""
+    },
+    {
+      "ko": "정기 결제",
+      "en": "Recurring Payment",
+      "ja": "定期決済",
+      "zh": "定期支付",
+      "es": "Pago recurrente",
+      "note": ""
+    },
+    {
+      "ko": "숙박업소",
+      "en": "Accommodation",
+      "ja": "宿泊施設",
+      "zh": "住宿设施",
+      "es": "Alojamiento",
+      "note": "업종/업소 자체를 의미. Property와 구분"
+    }
   ]
 }
