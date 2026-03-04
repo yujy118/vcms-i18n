@@ -114,6 +114,11 @@ def check_es_cap(ko, tr):
     if 'es' not in tr: return issues
     for key, val in tr['es'].items():
         words = val.split()
+        # Skip short values (headers, buttons, labels) - Title Case is normal
+        # Only check values with 8+ words that look like sentences
+        if len(words) < 8: continue
+        # Skip if value contains no lowercase words (all Title Case = header)
+        if not any(w[0].islower() for w in words[1:] if len(w) > 1 and w[0].isalpha()): continue
         for i, w in enumerate(words):
             if i == 0: continue
             cl = w.strip('.,;:!?()').lower()
@@ -254,8 +259,25 @@ def _is_emoji_only(text):
     return len(non_emoji) == 0 and len(cleaned) <= 10
 
 
+def _is_url(text):
+    return text.startswith('http://') or text.startswith('https://')
+
+
+def _is_date_format(text):
+    """Date format patterns like 'M. d', 'MM-dd (ccc)', 'M. d(ccc)'"""
+    return bool(re.match(r'^[MdyYHhmsEcGaL\s.,:\-/()]+$', text))
+
+
+def _is_html_variable_only(text):
+    """Values like '<green>{sales}</green> / {total}' or '{min} ~ {max}'"""
+    stripped = re.sub(r'<[^>]+>', '', text)  # remove HTML tags
+    stripped = re.sub(r'\{[^}]*\}', '', stripped)  # remove placeholders
+    stripped = stripped.strip()
+    return not stripped or re.match(r'^[\s~,.:;/\-+*=|]+$', stripped)
+
+
 def check_untranslated(ko, tr):
-    """[FIX-3] Skip variable-only and emoji-only keys."""
+    """[FIX-3] Skip variable-only, emoji-only, URL, date format, HTML+variable keys."""
     issues = []
     for lang, data in tr.items():
         for key in data:
@@ -264,6 +286,9 @@ def check_untranslated(ko, tr):
                 if not re.match(r'^[A-Z0-9_.\-/]+$', ko[key]):
                     if _is_variable_only(ko[key]): continue
                     if _is_emoji_only(ko[key]): continue
+                    if _is_url(ko[key]): continue
+                    if _is_date_format(ko[key]): continue
+                    if _is_html_variable_only(ko[key]): continue
                     issues.append({'severity': WARNING, 'check': 'untranslated',
                         'key': key, 'lang': lang,
                         'message': f'Same as ko: "{ko[key][:50]}"'})
