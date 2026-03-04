@@ -61,6 +61,14 @@ FEE_ALLOWED_PATTERNS = [
 ]
 PRICE_ALLOWED_PATTERNS = ['price', 'charge.asc', 'charge.desc', 'first-payment']
 
+# Keys where "Accommodation" is correct (refers to the physical property/building,
+# not the UI menu item). Onboarding, integration, and setup contexts use Accommodation
+# because they describe the lodging establishment itself.
+ACCOMMODATION_ALLOWED_PATTERNS = [
+    'accommodat', 'onboarding', 'integration', 'create-accommodation',
+    'select-property',
+]
+
 def check_glossary(ko, tr):
     issues = []
     known = {'en': [
@@ -74,7 +82,9 @@ def check_glossary(ko, tr):
             for wrong, correct in checks:
                 if wrong in val:
                     if wrong == 'Product' and 'product' in key.lower(): continue
-                    if wrong == 'Accommodation' and 'accommodat' in key.lower(): continue
+                    if wrong == 'Accommodation':
+                        kl = key.lower()
+                        if any(p in kl for p in ACCOMMODATION_ALLOWED_PATTERNS): continue
                     if wrong == 'Fee':
                         kl = key.lower()
                         if any(p in kl for p in FEE_ALLOWED_PATTERNS): continue
