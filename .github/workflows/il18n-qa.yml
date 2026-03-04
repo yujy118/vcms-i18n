@@ -48,13 +48,9 @@ jobs:
           NS  = os.environ['TOLGEE_NAMESPACE']
           hdrs = {'X-API-Key': API, 'Content-Type': 'application/json'}
           LOCALES = 'locales/latest'
-
-          # Tolgee language tag -> local filename
           LANG_MAP = {'ko': 'ko.json', 'en': 'en.json', 'ja': 'ja.json', 'zh': 'zh.json', 'es': 'es.json'}
 
           print('Exporting from Tolgee...')
-
-          # Fetch all keys with all languages
           all_keys = {}
           page = 0
           while True:
@@ -76,10 +72,8 @@ jobs:
               page += 1
               print(f'  page {page}/{total_pages} ({len(all_keys)} keys)')
               if page >= total_pages: break
-
           print(f'Total keys from Tolgee: {len(all_keys)}')
 
-          # Build per-language files
           for lang, fname in LANG_MAP.items():
               lang_dict = {}
               for key in sorted(all_keys.keys()):
@@ -91,7 +85,6 @@ jobs:
                   json.dump(lang_dict, f, ensure_ascii=False, indent=2)
                   f.write('\n')
               print(f'  {fname}: {len(lang_dict)} keys')
-
           print('Export complete')
           PYEOF
 
@@ -108,6 +101,7 @@ jobs:
       - name: QA check and Slack notify
         env:
           GITHUB_REPOSITORY: ${{ github.repository }}
+          UPDATE_FROM_TOLGEE: ${{ github.event.inputs.update_from_tolgee }}
         run: |
           python3 << 'PYEOF'
           import json, os, subprocess, requests, math, csv, io
@@ -125,11 +119,9 @@ jobs:
           headers_upload = {"Authorization": f"Bearer {TOKEN}"}
           API = "https://slack.com/api/chat.postMessage"
 
-          # Load ko
           ko = json.load(open(f"{LOCALES}/ko.json", encoding="utf-8"))
           total_keys = len(ko)
 
-          # Lang config
           lang_map = {"en": "en.json", "ja": "ja.json", "zh-CN": None, "es": "es.json"}
           if os.path.exists(f"{LOCALES}/zh-CN.json"):
               lang_map["zh-CN"] = "zh-CN.json"
@@ -139,7 +131,6 @@ jobs:
           flags = {"en": "\U0001f1fa\U0001f1f8", "ja": "\U0001f1ef\U0001f1f5", "zh-CN": "\U0001f1e8\U0001f1f3", "es": "\U0001f1ea\U0001f1f8"}
           display = {"en": "EN", "ja": "JA", "zh-CN": "ZH", "es": "ES"}
 
-          # Load all lang data
           lang_data = {}
           for lang, fname in lang_map.items():
               if fname and os.path.exists(f"{LOCALES}/{fname}"):
@@ -147,36 +138,70 @@ jobs:
               else:
                   lang_data[lang] = {}
 
-          # Missing keys per lang
           missing = {}
           all_missing = set()
           for lang in lang_map:
               missing[lang] = [k for k in ko if k not in lang_data[lang]]
               all_missing.update(missing[lang])
-
           total_missing = len(all_missing)
 
-          # QA check
+          # ===== QA with detailed breakdown =====
           blocks_count = 0
           warns_count = 0
+          qa_breakdown = {}
           try:
               subprocess.run(
                   ["python", "scripts/qa_check.py", "--locales", LOCALES,
                    "--glossary", GLOSSARY, "--output", "/tmp/qa-report.json"],
-                  capture_output=True, text=True, timeout=60
+                  capture_output=True, text=True, timeout=120
               )
               if os.path.exists("/tmp/qa-report.json"):
                   qa = json.load(open("/tmp/qa-report.json"))
                   if isinstance(qa, list):
-                      blocks_count = len([i for i in qa if i.get("severity") == "BLOCK"])
-                      warns_count = len([i for i in qa if i.get("severity") == "WARNING"])
-                  elif isinstance(qa, dict):
-                      blocks_count = qa.get("block", 0)
-                      warns_count = qa.get("warning", 0)
+                      for item in qa:
+                          sev = item.get("severity", "")
+                          chk = item.get("check", "unknown")
+                          if chk not in qa_breakdown:
+                              qa_breakdown[chk] = {"BLOCK": 0, "WARNING": 0}
+                          if sev in ("BLOCK", "WARNING"):
+                              qa_breakdown[chk][sev] += 1
+                      blocks_count = sum(v["BLOCK"] for v in qa_breakdown.values())
+                      warns_count = sum(v["WARNING"] for v in qa_breakdown.values())
           except Exception as e:
               print(f"QA error: {e}")
 
-          # Cost estimate
+          CHECK_LABELS = {
+              "glossary_violation": "\U0001f4d6 용어집 위반",
+              "brand_translated": "\U0001f3f7 브랜드 오번역",
+              "brand_not_english": "\U0001f3f7 브랜드 한국어 누출",
+              "es_capitalization": "\U0001f524 ES 대문자",
+              "placeholder_missing": "\u26a0\ufe0f 변수 누락",
+              "placeholder_extra": "\u2139\ufe0f 변수 추가",
+              "newline_mismatch": "\u21a9\ufe0f 줄바꿈 불일치",
+              "empty": "\u274c 빈 값",
+              "ai_leak": "\U0001f916 AI 프롬프트 누출",
+              "html_broken": "\U0001f517 HTML 태그 깨짐",
+              "untranslated": "\U0001f50d 미번역 의심",
+              "icu_broken": "\U0001f4ac ICU 포맷 깨짐",
+              "icu_mismatch": "\U0001f4ac ICU 포맷 불일치",
+              "length_ratio": "\U0001f4cf 번역 길이 초과",
+          }
+
+          qa_lines = []
+          sorted_checks = sorted(qa_breakdown.items(), key=lambda x: (-x[1]["BLOCK"], -x[1]["WARNING"]))
+          for chk, counts in sorted_checks:
+              b = counts["BLOCK"]
+              w = counts["WARNING"]
+              if b == 0 and w == 0: continue
+              label = CHECK_LABELS.get(chk, chk)
+              parts = []
+              if b > 0: parts.append(f"*{b}* BLOCK")
+              if w > 0: parts.append(f"{w} WARN")
+              qa_lines.append(f"{label}: {' / '.join(parts)}")
+
+          qa_detail = "\n".join(qa_lines) if qa_lines else "\u2705 검출 없음"
+
+          # ===== Cost estimate =====
           batch_size = 30
           total_batches = sum(math.ceil(len(missing[l]) / batch_size) for l in missing if len(missing[l]) > 0)
           cost_input = total_batches * 550 * 3 / 1_000_000
@@ -185,131 +210,132 @@ jobs:
           cost_krw = int(cost_total * 1400)
           est_minutes = max(1, total_batches // 3)
 
-          # Lang status
           lang_parts = []
           for lang in ["en", "ja", "zh-CN", "es"]:
               cnt = len(missing.get(lang, []))
-              lang_parts.append(f"{flags[lang]} {display[lang]} {cnt}건")
+              lang_parts.append(f"{flags[lang]} {display[lang]} {cnt}\uac74")
           lang_line = " | ".join(lang_parts)
 
           from_tolgee = os.environ.get("UPDATE_FROM_TOLGEE", "") == "true"
-          source_tag = " (Tolgee 최신)" if from_tolgee else ""
-          status = "\u2705" if total_missing == 0 else "\U0001f504"
+          source_tag = " (Tolgee \ucd5c\uc2e0)" if from_tolgee else ""
 
-          # === MAIN MESSAGE ===
+          if blocks_count == 0 and total_missing == 0:
+              status = "\u2705"
+          elif blocks_count > 0:
+              status = "\U0001f6a8"
+          else:
+              status = "\U0001f504"
+
+          # ===== MAIN MESSAGE =====
           main_blocks = [
-              {"type": "header", "text": {"type": "plain_text", "text": f"{status} i18n QA 결과{source_tag}", "emoji": True}},
+              {"type": "header", "text": {"type": "plain_text", "text": f"{status} i18n QA \uacb0\uacfc{source_tag}", "emoji": True}},
               {"type": "section", "text": {"type": "mrkdwn", "text": (
-                  f"*총 키:* {total_keys}개\n"
-                  f"*QA:* BLOCK {blocks_count}건 | WARNING {warns_count}건\n"
-                  f"*미번역:* {total_missing}건\n\n"
+                  f"*\ucd1d \ud0a4:* {total_keys}\uac1c | *\ubbf8\ubc88\uc5ed:* {total_missing}\uac74\n"
+                  f"*QA:* \U0001f6ab BLOCK *{blocks_count}*\uac74 | \u26a0\ufe0f WARNING {warns_count}\uac74\n\n"
                   f"{lang_line}"
               )}},
+              {"type": "divider"},
+              {"type": "section", "text": {"type": "mrkdwn", "text": f"*QA \uc0c1\uc138*\n{qa_detail}"}},
           ]
 
           resp = requests.post(API, headers=headers, json={
-              "channel": CHANNEL,
-              "blocks": main_blocks,
-              "text": f"{status} i18n QA: 미번역 {total_missing}건"
+              "channel": CHANNEL, "blocks": main_blocks,
+              "text": f"{status} i18n QA: BLOCK {blocks_count} / WARN {warns_count} / \ubbf8\ubc88\uc5ed {total_missing}"
           })
           main_ts = resp.json().get("ts", "")
           print(f"Main posted: {main_ts}")
 
-          if total_missing == 0:
-              print("No missing keys"); exit(0)
+          if total_missing == 0 and blocks_count == 0:
+              print("All clear"); exit(0)
 
-          # === BUILD CSV ===
-          sorted_keys = sorted(list(all_missing))
-          buf = io.StringIO()
-          writer = csv.writer(buf)
-          writer.writerow(["key", "ko", "en", "ja", "zh-CN", "es"])
-          for k in sorted_keys:
-              writer.writerow([
-                  k,
-                  ko.get(k, ""),
-                  lang_data["en"].get(k, ""),
-                  lang_data["ja"].get(k, ""),
-                  lang_data["zh-CN"].get(k, ""),
-                  lang_data["es"].get(k, ""),
-              ])
-          csv_content = buf.getvalue().encode("utf-8-sig")
+          # ===== THREAD: BLOCK details =====
+          if blocks_count > 0 and os.path.exists("/tmp/qa-report.json"):
+              qa_all = json.load(open("/tmp/qa-report.json"))
+              block_items = [i for i in qa_all if i.get("severity") == "BLOCK"]
 
-          # Upload CSV to Slack
-          csv_uploaded = False
-          try:
-              resp1 = requests.post("https://slack.com/api/files.getUploadURLExternal",
-                  headers=headers_upload,
-                  data={"filename": "missing_keys.csv", "length": len(csv_content)}
-              )
-              r1 = resp1.json()
-              if r1.get("ok"):
-                  upload_url = r1["upload_url"]
-                  file_id = r1["file_id"]
-                  requests.post(upload_url,
-                      files={"file": ("missing_keys.csv", csv_content, "text/csv")}
-                  )
-                  requests.post("https://slack.com/api/files.completeUploadExternal",
-                      headers=headers,
-                      json={"files": [{"id": file_id}], "channel_id": CHANNEL, "thread_ts": main_ts,
-                            "initial_comment": f"\U0001f4ce *미번역 키 목록* ({total_missing}건)\n전체 키와 원문이 포함된 CSV 파일입니다."}
-                  )
-                  csv_uploaded = True
-                  print("CSV uploaded")
-              else:
-                  print(f"Upload URL failed: {r1}")
-          except Exception as e:
-              print(f"CSV upload error: {e}")
+              # Group by check type
+              by_check = {}
+              for item in block_items:
+                  chk = item.get("check", "unknown")
+                  if chk not in by_check: by_check[chk] = []
+                  by_check[chk].append(item)
 
-          # === THREAD: Cost + buttons ===
-          cost_blocks = [
-              {"type": "section", "text": {"type": "mrkdwn", "text": (
-                  f"\U0001f4b0 *자동 번역 예상*\n"
-                  f"• API 호출: {total_batches}회\n"
-                  f"• 예상 비용: *${cost_total:.2f}* (약 {cost_krw}원)\n"
-                  f"• 예상 소요: 약 {est_minutes}분\n"
-                  f"• 모델: Claude Sonnet 4.5"
-              )}},
-              {"type": "divider"},
-              {"type": "actions", "elements": [
-                  {
+              block_text_parts = []
+              for chk, items in sorted(by_check.items()):
+                  label = CHECK_LABELS.get(chk, chk)
+                  block_text_parts.append(f"\n*{label}* ({len(items)}\uac74)")
+                  for item in items[:10]:
+                      key = item.get("key", "")
+                      lang = item.get("lang", "")
+                      msg = item.get("message", "")
+                      block_text_parts.append(f"\u2022 `{key}` [{lang}] {msg}")
+                  if len(items) > 10:
+                      block_text_parts.append(f"  _... +{len(items)-10}\uac74 \ub354_")
+
+              block_text = "\n".join(block_text_parts)
+              # Slack limit: 3000 chars per section
+              if len(block_text) > 2900:
+                  block_text = block_text[:2900] + "\n_... (truncated)_"
+
+              requests.post(API, headers=headers, json={
+                  "channel": CHANNEL, "thread_ts": main_ts,
+                  "blocks": [
+                      {"type": "section", "text": {"type": "mrkdwn", "text": f"\U0001f6ab *BLOCK \uc0c1\uc138 ({blocks_count}\uac74)*\n\uc7ac\ubc88\uc5ed \ud544\uc694:{block_text}"}},
+                  ],
+                  "text": f"BLOCK \uc0c1\uc138 {blocks_count}\uac74"
+              })
+
+          # ===== THREAD: Missing keys CSV + translate options =====
+          if total_missing > 0:
+              sorted_keys = sorted(list(all_missing))
+              buf = io.StringIO()
+              writer = csv.writer(buf)
+              writer.writerow(["key", "ko", "en", "ja", "zh-CN", "es"])
+              for k in sorted_keys:
+                  writer.writerow([k, ko.get(k, ""), lang_data["en"].get(k, ""),
+                      lang_data["ja"].get(k, ""), lang_data["zh-CN"].get(k, ""), lang_data["es"].get(k, "")])
+              csv_content = buf.getvalue().encode("utf-8-sig")
+
+              try:
+                  resp1 = requests.post("https://slack.com/api/files.getUploadURLExternal",
+                      headers=headers_upload, data={"filename": "missing_keys.csv", "length": len(csv_content)})
+                  r1 = resp1.json()
+                  if r1.get("ok"):
+                      requests.post(r1["upload_url"], files={"file": ("missing_keys.csv", csv_content, "text/csv")})
+                      requests.post("https://slack.com/api/files.completeUploadExternal", headers=headers,
+                          json={"files": [{"id": r1["file_id"]}], "channel_id": CHANNEL, "thread_ts": main_ts,
+                                "initial_comment": f"\U0001f4ce *\ubbf8\ubc88\uc5ed \ud0a4 \ubaa9\ub85d* ({total_missing}\uac74)"})
+                      print("CSV uploaded")
+              except Exception as e:
+                  print(f"CSV upload error: {e}")
+
+              cost_blocks = [
+                  {"type": "section", "text": {"type": "mrkdwn", "text": (
+                      f"\U0001f4b0 *\uc790\ub3d9 \ubc88\uc5ed \uc608\uc0c1*\n"
+                      f"\u2022 API \ud638\ucd9c: {total_batches}\ud68c | \uc608\uc0c1: *${cost_total:.2f}* (\uc57d {cost_krw}\uc6d0) | \uc18c\uc694: ~{est_minutes}\ubd84"
+                  )}},
+                  {"type": "actions", "elements": [{
                       "type": "button",
-                      "text": {"type": "plain_text", "text": "\U0001f504 자동 번역 실행", "emoji": True},
-                      "style": "primary",
-                      "action_id": "i18n_translate",
+                      "text": {"type": "plain_text", "text": "\U0001f504 \uc790\ub3d9 \ubc88\uc5ed \uc2e4\ud589", "emoji": True},
+                      "style": "primary", "action_id": "i18n_translate",
                       "value": json.dumps({"repo": REPO, "missing": total_missing, "cost": f"${cost_total:.2f}"}),
                       "confirm": {
-                          "title": {"type": "plain_text", "text": "자동 번역 실행"},
-                          "text": {"type": "mrkdwn", "text": f"미번역 {total_missing}키를 Sonnet으로 번역합니다.\n예상 비용: *${cost_total:.2f}* (약 {cost_krw}원)\n\n실행하시겠습니까?"},
-                          "confirm": {"type": "plain_text", "text": "실행"},
-                          "deny": {"type": "plain_text", "text": "취소"}
+                          "title": {"type": "plain_text", "text": "\uc790\ub3d9 \ubc88\uc5ed \uc2e4\ud589"},
+                          "text": {"type": "mrkdwn", "text": f"\ubbf8\ubc88\uc5ed {total_missing}\ud0a4\ub97c Sonnet\uc73c\ub85c \ubc88\uc5ed\ud569\ub2c8\ub2e4.\n\uc608\uc0c1 \ube44\uc6a9: *${cost_total:.2f}*\n\n\uc2e4\ud589\ud558\uc2dc\uaca0\uc2b5\ub2c8\uae4c?"},
+                          "confirm": {"type": "plain_text", "text": "\uc2e4\ud589"},
+                          "deny": {"type": "plain_text", "text": "\ucde8\uc18c"}
                       }
-                  },
-              ]},
-              {"type": "divider"},
-              {"type": "section", "text": {"type": "mrkdwn", "text": (
-                  "\U0001f4dd *수동 번역 방법 (비용 $0)*\n\n"
-                  "*1. CSV 다운로드*\n"
-                  "   위 첨부된 `missing_keys.csv`를 다운로드합니다.\n\n"
-                  "*2. Claude 프로젝트에서 번역 요청*\n"
-                  f"   <https://claude.ai|Claude.ai> \u2192 프로젝트 *vcms-i18n* 에서 CSV를 업로드하고:\n"
-                  "   _\"이 CSV의 미번역 키를 5개국어(en, ja, zh-CN, es) 번역해줘._\n"
-                  "   _glossary.json 용어집을 따르고, 숙박업 채널매니저 맥락으로 번역해줘.\"_\n\n"
-                  "*3. 번역 결과 적용*\n"
-                  "   Claude가 번역한 JSON을 각 파일에 추가합니다:\n"
-                  f"   \u2022 <https://github.com/{REPO}/edit/main/locales/latest/en.json|en.json 편집>\n"
-                  f"   \u2022 <https://github.com/{REPO}/edit/main/locales/latest/ja.json|ja.json 편집>\n"
-                  f"   \u2022 <https://github.com/{REPO}/edit/main/locales/latest/zh-CN.json|zh-CN.json 편집>\n"
-                  f"   \u2022 <https://github.com/{REPO}/edit/main/locales/latest/es.json|es.json 편집>\n\n"
-                  "*4. Push \u2192 QA 자동 재실행*\n"
-                  "   커밋하면 QA가 다시 돌아갑니다. 미번역 0건이면 \u2705 완료!"
-              )}},
-          ]
+                  }]},
+                  {"type": "section", "text": {"type": "mrkdwn", "text": (
+                      "\U0001f4dd *\uc218\ub3d9 \ubc88\uc5ed*: CSV \ub2e4\uc6b4 \u2192 "
+                      f"<https://claude.ai|Claude.ai> vcms-i18n \ud504\ub85c\uc81d\ud2b8\uc5d0\uc11c \ubc88\uc5ed \u2192 GitHub push \u2192 QA \uc7ac\uc2e4\ud589"
+                  )}},
+              ]
 
-          requests.post(API, headers=headers, json={
-              "channel": CHANNEL, "thread_ts": main_ts,
-              "blocks": cost_blocks,
-              "text": "번역 옵션"
-          })
+              requests.post(API, headers=headers, json={
+                  "channel": CHANNEL, "thread_ts": main_ts,
+                  "blocks": cost_blocks, "text": "\ubc88\uc5ed \uc635\uc158"
+              })
 
-          print(f"Done: {total_missing} missing, est ${cost_total:.2f}")
+          print(f"Done: BLOCK {blocks_count} / WARN {warns_count} / missing {total_missing}")
           PYEOF
