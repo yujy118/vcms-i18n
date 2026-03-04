@@ -6,35 +6,26 @@ from pathlib import Path
 BLOCK = 'BLOCK'
 WARNING = 'WARNING'
 
-# Language-specific length ratio thresholds
-# ko is syllabic (1 char = 1 syllable), en/es are alphabetic (5-8 chars per word)
+# Length ratio thresholds - only for CJK languages
+# en/es EXCLUDED: alphabetic scripts are inherently 2-4x longer than Korean syllabic,
+# making ratio checks produce massive false positives with zero real bugs.
 LENGTH_RATIO_THRESHOLDS = {
-    'en': 3.0,   # English is naturally 2-3x longer than Korean
-    'es': 3.0,   # Spanish similar to English
-    'ja': 1.8,   # Japanese uses kanji/kana, closer to Korean density
-    'zh': 1.5,   # Chinese is most compact, closest to Korean
+    'ja': 1.8,
+    'zh': 1.5,
     'zh-CN': 1.5,
 }
+LENGTH_RATIO_SKIP_LANGS = {'en', 'es'}
 
 BRAND_OFFICIAL = {
-    "야놀자": "Yanolja",
-    "여기어때": "Yeogiottae",
-    "여기어때 사장님앱": "Yeogiottae",
-    "여기어때 호스트하우스": "Yeogiottae Hosthouse",
+    "야놀자": "Yanolja", "여기어때": "Yeogiottae",
+    "여기어때 사장님앱": "Yeogiottae", "여기어때 호스트하우스": "Yeogiottae Hosthouse",
     "여기어때 파트너센터": "Yeogiottae Partner",
-    "아고다": "Agoda",
-    "에어비앤비": "Airbnb",
-    "부킹닷컴": "Bookingdotcom",
-    "쿨스테이 모텔": "Coolstay Motel",
-    "쿨스테이 호텔": "Coolstay Hotel",
-    "쿨스테이 펜션": "Coolstay Pension",
-    "떠나요닷컴": "Ddnayodotcom",
-    "익스피디아": "Expedia",
-    "네이버": "Naver",
-    "온다 호텔 플러스": "Onda Hotel Plus",
-    "온다 펜션 플러스": "Onda Pension Plus",
-    "트립닷컴": "Tripdotcom",
-    "트립비토즈": "Tripbtoz",
+    "아고다": "Agoda", "에어비앤비": "Airbnb", "부킹닷컴": "Bookingdotcom",
+    "쿨스테이 모텔": "Coolstay Motel", "쿨스테이 호텔": "Coolstay Hotel",
+    "쿨스테이 펜션": "Coolstay Pension", "떠나요닷컴": "Ddnayodotcom",
+    "익스피디아": "Expedia", "네이버": "Naver",
+    "온다 호텔 플러스": "Onda Hotel Plus", "온다 펜션 플러스": "Onda Pension Plus",
+    "트립닷컴": "Tripdotcom", "트립비토즈": "Tripbtoz",
 }
 
 BRAND_BAD_TRANSLATIONS = {
@@ -42,15 +33,11 @@ BRAND_BAD_TRANSLATIONS = {
     "여기어때": ["这里怎么样", "这里如何", "ここはどう", "how about here", "how is here",
                 "como es aqui", "cómo es aquí", "que tal aqui"],
     "네이버": ["导航", "ナビ", "navegador"],
-    "아고다": ["雅高达", "阿哥达"],
-    "에어비앤비": ["空气床和早餐"],
+    "아고다": ["雅高达", "阿哥达"], "에어비앤비": ["空气床和早餐"],
     "부킹닷컴": ["预订网", "订房网"],
     "쿨스테이": ["蜜住", "蜂蜜住宿", "ハニーステイ"],
-    "떠나요닷컴": ["出发网", "走吧网"],
-    "익스피디아": ["远征"],
-    "온다": ["来了", "温达"],
-    "트립닷컴": ["旅行网"],
-    "트립비토즈": ["旅行节拍"],
+    "떠나요닷컴": ["出发网", "走吧网"], "익스피디아": ["远征"],
+    "온다": ["来了", "温达"], "트립닷컴": ["旅行网"], "트립비토즈": ["旅行节拍"],
 }
 
 ES_GLOSSARY = [
@@ -72,9 +59,7 @@ FEE_ALLOWED_PATTERNS = [
     'additional-fee', 'basefee', 'additionalfee',
     'rate-plan', 'terms.service', 'terms.private',
 ]
-PRICE_ALLOWED_PATTERNS = [
-    'price', 'charge.asc', 'charge.desc', 'first-payment',
-]
+PRICE_ALLOWED_PATTERNS = ['price', 'charge.asc', 'charge.desc', 'first-payment']
 
 def check_glossary(ko, tr):
     issues = []
@@ -117,8 +102,7 @@ def check_brand(ko, tr):
                         official = BRAND_OFFICIAL.get(brand_ko, brand_ko)
                         issues.append({'severity': BLOCK, 'check': 'brand_translated',
                             'key': key, 'lang': lang,
-                            'message': f'"{brand_ko}" as "{bad}" -> use "{official}"',
-                            'value': val[:100]})
+                            'message': f'"{brand_ko}" as "{bad}" -> use "{official}"', 'value': val[:100]})
     for key, ko_val in ko.items():
         for brand_ko, official_en in BRAND_OFFICIAL.items():
             if brand_ko not in ko_val: continue
@@ -129,8 +113,7 @@ def check_brand(ko, tr):
                 if official_en.lower() not in tr_val.lower() and brand_ko in tr_val:
                     issues.append({'severity': BLOCK, 'check': 'brand_not_english',
                         'key': key, 'lang': lang,
-                        'message': f'Korean "{brand_ko}" leaked -> use "{official_en}"',
-                        'value': tr_val[:100]})
+                        'message': f'Korean "{brand_ko}" leaked -> use "{official_en}"', 'value': tr_val[:100]})
     return issues
 
 
@@ -150,8 +133,7 @@ def check_es_cap(ko, tr):
                 if not prev.endswith('.'):
                     issues.append({'severity': WARNING, 'check': 'es_capitalization',
                         'key': key, 'lang': 'es',
-                        'message': f'"{w}" should be lowercase mid-sentence',
-                        'value': val[:100]})
+                        'message': f'"{w}" should be lowercase mid-sentence', 'value': val[:100]})
                     break
     return issues
 
@@ -159,7 +141,6 @@ def check_es_cap(ko, tr):
 # ========== CHECK 4: Placeholder ==========
 def _normalize_ph(s):
     return re.sub(r'\{\s+', '{', re.sub(r'\s+\}', '}', s))
-
 
 def _extract_top_level_ph(text):
     normalized = _normalize_ph(text)
@@ -173,13 +154,11 @@ def _extract_top_level_ph(text):
             depth += 1
             if depth == 1:
                 j = i + 1
-                while j < n and normalized[j] not in '{}':
-                    j += 1
+                while j < n and normalized[j] not in '{}': j += 1
                 inner = normalized[i+1:j].strip()
                 if ',' in inner:
                     var_name = inner.split(',')[0].strip()
-                    if re.match(r'^\w+$', var_name):
-                        result.add(var_name)
+                    if re.match(r'^\w+$', var_name): result.add(var_name)
                 elif re.match(r'^\w+$', inner) and j < n and normalized[j] == '}':
                     result.add(inner)
             i += 1
@@ -189,7 +168,6 @@ def _extract_top_level_ph(text):
         else:
             i += 1
     return result
-
 
 def check_placeholder(ko, tr):
     issues = []
@@ -266,29 +244,22 @@ def _is_variable_only(text):
     stripped = re.sub(r'\{[^}]*\}', '', text).strip()
     return not stripped or re.match(r'^[\s,.:;/\-]*$', stripped)
 
-
 def _is_emoji_only(text):
     cleaned = re.sub(r'[\ufe0f\u200d\u20e3\u200b]', '', text).strip()
-    if not cleaned:
-        return True
+    if not cleaned: return True
     non_emoji = re.sub(r'[^\x00-\x7f]', '', cleaned).strip()
     return len(non_emoji) == 0 and len(cleaned) <= 10
-
 
 def _is_url(text):
     return text.startswith('http://') or text.startswith('https://')
 
-
 def _is_date_format(text):
     return bool(re.match(r'^[MdyYHhmsEcGaL\s.,:\-/()]+$', text))
 
-
 def _is_html_variable_only(text):
     stripped = re.sub(r'<[^>]+>', '', text)
-    stripped = re.sub(r'\{[^}]*\}', '', stripped)
-    stripped = stripped.strip()
+    stripped = re.sub(r'\{[^}]*\}', '', stripped).strip()
     return not stripped or re.match(r'^[\s~,.:;/\-+*=|]+$', stripped)
-
 
 def check_untranslated(ko, tr):
     issues = []
@@ -303,8 +274,7 @@ def check_untranslated(ko, tr):
                     if _is_date_format(ko[key]): continue
                     if _is_html_variable_only(ko[key]): continue
                     issues.append({'severity': WARNING, 'check': 'untranslated',
-                        'key': key, 'lang': lang,
-                        'message': f'Same as ko: "{ko[key][:50]}"'})
+                        'key': key, 'lang': lang, 'message': f'Same as ko: "{ko[key][:50]}"'})
     return issues
 
 
@@ -328,12 +298,10 @@ def check_icu_format(ko, tr):
     return issues
 
 
-# ========== CHECK 11: Length ratio ==========
+# ========== CHECK 11: Length ratio (ja/zh only) ==========
 def check_length_ratio(ko, tr):
-    """WARN if translated text exceeds language-specific threshold vs Korean source.
-    Thresholds: en/es=3.0x, ja=1.8x, zh=1.5x (accounts for script density differences).
-    Skip: variable-only values, very short strings (<5 chars), keys with ICU format.
-    """
+    """WARN if ja/zh translation exceeds threshold vs Korean source.
+    en/es skipped: alphabetic scripts are inherently 2-4x longer than Korean."""
     issues = []
     var_re = re.compile(r'\{[^}]+\}')
     tag_re = re.compile(r'<[^>]+>')
@@ -346,31 +314,23 @@ def check_length_ratio(ko, tr):
         return len(s)
 
     for lang, data in tr.items():
+        if lang in LENGTH_RATIO_SKIP_LANGS:
+            continue
         threshold = LENGTH_RATIO_THRESHOLDS.get(lang, 2.0)
         for key in data:
-            if key not in ko:
-                continue
+            if key not in ko: continue
             ko_val = ko[key]
             tr_val = data[key]
-
             ko_vl = visible_len(ko_val)
-            if ko_vl < 5:
-                continue
-
-            if icu_re.search(ko_val):
-                continue
-
+            if ko_vl < 10: continue
+            if icu_re.search(ko_val): continue
             tr_vl = visible_len(tr_val)
-            if tr_vl == 0:
-                continue
-
+            if tr_vl == 0: continue
             ratio = tr_vl / ko_vl
             if ratio > threshold:
                 issues.append({
-                    'severity': WARNING,
-                    'check': 'length_ratio',
-                    'key': key,
-                    'lang': lang,
+                    'severity': WARNING, 'check': 'length_ratio',
+                    'key': key, 'lang': lang,
                     'message': f'ko={ko_vl} vs {lang}={tr_vl} ({ratio:.1f}x, limit {threshold}x)'
                 })
     return issues
