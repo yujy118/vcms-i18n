@@ -57,6 +57,17 @@ def load_json(path):
 
 
 # ========== CHECK 1: Glossary ==========
+# Keys where Fee is correct (subscription, extra guest charge)
+FEE_ALLOWED_PATTERNS = [
+    'subscription', 'payment-option', 'extra-adult', 'extra-guest',
+    'additional-fee', 'basefee', 'additionalfee',
+    'rate-plan', 'terms.service', 'terms.private',
+]
+# Keys where Price is correct (sorting, variable names)
+PRICE_ALLOWED_PATTERNS = [
+    'price', 'charge.asc', 'charge.desc', 'first-payment',
+]
+
 def check_glossary(ko, tr):
     issues = []
     known = {'en': [
@@ -70,9 +81,22 @@ def check_glossary(ko, tr):
             for wrong, correct in checks:
                 if wrong in val:
                     if wrong == 'Product' and 'product' in key.lower(): continue
-                    if wrong in ('Price','Fee') and 'price' in key.lower(): continue
                     # [FIX-1] accommodation in key = entity name, not glossary term
                     if wrong == 'Accommodation' and 'accommodat' in key.lower(): continue
+                    # [FIX-4] Fee is correct in subscription/extra-guest context
+                    if wrong == 'Fee':
+                        kl = key.lower()
+                        if any(p in kl for p in FEE_ALLOWED_PATTERNS): continue
+                        # Skip "Feedback", "Feel" etc. - Fee as substring of another word
+                        import re as _re
+                        if not _re.search(r'\bFee\b', val): continue
+                    # [FIX-5] Price is correct in sort/variable context
+                    if wrong == 'Price':
+                        kl = key.lower()
+                        if any(p in kl for p in PRICE_ALLOWED_PATTERNS): continue
+                        # Skip if Price only appears inside {variable} like {yearPrice}
+                        val_no_vars = re.sub(r'\{[^}]*\}', '', val)
+                        if 'Price' not in val_no_vars: continue
                     issues.append({'severity': BLOCK, 'check': 'glossary_violation',
                         'key': key, 'lang': lang,
                         'message': f'"{wrong}" -> "{correct}"', 'value': val[:100]})
