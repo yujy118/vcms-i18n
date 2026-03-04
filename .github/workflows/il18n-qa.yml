@@ -6,9 +6,14 @@ on:
       - 'locales/latest/*.json'
     branches: [main]
   workflow_dispatch:
+    inputs:
+      update_from_tolgee:
+        description: 'Tolgee에서 최신 번역 가져온 후 QA 실행'
+        type: boolean
+        default: false
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
   qa:
@@ -16,6 +21,10 @@ jobs:
     env:
       SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
       SLACK_CHANNEL: ${{ secrets.SLACK_CHANNEL }}
+      TOLGEE_API_KEY: ${{ secrets.TOLGEE_API_KEY }}
+      TOLGEE_URL: https://tolgee.internal.vendit.tech
+      TOLGEE_PROJECT_ID: 4
+      TOLGEE_NAMESPACE: vcms
 
     steps:
       - uses: actions/checkout@v4
@@ -26,6 +35,75 @@ jobs:
 
       - name: Install requests
         run: pip install requests
+
+      - name: Export from Tolgee
+        if: ${{ github.event.inputs.update_from_tolgee == 'true' }}
+        run: |
+          python3 << 'PYEOF'
+          import json, os, requests
+
+          URL = os.environ['TOLGEE_URL']
+          PID = os.environ['TOLGEE_PROJECT_ID']
+          API = os.environ['TOLGEE_API_KEY']
+          NS  = os.environ['TOLGEE_NAMESPACE']
+          hdrs = {'X-API-Key': API, 'Content-Type': 'application/json'}
+          LOCALES = 'locales/latest'
+
+          # Tolgee language tag -> local filename
+          LANG_MAP = {'ko': 'ko.json', 'en': 'en.json', 'ja': 'ja.json', 'zh': 'zh.json', 'es': 'es.json'}
+
+          print('Exporting from Tolgee...')
+
+          # Fetch all keys with all languages
+          all_keys = {}
+          page = 0
+          while True:
+              resp = requests.get(f'{URL}/v2/projects/{PID}/translations',
+                  headers=hdrs,
+                  params={'filterNamespace': NS, 'languages': ','.join(LANG_MAP.keys()), 'size': 250, 'page': page},
+                  timeout=60)
+              data = resp.json()
+              embedded = data.get('_embedded', {}).get('keys', [])
+              if not embedded: break
+              for item in embedded:
+                  kn = item.get('keyName', '')
+                  tr = item.get('translations', {})
+                  all_keys[kn] = {}
+                  for lang in LANG_MAP:
+                      t = tr.get(lang, {})
+                      all_keys[kn][lang] = t.get('text', '') or ''
+              total_pages = data.get('page', {}).get('totalPages', 1)
+              page += 1
+              print(f'  page {page}/{total_pages} ({len(all_keys)} keys)')
+              if page >= total_pages: break
+
+          print(f'Total keys from Tolgee: {len(all_keys)}')
+
+          # Build per-language files
+          for lang, fname in LANG_MAP.items():
+              lang_dict = {}
+              for key in sorted(all_keys.keys()):
+                  val = all_keys[key].get(lang, '')
+                  if val:
+                      lang_dict[key] = val
+              path = f'{LOCALES}/{fname}'
+              with open(path, 'w', encoding='utf-8') as f:
+                  json.dump(lang_dict, f, ensure_ascii=False, indent=2)
+                  f.write('\n')
+              print(f'  {fname}: {len(lang_dict)} keys')
+
+          print('Export complete')
+          PYEOF
+
+      - name: Commit Tolgee updates
+        if: ${{ github.event.inputs.update_from_tolgee == 'true' }}
+        run: |
+          git config user.name "i18n-bot"
+          git config user.email "i18n-bot@vcms.dev"
+          git add locales/latest/
+          git diff --cached --quiet && echo "No changes from Tolgee" && exit 0
+          git commit -m "sync: update locales from Tolgee export"
+          git push
 
       - name: QA check and Slack notify
         env:
@@ -114,11 +192,13 @@ jobs:
               lang_parts.append(f"{flags[lang]} {display[lang]} {cnt}건")
           lang_line = " | ".join(lang_parts)
 
+          from_tolgee = os.environ.get("UPDATE_FROM_TOLGEE", "") == "true"
+          source_tag = " (Tolgee 최신)" if from_tolgee else ""
           status = "\u2705" if total_missing == 0 else "\U0001f504"
 
           # === MAIN MESSAGE ===
           main_blocks = [
-              {"type": "header", "text": {"type": "plain_text", "text": f"{status} i18n QA 결과", "emoji": True}},
+              {"type": "header", "text": {"type": "plain_text", "text": f"{status} i18n QA 결과{source_tag}", "emoji": True}},
               {"type": "section", "text": {"type": "mrkdwn", "text": (
                   f"*총 키:* {total_keys}개\n"
                   f"*QA:* BLOCK {blocks_count}건 | WARNING {warns_count}건\n"
@@ -157,7 +237,6 @@ jobs:
           # Upload CSV to Slack
           csv_uploaded = False
           try:
-              # Step 1: get upload URL
               resp1 = requests.post("https://slack.com/api/files.getUploadURLExternal",
                   headers=headers_upload,
                   data={"filename": "missing_keys.csv", "length": len(csv_content)}
@@ -166,11 +245,9 @@ jobs:
               if r1.get("ok"):
                   upload_url = r1["upload_url"]
                   file_id = r1["file_id"]
-                  # Step 2: upload file
                   requests.post(upload_url,
                       files={"file": ("missing_keys.csv", csv_content, "text/csv")}
                   )
-                  # Step 3: complete upload and share to thread
                   requests.post("https://slack.com/api/files.completeUploadExternal",
                       headers=headers,
                       json={"files": [{"id": file_id}], "channel_id": CHANNEL, "thread_ts": main_ts,
