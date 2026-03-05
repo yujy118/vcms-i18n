@@ -65,19 +65,34 @@ jobs:
 
           print(f'Uploading {len(lang_files)} files one at a time...')
 
+          import time
+
+          def upload_with_retry(lang, path, max_retries=5):
+              for attempt in range(max_retries):
+                  with open(path, 'rb') as f:
+                      resp = requests.post(
+                          f'{URL}/v2/projects/{PID}/import',
+                          headers=hdrs,
+                          files=[('files', (f'{lang}.json', f, 'application/json'))],
+                          timeout=60,
+                      )
+                  if resp.status_code in (200, 201):
+                      return True
+                  elif resp.status_code == 503:
+                      wait = 30 * (attempt + 1)
+                      print(f'  {lang}.json 503 - retry in {wait}s ({attempt+1}/{max_retries})')
+                      time.sleep(wait)
+                  else:
+                      print(f'  {lang}.json FAILED ({resp.status_code}): {resp.text[:200]}')
+                      return False
+              print(f'  {lang}.json gave up after {max_retries} retries')
+              return False
+
           # Step 1: Upload each file to the import staging area
           for lang, path in lang_files:
-              with open(path, 'rb') as f:
-                  resp = requests.post(
-                      f'{URL}/v2/projects/{PID}/import',
-                      headers=hdrs,
-                      files=[('files', (f'{lang}.json', f, 'application/json'))],
-                      timeout=60,
-                  )
-              if resp.status_code in (200, 201):
+              if upload_with_retry(lang, path):
                   print(f'  {lang}.json uploaded OK')
               else:
-                  print(f'  {lang}.json FAILED ({resp.status_code}): {resp.text[:200]}')
                   sys.exit(1)
 
           # Step 2: Apply the import
