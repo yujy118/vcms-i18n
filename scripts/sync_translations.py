@@ -12,7 +12,14 @@ TARGET_LANGS = ["en", "ja", "zh", "es"]
 GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY", "")
 GEMINI_MODEL = "gemini-2.5-flash"
 GEMINI_URL = f"https://generativelanguage.googleapis.com/v1beta/models/{GEMINI_MODEL}:generateContent"
-LANG_NAMES = {"en": "English", "ja": "Japanese", "zh": "Simplified Chinese", "es": "Spanish"}
+LANG_NAMES = {
+    "en": "English",
+    "ja": "Japanese",
+    "zh": "Simplified Chinese",
+    "zh-TW": "Traditional Chinese (Taiwan)",
+    "zh-CN": "Simplified Chinese",
+    "es": "Spanish"
+}
 
 
 def strip_zw(s):
@@ -47,11 +54,18 @@ def cleanup_zw(data):
     return r, len(data) - len(r)
 
 def build_glossary_text(glossary, tgt):
+    """언어별 glossary 텍스트 생성.
+    정확한 언어 코드 필드 우선 (zh-TW, zh-CN 등 구분).
+    fallback: zh-XX -> zh, 그 외 -> tgt
+    """
     if not glossary: return ""
-    lk = "zh" if tgt.startswith("zh") else tgt
+    def pick_val(t, lang):
+        if lang in t: return t[lang]          # 정확한 매핑 (zh-TW → zh-TW 필드)
+        if lang.startswith("zh"): return t.get("zh", "")  # zh-XX fallback → zh
+        return t.get(lang, "")
     lines = []
     for t in glossary:
-        val = t.get(lk) or t.get(tgt, "")
+        val = pick_val(t, tgt)
         if val:
             note = f" ({t['note']})" if t.get('note') else ""
             lines.append(f"  '{t['ko']}' -> '{val}'{note}")

@@ -1,9 +1,17 @@
 {
   "metadata": {
-    "version": "1.3",
-    "updated": "2026-03-04",
+    "version": "1.4",
+    "updated": "2026-03-05",
     "total_terms": 36,
-    "description": "VCMS 공식 용어집. AI 번역 시 반드시 이 용어를 사용해야 함."
+    "description": "VCMS 공식 용어집. AI 번역 시 반드시 이 용어를 사용해야 함.",
+    "languages": [
+      "ko",
+      "en",
+      "ja",
+      "zh",
+      "zh-TW",
+      "es"
+    ]
   },
   "terms": [
     {
@@ -11,6 +19,7 @@
       "en": "Channel Package",
       "ja": "チャネルパッケージ",
       "zh": "渠道套餐",
+      "zh-TW": "頻道套餐",
       "es": "Paquete de canal",
       "note": "NOT 'Channel Product'"
     },
@@ -19,6 +28,7 @@
       "en": "Package",
       "ja": "パッケージ",
       "zh": "套餐",
+      "zh-TW": "套餐",
       "es": "Paquete",
       "note": "NOT 'Product'"
     },
@@ -27,6 +37,7 @@
       "en": "Day-use",
       "ja": "デイユース",
       "zh": "日间使用",
+      "zh-TW": "日間使用",
       "es": "Uso diurno",
       "note": "숙박 도메인 전용"
     },
@@ -35,6 +46,7 @@
       "en": "Check-in",
       "ja": "チェックイン",
       "zh": "入住",
+      "zh-TW": "入住",
       "es": "Check-in",
       "note": "lowercase 'in'"
     },
@@ -43,6 +55,7 @@
       "en": "Check-out",
       "ja": "チェックアウト",
       "zh": "退房",
+      "zh-TW": "退房",
       "es": "Check-out",
       "note": "lowercase 'out'"
     },
@@ -51,6 +64,7 @@
       "en": "Room Type",
       "ja": "客室タイプ",
       "zh": "房型",
+      "zh-TW": "房型",
       "es": "Tipo de habitación",
       "note": ""
     },
@@ -59,6 +73,7 @@
       "en": "Rate Period",
       "ja": "料金期間",
       "zh": "费率期间",
+      "zh-TW": "費率期間",
       "es": "Período de tarifas",
       "note": ""
     },
@@ -67,6 +82,7 @@
       "en": "Rate Plan",
       "ja": "料金プラン",
       "zh": "费率方案",
+      "zh-TW": "費率方案",
       "es": "Plan de tarifas",
       "note": "NOT 'Rate Schedule' or 'Pricing Plan'"
     },
@@ -75,6 +91,7 @@
       "en": "Sold",
       "ja": "売り切れ",
       "zh": "已售完",
+      "zh-TW": "已售出",
       "es": "Vendido",
       "note": "NOT 'Sold Out'"
     },
@@ -83,6 +100,7 @@
       "en": "Stop Sell",
       "ja": "販売停止",
       "zh": "停止销售",
+      "zh-TW": "停止銷售",
       "es": "Detener venta",
       "note": ""
     },
@@ -91,6 +109,7 @@
       "en": "Open Sell",
       "ja": "販売再開",
       "zh": "恢复销售",
+      "zh-TW": "恢復銷售",
       "es": "Abrir venta",
       "note": ""
     },
@@ -99,6 +118,7 @@
       "en": "Availability",
       "ja": "残室",
       "zh": "剩余",
+      "zh-TW": "剩餘",
       "es": "Disponibilidad",
       "note": ""
     },
@@ -107,6 +127,7 @@
       "en": "Booking",
       "ja": "予約",
       "zh": "预订",
+      "zh-TW": "預訂",
       "es": "Reserva",
       "note": "NOT 'Reservation'"
     },
@@ -115,6 +136,7 @@
       "en": "Stay",
       "ja": "宿泊",
       "zh": "住宿",
+      "zh-TW": "住宿",
       "es": "Estancia",
       "note": ""
     },
@@ -123,14 +145,16 @@
       "en": "Connect",
       "ja": "連携",
       "zh": "对接",
+      "zh-TW": "串接",
       "es": "Conectar",
-      "note": "verb form"
+      "note": "verb form / 대만 IT 관용어"
     },
     {
       "ko": "연동 서비스",
       "en": "Connected Service",
       "ja": "連携サービス",
       "zh": "对接服务",
+      "zh-TW": "串接服務",
       "es": "Servicio conectado",
       "note": ""
     },
@@ -139,6 +163,7 @@
       "en": "Rate",
       "ja": "料金",
       "zh": "费率",
+      "zh-TW": "費率",
       "es": "Tarifa",
       "note": "NOT 'Price' or 'Fee' in room context"
     },
@@ -147,6 +172,7 @@
       "en": "Subscription",
       "ja": "サブスクリプション",
       "zh": "订阅",
+      "zh-TW": "訂閱",
       "es": "Suscripción",
       "note": ""
     },
@@ -155,6 +181,7 @@
       "en": "Payment",
       "ja": "決済",
       "zh": "支付",
+      "zh-TW": "付款",
       "es": "Pago",
       "note": ""
     },
@@ -163,6 +190,7 @@
       "en": "Refund",
       "ja": "返金",
       "zh": "退款",
+      "zh-TW": "退款",
       "es": "Reembolso",
       "note": ""
     },
@@ -171,6 +199,7 @@
       "en": "Unsubscribe",
       "ja": "解約",
       "zh": "取消订阅",
+      "zh-TW": "取消訂閱",
       "es": "Cancelar suscripción",
       "note": ""
     },
@@ -179,6 +208,7 @@
       "en": "Inventory",
       "ja": "在庫",
       "zh": "库存",
+      "zh-TW": "庫存",
       "es": "Inventario",
       "note": ""
     },
@@ -187,6 +217,7 @@
       "en": "Notification",
       "ja": "通知",
       "zh": "通知",
+      "zh-TW": "通知",
       "es": "Notificación",
       "note": ""
     },
@@ -195,6 +226,7 @@
       "en": "Inclusion",
       "ja": "インクルージョン",
       "zh": "包含项",
+      "zh-TW": "包含項目",
       "es": "Inclusión",
       "note": "키에 inclusion/rate 포함 시"
     },
@@ -203,6 +235,7 @@
       "en": "Service",
       "ja": "サービス",
       "zh": "服务",
+      "zh-TW": "服務",
       "es": "Servicio",
       "note": "기본 번역"
     },
@@ -211,6 +244,7 @@
       "en": "Settlement",
       "ja": "精算",
       "zh": "结算",
+      "zh-TW": "結算",
       "es": "Liquidación",
       "note": ""
     },
@@ -219,6 +253,7 @@
       "en": "Channel",
       "ja": "チャネル",
       "zh": "渠道",
+      "zh-TW": "頻道",
       "es": "Canal",
       "note": "OTA channel"
     },
@@ -227,6 +262,7 @@
       "en": "Property",
       "ja": "宿泊施設",
       "zh": "住宿设施",
+      "zh-TW": "住宿設施",
       "es": "Propiedad",
       "note": "채널과 합쳐서 쓰는 숙소 단위. NOT 'Accommodation'"
     },
@@ -235,6 +271,7 @@
       "en": "Sync",
       "ja": "同期",
       "zh": "同步",
+      "zh-TW": "同步",
       "es": "Sincronización",
       "note": ""
     },
@@ -243,6 +280,7 @@
       "en": "Percent",
       "ja": "割合",
       "zh": "比例",
+      "zh-TW": "比例",
       "es": "Porcentaje",
       "note": ""
     },
@@ -251,6 +289,7 @@
       "en": "Amount",
       "ja": "金額",
       "zh": "金额",
+      "zh-TW": "金額",
       "es": "Monto",
       "note": ""
     },
@@ -259,6 +298,7 @@
       "en": "Free Trial",
       "ja": "無料トライアル",
       "zh": "免费试用",
+      "zh-TW": "免費試用",
       "es": "Prueba gratuita",
       "note": ""
     },
@@ -267,6 +307,7 @@
       "en": "Recurring Payment",
       "ja": "定期決済",
       "zh": "定期支付",
+      "zh-TW": "定期付款",
       "es": "Pago recurrente",
       "note": ""
     },
@@ -275,6 +316,7 @@
       "en": "Accommodation",
       "ja": "宿泊施設",
       "zh": "住宿设施",
+      "zh-TW": "住宿設施",
       "es": "Alojamiento",
       "note": "업종/업소 자체를 의미. Property와 구분"
     },
@@ -283,6 +325,7 @@
       "en": "Subscription Fee",
       "ja": "サブスクリプション料金",
       "zh": "订阅费",
+      "zh-TW": "訂閱費",
       "es": "Tarifa de suscripción",
       "note": "SaaS 구독 맥락. Fee 사용 (NOT Rate)"
     },
@@ -291,6 +334,7 @@
       "en": "Extra Guest Fee",
       "ja": "追加ゲスト料金",
       "zh": "额外客人费用",
+      "zh-TW": "額外住客費用",
       "es": "Cargo por huésped adicional",
       "note": "인원 초과 맥락. Fee 사용 (NOT Rate)"
     }
