@@ -51,7 +51,13 @@ jobs:
           hdrs = {'X-API-Key': API, 'Content-Type': 'application/json'}
 
           LOCALES = 'locales/latest'
-          LANGS = {'en': 'en.json', 'ja': 'ja.json', 'zh': 'zh.json', 'es': 'es.json'}
+          LANGS = {
+              'en':    'en.json',
+              'ja':    'ja.json',
+              'zh':    'zh.json',
+              'zh-TW': 'zh-TW.json',
+              'es':    'es.json',
+          }
 
           ko = json.load(open(f'{LOCALES}/ko.json', encoding='utf-8'))
           print(f'Total ko keys: {len(ko)}')
@@ -72,7 +78,7 @@ jobs:
           while True:
               resp = requests.get(f'{URL}/v2/projects/{PID}/translations',
                   headers=hdrs,
-                  params={'filterNamespace': NS, 'languages': 'en,ja,zh,es', 'size': 100, 'page': page},
+                  params={'filterNamespace': NS, 'languages': 'en,ja,zh,zh-TW,es', 'size': 100, 'page': page},
                   timeout=30)
               data = resp.json()
               embedded = data.get('_embedded', {}).get('keys', [])
