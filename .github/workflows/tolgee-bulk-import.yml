@@ -54,59 +54,43 @@ jobs:
 
           print(f'forceMode: {force_mode}')
 
-          # Try single-step import first
-          files = []
+          hdrs = {'X-API-Key': API}
+
+          # Upload files one by one (nginx 1MB limit prevents batch upload)
+          lang_files = []
           for lang in ALL_LANGS:
               path = f'{LOCALES}/{lang}.json'
               if os.path.exists(path):
-                  files.append(('files', (f'{lang}.json', open(path, 'rb'), 'application/json')))
+                  lang_files.append((lang, path))
 
-          print(f'Uploading {len(files)} files via single-step import...')
-          resp = requests.post(
-              f'{URL}/v2/projects/{PID}/single-step-import',
-              headers={'X-API-Key': API},
-              files=files,
-              data={'forceMode': force_mode, 'createNewKeys': 'true'},
-              timeout=120,
-          )
+          print(f'Uploading {len(lang_files)} files one at a time...')
 
-          if resp.status_code == 200:
-              print(f'Single-step import OK! (HTTP 200)')
-              print(resp.text[:500])
-              sys.exit(0)
+          # Step 1: Upload each file to the import staging area
+          for lang, path in lang_files:
+              with open(path, 'rb') as f:
+                  resp = requests.post(
+                      f'{URL}/v2/projects/{PID}/import',
+                      headers=hdrs,
+                      files=[('files', (f'{lang}.json', f, 'application/json'))],
+                      timeout=60,
+                  )
+              if resp.status_code in (200, 201):
+                  print(f'  {lang}.json uploaded OK')
+              else:
+                  print(f'  {lang}.json FAILED ({resp.status_code}): {resp.text[:200]}')
+                  sys.exit(1)
 
-          print(f'Single-step returned {resp.status_code}, trying multi-step...')
-
-          # Fallback: multi-step import
-          files2 = []
-          for lang in ALL_LANGS:
-              path = f'{LOCALES}/{lang}.json'
-              if os.path.exists(path):
-                  files2.append(('files', (f'{lang}.json', open(path, 'rb'), 'application/json')))
-
-          resp2 = requests.post(
-              f'{URL}/v2/projects/{PID}/import',
-              headers={'X-API-Key': API},
-              files=files2,
-              timeout=120,
-          )
-          print(f'Upload: HTTP {resp2.status_code}')
-
-          if resp2.status_code not in (200, 201):
-              print(f'Upload failed: {resp2.text[:500]}')
-              sys.exit(1)
-
-          # Apply
+          # Step 2: Apply the import
+          print('Applying import...')
           apply_resp = requests.put(
               f'{URL}/v2/projects/{PID}/import/apply',
-              headers={'X-API-Key': API, 'Content-Type': 'application/json'},
+              headers={**hdrs, 'Content-Type': 'application/json'},
               params={'forceMode': force_mode},
               timeout=120,
           )
-          print(f'Apply: HTTP {apply_resp.status_code}')
           if apply_resp.status_code == 200:
-              print('Bulk import complete!')
+              print(f'Bulk import complete! All {len(lang_files)} languages applied.')
           else:
-              print(f'Apply failed: {apply_resp.text[:500]}')
+              print(f'Apply failed ({apply_resp.status_code}): {apply_resp.text[:500]}')
               sys.exit(1)
           PYEOF
