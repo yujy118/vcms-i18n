@@ -78,7 +78,7 @@ jobs:
           while True:
               resp = requests.get(f'{URL}/v2/projects/{PID}/translations',
                   headers=hdrs,
-                  params={'filterNamespace': NS, 'languages': 'en,ja,zh,zh-TW,es', 'size': 100, 'page': page},
+                  params={'filterNamespace': NS, 'languages': 'en,ja,zh,zh-TW,es', 'size': 1000, 'page': page},
                   timeout=30)
               data = resp.json()
               embedded = data.get('_embedded', {}).get('keys', [])
@@ -128,26 +128,39 @@ jobs:
           for u in updates:
               by_key[u['key']][u['lang']] = u['text']
 
+          if len(by_key) > 200:
+              print(f'WARNING: {len(by_key)} keys to update. Consider using tolgee-bulk-import workflow instead.')
+
           success = 0
           failed = 0
           for i, (key, translations) in enumerate(by_key.items()):
-              try:
-                  r = requests.put(f'{URL}/v2/projects/{PID}/translations',
-                      headers=hdrs,
-                      json={'key': key, 'namespace': NS, 'translations': translations},
-                      timeout=15)
-                  if r.status_code == 200:
-                      success += 1
-                  else:
-                      failed += 1
-                      print(f'  FAIL [{r.status_code}]: {key} - {r.text[:100]}')
-              except Exception as e:
-                  failed += 1
-                  print(f'  ERROR: {key} - {e}')
+              for attempt in range(3):
+                  try:
+                      r = requests.put(f'{URL}/v2/projects/{PID}/translations',
+                          headers=hdrs,
+                          json={'key': key, 'namespace': NS, 'translations': translations},
+                          timeout=15)
+                      if r.status_code == 200:
+                          success += 1
+                          break
+                      elif r.status_code == 503:
+                          wait = 5 * (attempt + 1)
+                          print(f'  503 on {key}, retry in {wait}s...')
+                          time.sleep(wait)
+                      else:
+                          failed += 1
+                          print(f'  FAIL [{r.status_code}]: {key} - {r.text[:100]}')
+                          break
+                  except Exception as e:
+                      if attempt < 2:
+                          time.sleep(3)
+                      else:
+                          failed += 1
+                          print(f'  ERROR: {key} - {e}')
 
               if (i + 1) % 50 == 0:
-                  print(f'  Progress: {i+1}/{len(by_key)}')
-                  time.sleep(1)
+                  print(f'  Progress: {i+1}/{len(by_key)} (ok: {success}, fail: {failed})')
+                  time.sleep(0.5)
 
           print(f'Done! Success: {success}, Failed: {failed}')
           PYEOF

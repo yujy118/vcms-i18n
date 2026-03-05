@@ -1,0 +1,112 @@
+name: Tolgee Bulk Import (File upload)
+
+on:
+  workflow_dispatch:
+    inputs:
+      force_overwrite:
+        description: "기존 번역도 덮어쓰기 (OVERRIDE / KEEP)"
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+jobs:
+  bulk-import:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      TOLGEE_API_KEY: ${{ secrets.TOLGEE_API_KEY }}
+      TOLGEE_URL: https://tolgee.internal.vendit.tech
+      TOLGEE_PROJECT_ID: 4
+      FORCE_OVERWRITE: ${{ github.event.inputs.force_overwrite }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install requests
+        run: pip install requests
+
+      - name: Bulk import via file upload
+        run: |
+          python3 << 'PYEOF'
+          import json, os, requests, sys
+
+          URL = os.environ['TOLGEE_URL']
+          PID = os.environ['TOLGEE_PROJECT_ID']
+          API = os.environ['TOLGEE_API_KEY']
+          FORCE = os.environ.get('FORCE_OVERWRITE', 'false') == 'true'
+          force_mode = 'OVERRIDE' if FORCE else 'KEEP'
+
+          LOCALES = 'locales/latest'
+          ALL_LANGS = ['ko', 'en', 'ja', 'zh', 'zh-TW', 'es']
+
+          # Summary
+          for lang in ALL_LANGS:
+              path = f'{LOCALES}/{lang}.json'
+              if os.path.exists(path):
+                  data = json.load(open(path, encoding='utf-8'))
+                  print(f'{lang}: {len(data)} keys')
+
+          print(f'forceMode: {force_mode}')
+
+          # Try single-step import first
+          files = []
+          for lang in ALL_LANGS:
+              path = f'{LOCALES}/{lang}.json'
+              if os.path.exists(path):
+                  files.append(('files', (f'{lang}.json', open(path, 'rb'), 'application/json')))
+
+          print(f'Uploading {len(files)} files via single-step import...')
+          resp = requests.post(
+              f'{URL}/v2/projects/{PID}/single-step-import',
+              headers={'X-API-Key': API},
+              files=files,
+              data={'forceMode': force_mode, 'createNewKeys': 'true'},
+              timeout=120,
+          )
+
+          if resp.status_code == 200:
+              print(f'Single-step import OK! (HTTP 200)')
+              print(resp.text[:500])
+              sys.exit(0)
+
+          print(f'Single-step returned {resp.status_code}, trying multi-step...')
+
+          # Fallback: multi-step import
+          files2 = []
+          for lang in ALL_LANGS:
+              path = f'{LOCALES}/{lang}.json'
+              if os.path.exists(path):
+                  files2.append(('files', (f'{lang}.json', open(path, 'rb'), 'application/json')))
+
+          resp2 = requests.post(
+              f'{URL}/v2/projects/{PID}/import',
+              headers={'X-API-Key': API},
+              files=files2,
+              timeout=120,
+          )
+          print(f'Upload: HTTP {resp2.status_code}')
+
+          if resp2.status_code not in (200, 201):
+              print(f'Upload failed: {resp2.text[:500]}')
+              sys.exit(1)
+
+          # Apply
+          apply_resp = requests.put(
+              f'{URL}/v2/projects/{PID}/import/apply',
+              headers={'X-API-Key': API, 'Content-Type': 'application/json'},
+              params={'forceMode': force_mode},
+              timeout=120,
+          )
+          print(f'Apply: HTTP {apply_resp.status_code}')
+          if apply_resp.status_code == 200:
+              print('Bulk import complete!')
+          else:
+              print(f'Apply failed: {apply_resp.text[:500]}')
+              sys.exit(1)
+          PYEOF
