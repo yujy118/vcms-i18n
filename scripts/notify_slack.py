@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """VCMS i18n Slack - Translation report with threaded QA detail"""
-import json, os, urllib.request
+import json, os, urllib.request, urllib.parse
 
 TOKEN = os.environ.get("SLACK_BOT_TOKEN", "")
 CHANNEL = os.environ.get("SLACK_CHANNEL", "")
@@ -8,6 +8,15 @@ REPO = os.environ.get("GITHUB_REPOSITORY", "yujy118/vcms-i18n")
 RUN_ID = os.environ.get("GITHUB_RUN_ID", "")
 REPORT = os.environ.get("REPORT_PATH", "locales/latest/.sync-report.json")
 QA_PATH = os.environ.get("QA_REPORT_PATH", "locales/latest/.qa-report.json")
+
+TOLGEE_BASE = "https://tolgee.internal.vendit.tech/projects/4/translations"
+TOLGEE_FILTER = urllib.parse.quote('{"filterNamespace":["vcms"]}', safe="")
+
+
+def tolgee_url(key):
+    """키 검색 Tolgee 딥링크 생성"""
+    encoded_key = urllib.parse.quote(key, safe="")
+    return f"{TOLGEE_BASE}?filters={TOLGEE_FILTER}&order=createdAt%2Cdesc&search={encoded_key}"
 
 
 def slack_post(payload):
@@ -22,7 +31,7 @@ def slack_post(payload):
             d = json.loads(r.read())
             if d.get("ok"):
                 print("Slack OK")
-                return d.get("ts")  # return thread timestamp
+                return d.get("ts")
             else:
                 print(f"Slack err: {d.get('error')}")
                 return None
@@ -96,7 +105,6 @@ def main():
     if blk or wrn:
         blocks.append({"type": "divider"})
         summary = ""
-        # Count by check type
         by_check = {}
         for i in qa:
             c = i.get("check", "unknown")
@@ -160,9 +168,12 @@ def main():
         title = f"{label} ({len(items)}건) [{severity}]"
 
         def fmt(i):
+            key = i.get("key", "")
             msg = i.get("message", "")
             val = i.get("value", "")
-            line = f"\u2022 `[{i['lang']}]` `{i['key']}`"
+            url = tolgee_url(key)
+            # 키를 Tolgee 딥링크로 표시
+            line = f"\u2022 `[{i['lang']}]` <{url}|{key}>"
             if msg:
                 line += f"\n   {msg}"
             if val:
