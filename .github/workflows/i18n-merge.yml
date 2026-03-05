@@ -1,10 +1,6 @@
 name: i18n Merge New Translations
 
 on:
-  push:
-    paths:
-      - 'locales/latest/*_new.json'
-    branches: [main]
   workflow_dispatch:
 
 permissions:
