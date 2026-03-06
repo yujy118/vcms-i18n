@@ -42,7 +42,7 @@ def handle_slack_callback(request):
 
             if aid == "i18n_translate":
                 ok = trigger_workflow(repo, "i18n-auto-sync.yml")
-                update_msg(rurl, f"\U0001f504 *{user}* triggered Gemini translation. Running..." if ok else "\u274c Trigger failed.")
+                update_msg(rurl, f"\U0001f50d *{user}* triggered untranslated scan. Running..." if ok else "\u274c Trigger failed.")
 
             elif aid == "i18n_reject":
                 update_msg(rurl, f"\u274c *{user}* rejected.")
