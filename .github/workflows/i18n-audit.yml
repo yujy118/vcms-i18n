@@ -47,7 +47,7 @@ jobs:
           total = len(ko)
 
           langs = {}
-          for l in ["en", "ja", "zh-CN", "es"]:
+          for l in ["en", "ja", "zh", "zh-TW", "es"]:
               p = f"{LOCALES}/{l}.json"
               if os.path.exists(p):
                   langs[l] = json.load(open(p, encoding="utf-8"))
@@ -69,16 +69,15 @@ jobs:
               ko_term = term.get("ko", "")
               for key in sample:
                   if ko_term in ko.get(key, ""):
-                      for lang in ["en", "ja", "zh-CN", "es"]:
-                          lk = "zh" if lang.startswith("zh") else lang
-                          expected = term.get(lk) or term.get(lang, "")
+                      for lang in ["en", "ja", "zh", "zh-TW", "es"]:
+                          expected = term.get(lang, "")
                           actual = langs.get(lang, {}).get(key, "")
                           if expected and actual and expected not in actual:
                               glossary_misses.append({"key": key, "lang": lang,
                                   "ko_term": ko_term, "expected": expected, "actual": actual[:60]})
 
           missing_per_lang = {}
-          for l in ["en", "ja", "zh-CN", "es"]:
+          for l in ["en", "ja", "zh", "zh-TW", "es"]:
               missing_per_lang[l] = len([k for k in ko if k not in langs.get(l, {})])
           total_missing = sum(missing_per_lang.values())
 
@@ -92,7 +91,8 @@ jobs:
                   f"*QA:* BLOCK {blk} | WARNING {wrn}\n"
                   f"*\ubbf8\ubc88\uc5ed:* EN {missing_per_lang.get('en',0)} | "
                   f"JA {missing_per_lang.get('ja',0)} | "
-                  f"ZH {missing_per_lang.get('zh-CN',0)} | "
+                  f"ZH {missing_per_lang.get('zh',0)} | "
+                  f"ZH-TW {missing_per_lang.get('zh-TW',0)} | "
                   f"ES {missing_per_lang.get('es',0)}")}},
           ]
 

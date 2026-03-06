@@ -13,7 +13,6 @@ LENGTH_RATIO_THRESHOLDS = {
     'ja': 1.8,
     'zh': 1.5,
     'zh-TW': 1.5,
-    'zh-CN': 1.5,
 }
 LENGTH_RATIO_SKIP_LANGS = {'en', 'es'}
 
@@ -351,7 +350,7 @@ def check_length_ratio(ko, tr):
 def run_qa(locales_dir, glossary_path=None):
     ko = load_json(Path(locales_dir) / 'ko.json')
     tr = {}
-    for lang in ['en', 'ja', 'zh-CN', 'zh', 'es']:
+    for lang in ['en', 'ja', 'zh', 'zh-TW', 'es']:
         p = Path(locales_dir) / f'{lang}.json'
         if p.exists(): tr[lang] = load_json(p)
 

@@ -17,7 +17,6 @@ LANG_NAMES = {
     "ja": "Japanese",
     "zh": "Simplified Chinese",
     "zh-TW": "Traditional Chinese (Taiwan)",
-    "zh-CN": "Simplified Chinese",
     "es": "Spanish"
 }
 

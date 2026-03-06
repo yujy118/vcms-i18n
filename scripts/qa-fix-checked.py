@@ -38,7 +38,7 @@ def retranslate_batch(items, ko_data, glossary, api_key):
 
     lang_map = {
         'en': 'English', 'ja': 'Japanese',
-        'zh': 'Simplified Chinese', 'zh-CN': 'Simplified Chinese',
+        'zh': 'Simplified Chinese', 'zh-TW': 'Traditional Chinese (Taiwan)',
         'es': 'Spanish'
     }
 
@@ -130,7 +130,7 @@ def apply_fixes(results):
     """Apply retranslated values to locale files."""
     lang_file_map = {
         'en': 'en.json', 'ja': 'ja.json',
-        'zh': 'zh.json', 'zh-CN': 'zh.json',
+        'zh': 'zh.json', 'zh-TW': 'zh-TW.json',
         'es': 'es.json'
     }
 

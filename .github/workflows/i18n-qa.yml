@@ -46,7 +46,7 @@ jobs:
           NS  = os.environ['TOLGEE_NAMESPACE']
           hdrs = {'X-API-Key': API, 'Content-Type': 'application/json'}
           LOCALES = 'locales/latest'
-          LANG_MAP = {'ko': 'ko.json', 'en': 'en.json', 'ja': 'ja.json', 'zh': 'zh.json', 'es': 'es.json'}
+          LANG_MAP = {'ko': 'ko.json', 'en': 'en.json', 'ja': 'ja.json', 'zh': 'zh.json', 'zh-TW': 'zh-TW.json', 'es': 'es.json'}
 
           print('Exporting from Tolgee...')
           all_keys = {}
@@ -120,14 +120,10 @@ jobs:
           ko = json.load(open(f"{LOCALES}/ko.json", encoding="utf-8"))
           total_keys = len(ko)
 
-          lang_map = {"en": "en.json", "ja": "ja.json", "zh-CN": None, "es": "es.json"}
-          if os.path.exists(f"{LOCALES}/zh-CN.json"):
-              lang_map["zh-CN"] = "zh-CN.json"
-          elif os.path.exists(f"{LOCALES}/zh.json"):
-              lang_map["zh-CN"] = "zh.json"
+          lang_map = {"en": "en.json", "ja": "ja.json", "zh": "zh.json", "zh-TW": "zh-TW.json", "es": "es.json"}
 
-          flags = {"en": "\U0001f1fa\U0001f1f8", "ja": "\U0001f1ef\U0001f1f5", "zh-CN": "\U0001f1e8\U0001f1f3", "es": "\U0001f1ea\U0001f1f8"}
-          display = {"en": "EN", "ja": "JA", "zh-CN": "ZH", "es": "ES"}
+          flags = {"en": "\U0001f1fa\U0001f1f8", "ja": "\U0001f1ef\U0001f1f5", "zh": "\U0001f1e8\U0001f1f3", "zh-TW": "\U0001f1f9\U0001f1fc", "es": "\U0001f1ea\U0001f1f8"}
+          display = {"en": "EN", "ja": "JA", "zh": "ZH", "zh-TW": "ZH-TW", "es": "ES"}
 
           lang_data = {}
           for lang, fname in lang_map.items():
@@ -216,7 +212,7 @@ jobs:
           est_minutes = max(1, total_batches // 3)
 
           lang_parts = []
-          for lang in ["en", "ja", "zh-CN", "es"]:
+          for lang in ["en", "ja", "zh", "zh-TW", "es"]:
               cnt = len(missing.get(lang, []))
               lang_parts.append(f"{flags[lang]} {display[lang]} {cnt}\uac74")
           lang_line = " | ".join(lang_parts)
@@ -351,10 +347,11 @@ jobs:
               sorted_keys = sorted(list(all_missing))
               buf = io.StringIO()
               writer = csv.writer(buf)
-              writer.writerow(["key", "ko", "en", "ja", "zh-CN", "es"])
+              writer.writerow(["key", "ko", "en", "ja", "zh", "zh-TW", "es"])
               for k in sorted_keys:
                   writer.writerow([k, ko.get(k, ""), lang_data["en"].get(k, ""),
-                      lang_data["ja"].get(k, ""), lang_data["zh-CN"].get(k, ""), lang_data["es"].get(k, "")])
+                      lang_data["ja"].get(k, ""), lang_data["zh"].get(k, ""),
+                      lang_data["zh-TW"].get(k, ""), lang_data["es"].get(k, "")])
               csv_content = buf.getvalue().encode("utf-8-sig")
 
               try:
