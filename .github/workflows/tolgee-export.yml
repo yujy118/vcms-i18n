@@ -1,0 +1,126 @@
+name: Tolgee Export (Pull translations)
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+env:
+  TOLGEE_API_KEY: ${{ secrets.TOLGEE_API_KEY }}
+  TOLGEE_URL: https://tolgee.internal.vendit.tech
+  TOLGEE_PROJECT_ID: 4
+  TOLGEE_NAMESPACE: vcms
+
+jobs:
+  export:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Setup Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Fetch translations from Tolgee and write JSON files
+        run: |
+          python3 << 'PYEOF'
+          import json
+          import os
+          import urllib.request
+          import urllib.parse
+          from pathlib import Path
+
+          TOLGEE_URL = os.environ["TOLGEE_URL"]
+          TOLGEE_API_KEY = os.environ["TOLGEE_API_KEY"]
+          PROJECT_ID = os.environ["TOLGEE_PROJECT_ID"]
+          NAMESPACE = os.environ["TOLGEE_NAMESPACE"]
+          LANGUAGES = ["ko", "en", "ja", "zh", "zh-TW", "es"]
+          PAGE_SIZE = 500
+
+          def fetch_all_translations():
+              """Fetch all translations from Tolgee API with pagination."""
+              all_keys = []
+              page = 0
+
+              while True:
+                  params = urllib.parse.urlencode({
+                      "filterNamespace": NAMESPACE,
+                      "size": PAGE_SIZE,
+                      "page": page,
+                  })
+                  url = f"{TOLGEE_URL}/v2/projects/{PROJECT_ID}/translations?{params}"
+                  req = urllib.request.Request(url, headers={
+                      "X-API-Key": TOLGEE_API_KEY,
+                      "Accept": "application/json",
+                  })
+
+                  with urllib.request.urlopen(req) as resp:
+                      data = json.loads(resp.read().decode("utf-8"))
+
+                  embedded = data.get("_embedded", {})
+                  keys = embedded.get("keys", [])
+                  all_keys.extend(keys)
+
+                  page_info = data.get("page", {})
+                  total_pages = page_info.get("totalPages", 1)
+                  print(f"  Fetched page {page + 1}/{total_pages} ({len(keys)} keys)")
+
+                  page += 1
+                  if page >= total_pages:
+                      break
+
+              print(f"Total keys fetched: {len(all_keys)}")
+              return all_keys
+
+          def build_language_maps(all_keys, languages):
+              """Build {key: value} dict per language from Tolgee data."""
+              lang_maps = {lang: {} for lang in languages}
+
+              for key_entry in all_keys:
+                  key_name = key_entry.get("keyName", "")
+                  translations = key_entry.get("translations", {})
+
+                  for lang in languages:
+                      tr = translations.get(lang, {})
+                      text = tr.get("text")
+                      if text is not None:
+                          lang_maps[lang][key_name] = text
+
+              return lang_maps
+
+          def write_json_files(lang_maps):
+              """Write sorted JSON files to locales/latest/{lang}.json."""
+              out_dir = Path("locales/latest")
+              out_dir.mkdir(parents=True, exist_ok=True)
+
+              for lang, kv in lang_maps.items():
+                  sorted_kv = dict(sorted(kv.items()))
+                  file_path = out_dir / f"{lang}.json"
+                  with open(file_path, "w", encoding="utf-8") as f:
+                      json.dump(sorted_kv, f, indent=2, ensure_ascii=False)
+                      f.write("\n")
+                  print(f"Wrote {file_path} ({len(sorted_kv)} keys)")
+
+          print("Fetching translations from Tolgee...")
+          all_keys = fetch_all_translations()
+          lang_maps = build_language_maps(all_keys, LANGUAGES)
+          write_json_files(lang_maps)
+          print("Done!")
+          PYEOF
+
+      - name: Show diff
+        run: git diff --stat
+
+      - name: Commit and push if changed
+        run: |
+          git diff --quiet && echo "No changes from Tolgee" && exit 0
+
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add locales/latest/
+          DATE=$(date +%Y-%m-%d)
+          git commit -m "i18n: sync from Tolgee ($DATE)"
+          git push

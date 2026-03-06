@@ -11,7 +11,7 @@ Translate the following Korean UI strings into {lang_name} ({lang_code}).
 4. Return ONLY a valid JSON object: {"key": "translated value"}
 5. Korean brand names must NEVER be translated: 야놀자→Yanolja, 여기어때→Yeogi, 네이버→Naver (keep original romanization, do NOT translate meaning)
 6. For Spanish: glossary terms in mid-sentence should use normal capitalization (lowercase), not Title Case. Example: "gestión de tarifas" not "Gestión de Tarifas"
-7. For Chinese: use Simplified Chinese (zh-CN) only
+7. For zh: use Simplified Chinese. For zh-TW: use Traditional Chinese (Taiwan standard).
 8. Do not add explanations or notes - return ONLY the JSON object
 9. Keep translations concise - match the length and context of the Korean source. UI labels must fit the same space. Avoid adding unnecessary words, honorifics, or verbose phrasing. The translated text should not exceed 1.5x the character count of the Korean source.
 

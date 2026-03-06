@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
-"""VCMS i18n Translation Sync: ko -> en,ja,zh,es via Gemini Flash
+"""VCMS i18n Translation Sync: ko -> en,ja,zh,zh-TW,es via Gemini/Anthropic
   --fix-blocks: Retranslate only QA BLOCK keys (for PR review)
+  Engine selection: TRANSLATION_ENGINE env var (default: anthropic, fallback: gemini)
 """
 import json, os, sys, re, unicodedata, time, urllib.request, urllib.error, argparse
 
@@ -9,9 +10,13 @@ GLOSSARY_PATH = os.environ.get("GLOSSARY_PATH", "glossary/glossary.json")
 PROMPT_PATH = os.environ.get("PROMPT_PATH", "prompts/translate.txt")
 SOURCE_LANG = "ko"
 TARGET_LANGS = ["en", "ja", "zh", "zh-TW", "es"]
+TRANSLATION_ENGINE = os.environ.get("TRANSLATION_ENGINE", "anthropic").lower()
 GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY", "")
 GEMINI_MODEL = "gemini-2.5-flash"
 GEMINI_URL = f"https://generativelanguage.googleapis.com/v1beta/models/{GEMINI_MODEL}:generateContent"
+ANTHROPIC_API_KEY = os.environ.get("ANTHROPIC_API_KEY", "")
+ANTHROPIC_MODEL = "claude-sonnet-4-20250514"
+ANTHROPIC_URL = "https://api.anthropic.com/v1/messages"
 LANG_NAMES = {
     "en": "English",
     "ja": "Japanese",
@@ -84,14 +89,64 @@ def call_gemini(prompt):
             else: raise
     return None
 
+def call_anthropic(prompt):
+    payload = json.dumps({
+        "model": ANTHROPIC_MODEL,
+        "max_tokens": 8192,
+        "temperature": 0.1,
+        "messages": [{"role": "user", "content": prompt}]
+    }).encode('utf-8')
+    headers = {
+        "Content-Type": "application/json",
+        "x-api-key": ANTHROPIC_API_KEY,
+        "anthropic-version": "2023-06-01"
+    }
+    for attempt in range(3):
+        req = urllib.request.Request(ANTHROPIC_URL, data=payload, headers=headers)
+        try:
+            with urllib.request.urlopen(req, timeout=120) as resp:
+                raw = json.loads(resp.read().decode())
+                # Normalize to Gemini-like format for parse_json_response
+                text = ""
+                for block in raw.get("content", []):
+                    if block.get("type") == "text":
+                        text += block["text"]
+                usage = raw.get("usage", {})
+                return {
+                    "candidates": [{"content": {"parts": [{"text": text}]}}],
+                    "usageMetadata": {
+                        "promptTokenCount": usage.get("input_tokens", 0),
+                        "candidatesTokenCount": usage.get("output_tokens", 0)
+                    }
+                }
+        except urllib.error.HTTPError as e:
+            if e.code == 429 and attempt < 2:
+                wait = 30 * (attempt + 1); print(f"    Rate limited, waiting {wait}s..."); time.sleep(wait)
+            else: raise
+    return None
+
 def parse_json_response(rd):
     txt = rd["candidates"][0]["content"]["parts"][0]["text"].strip()
     if txt.startswith("```"): txt = re.sub(r'^```\w*\n?', '', txt); txt = re.sub(r'\n?```$', '', txt)
     return json.loads(txt[txt.index("{"):txt.rindex("}")+1])
 
+def _get_engine():
+    """Select translation engine. Default: anthropic, fallback: gemini."""
+    if TRANSLATION_ENGINE == "anthropic" and ANTHROPIC_API_KEY:
+        return "anthropic", call_anthropic
+    if TRANSLATION_ENGINE == "gemini" and GEMINI_API_KEY:
+        return "gemini", call_gemini
+    # Fallback: try anthropic first, then gemini
+    if ANTHROPIC_API_KEY:
+        return "anthropic", call_anthropic
+    if GEMINI_API_KEY:
+        return "gemini", call_gemini
+    return None, None
+
 def translate_batch(texts, tgt, glossary, prompt_tpl):
-    if not GEMINI_API_KEY:
-        print("  WARN: no GEMINI_API_KEY"); return {k: f"[TODO:{tgt}] {v}" for k, v in texts.items()}
+    engine_name, engine_fn = _get_engine()
+    if engine_fn is None:
+        print("  WARN: no API key set (ANTHROPIC_API_KEY or GEMINI_API_KEY)"); return {k: f"[TODO:{tgt}] {v}" for k, v in texts.items()}
     results = {}; items = list(texts.items()); bs = 30
     for i in range(0, len(items), bs):
         batch = dict(items[i:i+bs])
@@ -100,9 +155,9 @@ def translate_batch(texts, tgt, glossary, prompt_tpl):
         prompt = prompt.replace("{glossary}", build_glossary_text(glossary, tgt))
         prompt = prompt.replace("{source_json}", json.dumps(batch, ensure_ascii=False, indent=2))
         try:
-            rd = call_gemini(prompt); parsed = parse_json_response(rd); results.update(parsed)
+            rd = engine_fn(prompt); parsed = parse_json_response(rd); results.update(parsed)
             um = rd.get("usageMetadata", {})
-            print(f"  Batch {i//bs+1}: {len(batch)} keys -> {tgt} (in:{um.get('promptTokenCount',0)} out:{um.get('candidatesTokenCount',0)})")
+            print(f"  Batch {i//bs+1}: {len(batch)} keys -> {tgt} [{engine_name}] (in:{um.get('promptTokenCount',0)} out:{um.get('candidatesTokenCount',0)})")
         except Exception as e:
             print(f"  Batch {i//bs+1} FAILED: {e}")
             for k, v in batch.items(): results[k] = f"[ERROR:{tgt}] {v}"
@@ -134,8 +189,10 @@ def get_block_keys_by_lang(qa_path):
 
 def fix_blocks(qa_path):
     """Retranslate only BLOCK keys from QA report."""
+    engine_name, _ = _get_engine()
+    engine_label = engine_name or "no-engine"
     print("=" * 60)
-    print("VCMS i18n Fix BLOCK Keys (Gemini Flash)")
+    print(f"VCMS i18n Fix BLOCK Keys ({engine_label})")
     print("=" * 60)
 
     glossary = load_glossary()
@@ -223,14 +280,16 @@ def fix_blocks(qa_path):
 
 # ========== Normal Sync Mode ==========
 def sync():
-    print("=" * 60 + "\nVCMS i18n Translation Sync (Gemini Flash)\n" + "=" * 60)
+    engine_name, _ = _get_engine()
+    engine_label = engine_name or "no-engine"
+    print("=" * 60 + f"\nVCMS i18n Translation Sync ({engine_label})\n" + "=" * 60)
     glossary = load_glossary(); print(f"Glossary: {len(glossary)} terms")
     prompt_tpl = load_prompt_template(); print(f"Prompt: {PROMPT_PATH}")
     ko_path = get_path(SOURCE_LANG)
     if not os.path.exists(ko_path): print(f"ERROR: {ko_path} not found"); sys.exit(1)
     ko = load_json(ko_path); ko, zw = cleanup_zw(ko); save_json(ko_path, ko)
     print(f"ko.json: {zw} zw-dupes removed, {len(ko)} keys")
-    report = {"source_keys": len(ko), "engine": "gemini-2.5-flash", "cost": "$0.00", "languages": {}}
+    report = {"source_keys": len(ko), "engine": engine_label, "cost": "$0.00", "languages": {}}
     for lang in TARGET_LANGS:
         print(f"\n--- {lang} ---"); path = get_path(lang)
         if os.path.exists(path): data = load_json(path)
