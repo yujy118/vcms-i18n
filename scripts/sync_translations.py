@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 """VCMS i18n Translation Sync: ko -> en,ja,zh,zh-TW,es via Gemini/Anthropic
   --fix-blocks: Retranslate only QA BLOCK keys (for PR review)
-  Engine selection: TRANSLATION_ENGINE env var (default: anthropic, fallback: gemini)
+  Engine selection: TRANSLATION_ENGINE env var (default: gemini for CI, anthropic as option)
+  For high-quality translations: use Claude Code locally (no API cost on Max plan)
 """
 import json, os, sys, re, unicodedata, time, urllib.request, urllib.error, argparse
 
@@ -10,7 +11,7 @@ GLOSSARY_PATH = os.environ.get("GLOSSARY_PATH", "glossary/glossary.json")
 PROMPT_PATH = os.environ.get("PROMPT_PATH", "prompts/translate.txt")
 SOURCE_LANG = "ko"
 TARGET_LANGS = ["en", "ja", "zh", "zh-TW", "es"]
-TRANSLATION_ENGINE = os.environ.get("TRANSLATION_ENGINE", "anthropic").lower()
+TRANSLATION_ENGINE = os.environ.get("TRANSLATION_ENGINE", "gemini").lower()
 GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY", "")
 GEMINI_MODEL = "gemini-2.5-flash"
 GEMINI_URL = f"https://generativelanguage.googleapis.com/v1beta/models/{GEMINI_MODEL}:generateContent"
