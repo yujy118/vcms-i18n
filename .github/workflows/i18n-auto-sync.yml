@@ -1,21 +1,20 @@
-name: i18n Auto Translate (Gemini)
+name: i18n Detect Untranslated
 
 on:
   workflow_dispatch:
+  schedule:
+    - cron: '0 0 * * 1'  # Every Monday 09:00 KST
 
 permissions:
-  contents: write
+  contents: read
 
 jobs:
-  translate:
+  detect:
     runs-on: ubuntu-latest
     env:
-      GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
       SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
       SLACK_CHANNEL: ${{ secrets.SLACK_CHANNEL }}
       LOCALES_DIR: locales/latest
-      GLOSSARY_PATH: glossary/glossary.json
-      PROMPT_PATH: prompts/translate.txt
 
     steps:
       - uses: actions/checkout@v4
@@ -24,27 +23,110 @@ jobs:
         with:
           python-version: '3.11'
 
-      - name: Translate (Gemini Flash)
-        run: python scripts/sync_translations.py
-
-      - name: QA check
+      - name: Detect untranslated keys
+        id: detect
         run: |
-          python scripts/qa_check.py \
-            --locales locales/latest \
-            --glossary glossary/glossary.json \
-            --output locales/latest/.qa-report.json || true
+          python3 << 'PYEOF'
+          import json, os, re
 
-      - name: Commit
+          LOCALES = os.environ.get("LOCALES_DIR", "locales/latest")
+          LANGS = ["en", "ja", "zh", "zh-TW", "es"]
+
+          ko = json.load(open(f"{LOCALES}/ko.json", encoding="utf-8"))
+          ko_keys = set(ko.keys())
+          print(f"ko: {len(ko_keys)} keys")
+
+          report = {"ko_keys": len(ko_keys), "languages": {}}
+          total_missing = 0
+
+          for lang in LANGS:
+              path = f"{LOCALES}/{lang}.json"
+              if not os.path.exists(path):
+                  report["languages"][lang] = {"keys": 0, "missing": len(ko_keys), "empty": 0}
+                  total_missing += len(ko_keys)
+                  continue
+
+              data = json.load(open(path, encoding="utf-8"))
+              missing = sorted(ko_keys - set(data.keys()))
+              empty = sorted(k for k in data if k in ko_keys and not data[k].strip())
+
+              report["languages"][lang] = {
+                  "keys": len(data),
+                  "missing": len(missing),
+                  "empty": len(empty),
+                  "missing_keys": missing[:20],
+                  "empty_keys": empty[:20],
+              }
+              total_missing += len(missing) + len(empty)
+              if missing or empty:
+                  print(f"{lang}: {len(missing)} missing, {len(empty)} empty")
+
+          report["total_untranslated"] = total_missing
+
+          with open("/tmp/detect-report.json", "w") as f:
+              json.dump(report, f, ensure_ascii=False, indent=2)
+
+          if total_missing == 0:
+              print("All translations complete!")
+          else:
+              print(f"\nTotal untranslated: {total_missing}")
+
+          # Set output for next step
+          with open(os.environ["GITHUB_OUTPUT"], "a") as f:
+              f.write(f"total={total_missing}\n")
+          PYEOF
+
+      - name: Slack notification
+        if: steps.detect.outputs.total != '0'
         run: |
-          git config user.name "i18n-bot"
-          git config user.email "i18n-bot@vcms.dev"
-          git add locales/latest/
-          git diff --cached --quiet || git commit -m "i18n: auto translate $(date +%Y-%m-%d)"
-          git push
+          python3 << 'PYEOF'
+          import json, os, urllib.request
 
-      - name: Slack report
-        env:
-          REPORT_PATH: locales/latest/.sync-report.json
-          QA_REPORT_PATH: locales/latest/.qa-report.json
-          GITHUB_RUN_ID: ${{ github.run_id }}
-        run: python scripts/notify_slack.py
+          TOKEN = os.environ.get("SLACK_BOT_TOKEN", "")
+          CHANNEL = os.environ.get("SLACK_CHANNEL", "")
+          if not TOKEN or not CHANNEL:
+              print("No Slack credentials, skipping notification")
+              exit(0)
+
+          report = json.load(open("/tmp/detect-report.json"))
+          total = report["total_untranslated"]
+
+          lines = [f"*🔍 미번역 키 {total}개 감지*\n"]
+          for lang, info in report["languages"].items():
+              m = info["missing"]
+              e = info["empty"]
+              if m or e:
+                  parts = []
+                  if m: parts.append(f"누락 {m}")
+                  if e: parts.append(f"빈값 {e}")
+                  lines.append(f"  • `{lang}`: {', '.join(parts)}")
+
+          lines.append("\n> Claude Code에서 `미번역 번역해` 로 처리하세요")
+
+          body = json.dumps({
+              "channel": CHANNEL,
+              "text": "\n".join(lines),
+          }).encode()
+
+          req = urllib.request.Request(
+              "https://slack.com/api/chat.postMessage",
+              data=body,
+              headers={
+                  "Authorization": f"Bearer {TOKEN}",
+                  "Content-Type": "application/json",
+              },
+          )
+          try:
+              resp = urllib.request.urlopen(req, timeout=15)
+              data = json.loads(resp.read())
+              if data.get("ok"):
+                  print(f"Slack notified: {total} untranslated keys")
+              else:
+                  print(f"Slack error: {data.get('error')}")
+          except Exception as e:
+              print(f"Slack failed: {e}")
+          PYEOF
+
+      - name: All clear
+        if: steps.detect.outputs.total == '0'
+        run: echo "✅ All translations complete — nothing to do"
