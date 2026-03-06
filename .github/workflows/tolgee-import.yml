@@ -128,8 +128,11 @@ jobs:
           for u in updates:
               by_key[u['key']][u['lang']] = u['text']
 
-          if len(by_key) > 200:
-              print(f'WARNING: {len(by_key)} keys to update. Consider using tolgee-bulk-import workflow instead.')
+          MAX_KEYS = 200
+          if len(by_key) > MAX_KEYS:
+              print(f'BLOCKED: {len(by_key)} keys exceeds limit ({MAX_KEYS}).')
+              print(f'Use tolgee-bulk-import workflow for large updates.')
+              exit(1)
 
           success = 0
           failed = 0
@@ -144,7 +147,7 @@ jobs:
                           success += 1
                           break
                       elif r.status_code == 503:
-                          wait = 5 * (attempt + 1)
+                          wait = 10 * (attempt + 1)
                           print(f'  503 on {key}, retry in {wait}s...')
                           time.sleep(wait)
                       else:
@@ -158,9 +161,10 @@ jobs:
                           failed += 1
                           print(f'  ERROR: {key} - {e}')
 
+              # Rate limit: 0.3s between requests to avoid 503
+              time.sleep(0.3)
               if (i + 1) % 50 == 0:
                   print(f'  Progress: {i+1}/{len(by_key)} (ok: {success}, fail: {failed})')
-                  time.sleep(0.5)
 
           print(f'Done! Success: {success}, Failed: {failed}')
           PYEOF
