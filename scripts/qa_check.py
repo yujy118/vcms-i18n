@@ -12,6 +12,7 @@ WARNING = 'WARNING'
 LENGTH_RATIO_THRESHOLDS = {
     'ja': 1.8,
     'zh': 1.5,
+    'zh-TW': 1.5,
     'zh-CN': 1.5,
 }
 LENGTH_RATIO_SKIP_LANGS = {'en', 'es'}
