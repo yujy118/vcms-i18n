@@ -60,11 +60,11 @@
   "DATE_FORMAT.V_HOURS_FULL": "H",
   "DATE_FORMAT.V_HOURS_MONTH_FULL": "Hora mm minutos",
   "DATE_FORMAT.V_MINUTE_SECONDS_FULL": "mm'min' ss'seg'",
-  "DATE_FORMAT.V_MONTH_DAY_MED": "M. d",
+  "DATE_FORMAT.V_MONTH_DAY_MED": "d/M",
   "DATE_FORMAT.V_MONTH_DAY_UNIT_MED": "MMM d",
   "DATE_FORMAT.V_MONTH_DAY_WEEKDAY_FULL": "dd/MM (ccc)",
   "DATE_FORMAT.V_MONTH_DAY_WEEKDAY_LARGE": "dd/MM/yyyy (ccc)",
-  "DATE_FORMAT.V_MONTH_DAY_WEEKDAY_MED": "M. d(ccc)",
+  "DATE_FORMAT.V_MONTH_DAY_WEEKDAY_MED": "d/M(ccc)",
   "DATE_FORMAT.V_MONTH_MED": "M",
   "DATE_FORMAT.V_MONTH_SHORT": "MMM",
   "DATE_FORMAT.V_WEEKDAY_MED": "EEE",
@@ -2652,5 +2652,13 @@
   "판매 중지": "Parada de ventas",
   "판매 중지‌‌‍‍‌‌‌‍‌‌‌‍‍‌‌‍‌‌‌‌‍‍‍‌‌‌‌‌‌‌‌‍‌‍‌‌‌‌‍‍‍‌‌‍‌‌‌‍‍‌‍‍‌‌‌‌‌‌‍‌‍‌‌‌‌‍‍‍‌‌‍‌‌‌‍‍‌‍‍‌‌‌‌‌‌‍‌‍‌‌": "Parada de ventas",
   "판매 중지‌‌‍‍‌‌‍‍‌‌‌‍‍‍‌‌‍‌‌‌‌‌‍‌‍‌‌‌‌‍‍‌‌‍‍‌‌‌‍‍‍‌‌‍‌‌‌‌‌‍‌‍‌‌": "Parada de ventas",
-  "판매 중지‌‌‍‍‌‍‍‌‌‌‌‍‍‌‍‌‍‌‌‌‍‍‌‍‌‌‌‌‌‌‌‍‌‍‌‌‌‌‍‍‌‍‍‌‌‌‌‍‍‌‍‌‍‌‌‌‍‍‌‍‌‌‌‌‌‌‌‍‌‍‌‌": "Parada de ventas"
+  "판매 중지‌‌‍‍‌‍‍‌‌‌‌‍‍‌‍‌‍‌‌‌‍‍‌‍‌‌‌‌‌‌‌‍‌‍‌‌‌‌‍‍‌‍‍‌‌‌‌‍‍‌‍‌‍‌‌‌‍‍‌‍‌‌‌‌‌‌‌‍‌‍‌‌": "Parada de ventas",
+  "billing-discount.earlybird-discount": "Descuento para early adopters",
+  "billing-discount.influencer-discount": "Descuento por referencia de influencer",
+  "billing-discount.multi-accommodation-discount": "Descuento multi-propiedad",
+  "billing-discount.room-amount-discount": "Descuento por volumen de habitaciones",
+  "billing-discount.vcloud-discount": "Descuento por paquete VCloud",
+  "billing-discount.vkiosk-discount": "Descuento por paquete de kiosco",
+  "billing-discounts-modal.header": "Descuentos de suscripción",
+  "billing-discounts-modal.title": "Descuentos"
 }

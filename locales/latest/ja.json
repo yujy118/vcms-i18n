@@ -60,7 +60,7 @@
   "DATE_FORMAT.V_HOURS_FULL": "H'シ'",
   "DATE_FORMAT.V_HOURS_MONTH_FULL": "H時 mm分",
   "DATE_FORMAT.V_MINUTE_SECONDS_FULL": "分 秒",
-  "DATE_FORMAT.V_MONTH_DAY_MED": "M. d",
+  "DATE_FORMAT.V_MONTH_DAY_MED": "M/d",
   "DATE_FORMAT.V_MONTH_DAY_UNIT_MED": "M月 d日",
   "DATE_FORMAT.V_MONTH_DAY_WEEKDAY_FULL": "MM/dd (ccc)",
   "DATE_FORMAT.V_MONTH_DAY_WEEKDAY_LARGE": "MM月dd日 (ccc)",
@@ -1031,7 +1031,7 @@
   "confirm-invitation.error": "招待の受諾に失敗しました。",
   "confirm-invitation.success": "招待が正常に受け入れられました。",
   "connect-channel.channel-packages.title": "<primary>{name}</primary> チャンネルの商品を読み込んでいます。",
-  "country-code.KR": "韓国人民共和国",
+  "country-code.KR": "韓国",
   "country-code.placeholder": "国",
   "country-code.search.placeholder": "国を検索",
   "crate-ratePlan.success": "料金情報を保存しました。",
@@ -2652,5 +2652,13 @@
   "판매 중지": "販売停止",
   "판매 중지‌‌‍‍‌‌‌‍‌‌‌‍‍‌‌‍‌‌‌‌‍‍‍‌‌‌‌‌‌‌‌‍‌‍‌‌‌‌‍‍‍‌‌‍‌‌‌‍‍‌‍‍‌‌‌‌‌‌‍‌‍‌‌‌‌‍‍‍‌‌‍‌‌‌‍‍‌‍‍‌‌‌‌‌‌‍‌‍‌‌": "販売停止",
   "판매 중지‌‌‍‍‌‌‍‍‌‌‌‍‍‍‌‌‍‌‌‌‌‌‍‌‍‌‌‌‌‍‍‌‌‍‍‌‌‌‍‍‍‌‌‍‌‌‌‌‌‍‌‍‌‌": "販売停止",
-  "판매 중지‌‌‍‍‌‍‍‌‌‌‌‍‍‌‍‌‍‌‌‌‍‍‌‍‌‌‌‌‌‌‌‍‌‍‌‌‌‌‍‍‌‍‍‌‌‌‌‍‍‌‍‌‍‌‌‌‍‍‌‍‌‌‌‌‌‌‌‍‌‍‌‌": "販売停止"
+  "판매 중지‌‌‍‍‌‍‍‌‌‌‌‍‍‌‍‌‍‌‌‌‍‍‌‍‌‌‌‌‌‌‌‍‌‍‌‌‌‌‍‍‌‍‍‌‌‌‌‍‍‌‍‌‍‌‌‌‍‍‌‍‌‌‌‌‌‌‌‍‌‍‌‌": "販売停止",
+  "billing-discount.earlybird-discount": "アーリーアダプター割引",
+  "billing-discount.influencer-discount": "インフルエンサー紹介割引",
+  "billing-discount.multi-accommodation-discount": "多拠点割引",
+  "billing-discount.room-amount-discount": "客室規模別割引",
+  "billing-discount.vcloud-discount": "VCloud セット割引",
+  "billing-discount.vkiosk-discount": "キオスク セット割引",
+  "billing-discounts-modal.header": "サブスクリプション割引",
+  "billing-discounts-modal.title": "割引"
 }

@@ -1031,7 +1031,7 @@
   "confirm-invitation.error": "Failed to accept the invitation.\n",
   "confirm-invitation.success": "Invitation accepted successfully.\n",
   "connect-channel.channel-packages.title": "Loading <primary>{name}</primary> channel package.",
-  "country-code.KR": "대한민국",
+  "country-code.KR": "South Korea",
   "country-code.placeholder": "Country",
   "country-code.search.placeholder": "Search for country",
   "crate-ratePlan.success": "Rate plan saved.",
@@ -2652,5 +2652,13 @@
   "판매 중지": "Stop sell",
   "판매 중지‌‌‍‍‌‌‌‍‌‌‌‍‍‌‌‍‌‌‌‌‍‍‍‌‌‌‌‌‌‌‌‍‌‍‌‌‌‌‍‍‍‌‌‍‌‌‌‍‍‌‍‍‌‌‌‌‌‌‍‌‍‌‌‌‌‍‍‍‌‌‍‌‌‌‍‍‌‍‍‌‌‌‌‌‌‍‌‍‌‌": "Stop Sell",
   "판매 중지‌‌‍‍‌‌‍‍‌‌‌‍‍‍‌‌‍‌‌‌‌‌‍‌‍‌‌‌‌‍‍‌‌‍‍‌‌‌‍‍‍‌‌‍‌‌‌‌‌‍‌‍‌‌": "Stop sell",
-  "판매 중지‌‌‍‍‌‍‍‌‌‌‌‍‍‌‍‌‍‌‌‌‍‍‌‍‌‌‌‌‌‌‌‍‌‍‌‌‌‌‍‍‌‍‍‌‌‌‌‍‍‌‍‌‍‌‌‌‍‍‌‍‌‌‌‌‌‌‌‍‌‍‌‌": "Stop Sell"
+  "판매 중지‌‌‍‍‌‍‍‌‌‌‌‍‍‌‍‌‍‌‌‌‍‍‌‍‌‌‌‌‌‌‌‍‌‍‌‌‌‌‍‍‌‍‍‌‌‌‌‍‍‌‍‌‍‌‌‌‍‍‌‍‌‌‌‌‌‌‌‍‌‍‌‌": "Stop Sell",
+  "billing-discount.earlybird-discount": "Early Adopter Discount",
+  "billing-discount.influencer-discount": "Influencer Referral Discount",
+  "billing-discount.multi-accommodation-discount": "Multi-Property Discount",
+  "billing-discount.room-amount-discount": "Room Volume Discount",
+  "billing-discount.vcloud-discount": "VCloud Bundle Discount",
+  "billing-discount.vkiosk-discount": "Kiosk Bundle Discount",
+  "billing-discounts-modal.header": "Subscription Discounts",
+  "billing-discounts-modal.title": "Discounts"
 }
