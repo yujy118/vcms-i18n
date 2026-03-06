@@ -191,7 +191,7 @@ jobs:
               if b == 0 and w == 0: continue
               label = CHECK_LABELS.get(chk, chk)
               if b > 0:
-                  block_lines.append(f"{label}: *{b}*\uac74")
+                  block_lines.append(f"{label}: {b}\uac74")
               if w > 0:
                   warn_lines.append(f"{label}: {w}\uac74")
 
@@ -232,7 +232,7 @@ jobs:
               {"type": "header", "text": {"type": "plain_text", "text": f"{status} i18n QA \uacb0\uacfc{source_tag}", "emoji": True}},
               {"type": "section", "text": {"type": "mrkdwn", "text": (
                   f"*\ucd1d \ud0a4:* {total_keys}\uac1c | *\ubbf8\ubc88\uc5ed:* {total_missing}\uac74\n"
-                  f"*QA:* \U0001f6ab BLOCK *{blocks_count}*\uac74 | \u26a0\ufe0f WARNING {warns_count}\uac74\n\n"
+                  f"*QA:* \U0001f6ab BLOCK {blocks_count}\uac74 | \u26a0\ufe0f WARNING {warns_count}\uac74\n\n"
                   f"{lang_line}"
               )}},
               {"type": "divider"},
