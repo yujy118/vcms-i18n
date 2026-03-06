@@ -246,7 +246,7 @@ jobs:
           main_ts = resp.json().get("ts", "")
           print(f"Main posted: {main_ts}")
 
-          if total_missing == 0 and blocks_count == 0:
+          if total_missing == 0 and blocks_count == 0 and warns_count == 0:
               print("All clear"); exit(0)
 
           # ===== THREAD: BLOCK details (ALL items, split into multiple messages) =====
